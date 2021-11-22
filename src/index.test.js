@@ -4,6 +4,7 @@
 import { createClient } from "@propelauth/javascript"
 import { render, screen, waitFor } from "@testing-library/react"
 import React from "react"
+import { SWRConfig } from "swr"
 import { v4 as uuidv4 } from "uuid"
 import { AuthProvider } from "./AuthContext"
 import { useLogoutFunction } from "./useLogoutFunction"
@@ -38,14 +39,16 @@ it("withAuthInfo fails to render if not in an AuthProvider", async () => {
     const Component = (props) => <div>Finished</div>
     const WrappedComponent = withAuthInfo(Component)
     expect(() => {
-        render(<WrappedComponent />)
+        renderWithEmptyCache(<WrappedComponent />)
     }).toThrowError()
 })
 
 it("successfully renders withAuthInfo if in an AuthProvider", async () => {
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(null)
+
     const Component = (props) => <div>Finished</div>
     const WrappedComponent = withAuthInfo(Component)
-    render(
+    renderWithEmptyCache(
         <AuthProvider authUrl={AUTH_URL}>
             <WrappedComponent />
         </AuthProvider>
@@ -80,7 +83,7 @@ it("withAuthInfo passes values from client as props", async () => {
     }
 
     const WrappedComponent = withAuthInfo(Component)
-    render(
+    renderWithEmptyCache(
         <AuthProvider authUrl={AUTH_URL}>
             <WrappedComponent />
         </AuthProvider>
@@ -102,7 +105,7 @@ it("withAuthInfo passes logged out values from client as props", async () => {
     }
 
     const WrappedComponent = withAuthInfo(Component)
-    render(
+    renderWithEmptyCache(
         <AuthProvider authUrl={AUTH_URL}>
             <WrappedComponent />
         </AuthProvider>
@@ -118,7 +121,7 @@ it("redirectToLoginPage calls into the client", async () => {
         redirectToLoginPage()
         return <div>Finished</div>
     }
-    render(
+    renderWithEmptyCache(
         <AuthProvider authUrl={AUTH_URL}>
             <Component />
         </AuthProvider>
@@ -133,7 +136,7 @@ it("redirectToSignupPage calls into the client", async () => {
         redirectToSignupPage()
         return <div>Finished</div>
     }
-    render(
+    renderWithEmptyCache(
         <AuthProvider authUrl={AUTH_URL}>
             <Component />
         </AuthProvider>
@@ -148,7 +151,7 @@ it("redirectToCreateOrgPage calls into the client", async () => {
         redirectToCreateOrgPage()
         return <div>Finished</div>
     }
-    render(
+    renderWithEmptyCache(
         <AuthProvider authUrl={AUTH_URL}>
             <Component />
         </AuthProvider>
@@ -163,7 +166,7 @@ it("redirectToAccountPage calls into the client", async () => {
         redirectToAccountPage()
         return <div>Finished</div>
     }
-    render(
+    renderWithEmptyCache(
         <AuthProvider authUrl={AUTH_URL}>
             <Component />
         </AuthProvider>
@@ -178,7 +181,7 @@ it("redirectToOrgPage calls into the client", async () => {
         redirectToOrgPage("orgId")
         return <div>Finished</div>
     }
-    render(
+    renderWithEmptyCache(
         <AuthProvider authUrl={AUTH_URL}>
             <Component />
         </AuthProvider>
@@ -193,7 +196,7 @@ it("logout calls into the client", async () => {
         logout(false)
         return <div>Finished</div>
     }
-    render(
+    renderWithEmptyCache(
         <AuthProvider authUrl={AUTH_URL}>
             <Component />
         </AuthProvider>
@@ -210,7 +213,7 @@ it("when client logs out, authInfo is refreshed", async () => {
     Component.mockReturnValue(<div>Finished 1</div>)
 
     const WrappedComponent = withAuthInfo(Component)
-    render(
+    renderWithEmptyCache(
         <AuthProvider authUrl={AUTH_URL}>
             <WrappedComponent />
         </AuthProvider>
@@ -248,7 +251,7 @@ it("withAuthInfo renders loading correctly", async () => {
         () => new Promise((resolve) => setTimeout(() => resolve(authInfo), 100))
     )
 
-    render(
+    renderWithEmptyCache(
         <AuthProvider authUrl={AUTH_URL}>
             <WrappedComponent />
         </AuthProvider>
@@ -281,6 +284,10 @@ const AUTH_URL = "authUrl"
 
 function expectCreateClientWasCalledCorrectly() {
     expect(createClient).toHaveBeenCalledWith({ authUrl: AUTH_URL, enableBackgroundTokenRefresh: false })
+}
+
+function renderWithEmptyCache(children) {
+    render(<SWRConfig value={{ provider: () => new Map() }}>{children}</SWRConfig>)
 }
 
 function createOrg() {

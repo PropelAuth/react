@@ -1,5 +1,6 @@
 import { AuthenticationInfo, createClient } from "@propelauth/javascript"
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
+import React, { useCallback, useEffect, useMemo, useState } from "react"
+import useSWR, { useSWRConfig } from "swr"
 
 interface InternalAuthState {
     loading: boolean
@@ -25,33 +26,13 @@ export type AuthProviderProps = {
 
 export const AuthContext = React.createContext<InternalAuthState | undefined>(undefined)
 
-type AuthInfoState = {
-    loading: boolean
-    authInfo: AuthenticationInfo | null
-}
-
-const initialAuthInfoState: AuthInfoState = {
-    loading: true,
-    authInfo: null,
-}
-
-type AuthInfoStateAction = {
-    authInfo: AuthenticationInfo | null
-}
-
-function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction): AuthInfoState {
-    return {
-        loading: false,
-        authInfo: action.authInfo,
-    }
-}
-
 export const AuthProvider = (props: AuthProviderProps) => {
-    const [authInfoState, dispatch] = useReducer(authInfoStateReducer, initialAuthInfoState)
-    const [heartbeatCounter, setHeartbeatCounter] = useState<number>(0)
     const [userSelectedOrgId, setUserSelectedOrgId] = useState<string | null>(null)
+    const { mutate } = useSWRConfig()
 
-    const triggerRefreshAuthentication = () => setHeartbeatCounter((x) => x + 1)
+    const triggerRefreshAuthentication = useCallback(async () => {
+        return await mutate(props.authUrl)
+    }, [props.authUrl])
 
     // Create client and register observer
     const client = useMemo(() => {
@@ -68,57 +49,28 @@ export const AuthProvider = (props: AuthProviderProps) => {
         }
     }, [])
 
-    // Periodically refresh the token. The client will only make requests when the authInfo is stale
-    // Errors are logged and the token will be invalidated separately
-    useEffect(() => {
-        let didCancel = false
-
-        async function refreshToken() {
-            try {
-                const authInfo = await client.getAuthenticationInfoOrNull()
-                if (!didCancel) {
-                    dispatch({ authInfo })
-                }
-            } catch (err) {
-                console.error("Authentication error", err)
-            }
+    const { data: authInfo, error } = useSWR(
+        client ? props.authUrl : null,
+        () => client.getAuthenticationInfoOrNull(true),
+        {
+            refreshInterval: 10 * 60 * 1000,
+            refreshWhenHidden: true,
+            revalidateOnMount: true,
         }
+    )
 
-        refreshToken()
-        return () => {
-            didCancel = true
-        }
-    }, [client, heartbeatCounter])
+    const logout = useCallback(client.logout, [client])
+    const redirectToLoginPage = useCallback(client.redirectToLoginPage, [client])
+    const redirectToSignupPage = useCallback(client.redirectToSignupPage, [client])
+    const redirectToAccountPage = useCallback(client.redirectToAccountPage, [client])
+    const redirectToOrgPage = useCallback(client.redirectToOrgPage, [client])
+    const redirectToCreateOrgPage = useCallback(client.redirectToCreateOrgPage, [client])
+    const loading = authInfo === undefined && !error
 
-    useEffect(() => {
-        const interval = setInterval(triggerRefreshAuthentication, 60000)
-        return () => clearInterval(interval)
-    }, [])
-
-    // Watchdog timer to make sure that if we hit the expiration we get rid of the token.
-    // This should only be triggered if we are unable to get a new token due to an unexpected error/network timeouts.
-    useEffect(() => {
-        if (!authInfoState.authInfo) {
-            return
-        }
-        const millisUntilTokenExpires = getMillisUntilTokenExpires(authInfoState.authInfo.expiresAtSeconds)
-        const timeout = setTimeout(() => {
-            dispatch({ authInfo: null })
-        }, millisUntilTokenExpires)
-
-        return () => clearTimeout(timeout)
-    }, [authInfoState.authInfo?.expiresAtSeconds])
-
-    const logout = useCallback(client.logout, [])
-    const redirectToLoginPage = useCallback(client.redirectToLoginPage, [])
-    const redirectToSignupPage = useCallback(client.redirectToSignupPage, [])
-    const redirectToAccountPage = useCallback(client.redirectToAccountPage, [])
-    const redirectToOrgPage = useCallback(client.redirectToOrgPage, [])
-    const redirectToCreateOrgPage = useCallback(client.redirectToCreateOrgPage, [])
     const value = {
-        loading: authInfoState.loading,
+        loading,
         triggerRefreshAuthentication,
-        authInfo: authInfoState.authInfo,
+        authInfo: authInfo || null,
         logout,
         userSelectedOrgId,
         selectOrgId: setUserSelectedOrgId,
@@ -129,9 +81,4 @@ export const AuthProvider = (props: AuthProviderProps) => {
         redirectToCreateOrgPage,
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
-}
-
-function getMillisUntilTokenExpires(expiresAtSeconds: number): number {
-    let millisUntilTokenExpires = expiresAtSeconds * 1000 - Date.now()
-    return Math.max(0, millisUntilTokenExpires)
 }
