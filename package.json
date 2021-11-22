@@ -1,5 +1,6 @@
 {
   "name": "@propelauth/react",
+  "description": "A React library for managing authentication, backed by PropelAuth",
   "repository": {
     "type": "git",
     "url": "https://github.com/PropelAuth/react"
