@@ -97,6 +97,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
 
     // Watchdog timer to make sure that if we hit the expiration we get rid of the token.
     // This should only be triggered if we are unable to get a new token due to an unexpected error/network timeouts.
+    const expiresAtSeconds = authInfoState.authInfo ? authInfoState.authInfo.expiresAtSeconds : 0;
     useEffect(() => {
         if (!authInfoState.authInfo) {
             return
@@ -107,7 +108,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
         }, millisUntilTokenExpires)
 
         return () => clearTimeout(timeout)
-    }, [authInfoState.authInfo?.expiresAtSeconds])
+    }, [expiresAtSeconds])
 
     const logout = useCallback(client.logout, [])
     const redirectToLoginPage = useCallback(client.redirectToLoginPage, [])
