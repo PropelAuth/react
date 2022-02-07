@@ -6,6 +6,7 @@ import { render, screen, waitFor } from "@testing-library/react"
 import React from "react"
 import { v4 as uuidv4 } from "uuid"
 import { AuthProvider } from "./AuthContext"
+import { useAuthInfo } from "./useAuthInfo"
 import { useLogoutFunction } from "./useLogoutFunction"
 import { useRedirectFunctions } from "./useRedirectFunctions"
 import { withAuthInfo } from "./withAuthInfo"
@@ -90,6 +91,45 @@ it("withAuthInfo passes values from client as props", async () => {
     expectCreateClientWasCalledCorrectly()
 })
 
+it("useAuthInfo passes values correctly", async () => {
+    const accessToken = randomString()
+    const orgA = createOrg()
+    const orgB = createOrg()
+    const user = createUser()
+    const authenticationInfo = {
+        accessToken,
+        expiresAtSeconds: INITIAL_TIME_SECONDS + 30 * 60,
+        orgIdToOrgMemberInfo: {
+            [orgA.orgId]: orgA,
+            [orgB.orgId]: orgB,
+        },
+        user,
+    }
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(authenticationInfo)
+
+    const Component = () => {
+        const authInfo = useAuthInfo()
+        if (authInfo.loading) {
+            return <div>Loading...</div>
+        } else {
+            expect(authInfo.accessToken).toBe(accessToken)
+            expect(authInfo.user).toStrictEqual(user)
+            expect(authInfo.isLoggedIn).toBe(true)
+            expect(authInfo.orgHelper.getOrgs().sort()).toEqual([orgA, orgB].sort())
+            return <div>Finished</div>
+        }
+    }
+
+    render(
+        <AuthProvider authUrl={AUTH_URL}>
+            <Component />
+        </AuthProvider>
+    )
+
+    await waitFor(() => screen.getByText("Finished"))
+    expectCreateClientWasCalledCorrectly()
+})
+
 it("withAuthInfo passes logged out values from client as props", async () => {
     mockClient.getAuthenticationInfoOrNull.mockReturnValue(null)
 
@@ -105,6 +145,32 @@ it("withAuthInfo passes logged out values from client as props", async () => {
     render(
         <AuthProvider authUrl={AUTH_URL}>
             <WrappedComponent />
+        </AuthProvider>
+    )
+
+    await waitFor(() => screen.getByText("Finished"))
+    expectCreateClientWasCalledCorrectly()
+})
+
+it("useAuthInfo passes logged out values from client as props", async () => {
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(null)
+
+    const Component = () => {
+        const authInfo = useAuthInfo()
+        if (authInfo.loading) {
+            return <div>Loading...</div>
+        } else {
+            expect(authInfo.accessToken).toBe(null)
+            expect(authInfo.user).toBe(null)
+            expect(authInfo.isLoggedIn).toBe(false)
+            expect(authInfo.orgHelper).toBe(null)
+            return <div>Finished</div>
+        }
+    }
+
+    render(
+        <AuthProvider authUrl={AUTH_URL}>
+            <Component />
         </AuthProvider>
     )
 
