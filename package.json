@@ -5,7 +5,7 @@
     "type": "git",
     "url": "https://github.com/PropelAuth/react"
   },
-  "version": "1.2.2",
+  "version": "1.2.3",
   "license": "MIT",
   "keywords": [
     "auth",
