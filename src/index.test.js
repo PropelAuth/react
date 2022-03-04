@@ -353,7 +353,7 @@ function createOrg() {
     return {
         orgId: uuidv4(),
         orgName: randomString(),
-        userRole: choose(["Owner", "Admin", "Member"]),
+        userRoleName: choose(["Owner", "Admin", "Member"]),
     }
 }
 

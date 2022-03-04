@@ -1,4 +1,3 @@
-export { UserRole } from "@propelauth/javascript"
 export type { OrgIdToOrgMemberInfo, OrgMemberInfo, User } from "@propelauth/javascript"
 export { AuthProvider } from "./AuthContext"
 export type { AuthProviderProps } from "./AuthContext"
