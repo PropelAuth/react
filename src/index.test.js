@@ -5,11 +5,12 @@ import { createClient } from "@propelauth/javascript"
 import { render, screen, waitFor } from "@testing-library/react"
 import React from "react"
 import { v4 as uuidv4 } from "uuid"
-import { AuthProvider } from "./AuthContext"
+import { AuthProvider, RequiredAuthProvider } from "./AuthContext"
 import { useAuthInfo } from "./useAuthInfo"
 import { useLogoutFunction } from "./useLogoutFunction"
 import { useRedirectFunctions } from "./useRedirectFunctions"
 import { withAuthInfo } from "./withAuthInfo"
+import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
 // Fake timer setup
 beforeAll(() => {
@@ -123,6 +124,96 @@ it("useAuthInfo passes values correctly", async () => {
     render(
         <AuthProvider authUrl={AUTH_URL}>
             <Component />
+        </AuthProvider>
+    )
+
+    await waitFor(() => screen.getByText("Finished"))
+    expectCreateClientWasCalledCorrectly()
+})
+
+it("withAuthInfo passes values from client as props, with RequiredAuthProvider", async () => {
+    const authenticationInfo = createAuthenticationInfo()
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(authenticationInfo)
+
+    const Component = (props) => {
+        expect(props.accessToken).toBe(authenticationInfo.accessToken)
+        expect(props.user).toStrictEqual(authenticationInfo.user)
+        expect(props.isLoggedIn).toBe(true)
+        expect(props.orgHelper.getOrgs().sort()).toEqual(Object.values(authenticationInfo.orgIdToOrgMemberInfo).sort())
+        return <div>Finished</div>
+    }
+
+    const WrappedComponent = withAuthInfo(Component)
+    render(
+        <RequiredAuthProvider authUrl={AUTH_URL}>
+            <WrappedComponent />
+        </RequiredAuthProvider>
+    )
+
+    await waitFor(() => screen.getByText("Finished"))
+    expectCreateClientWasCalledCorrectly()
+})
+
+it("withRequiredAuthInfo passes values from client as props, with RequiredAuthProvider", async () => {
+    const authenticationInfo = createAuthenticationInfo()
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(authenticationInfo)
+
+    const Component = (props) => {
+        expect(props.accessToken).toBe(authenticationInfo.accessToken)
+        expect(props.user).toStrictEqual(authenticationInfo.user)
+        expect(props.isLoggedIn).toBe(true)
+        expect(props.orgHelper.getOrgs().sort()).toEqual(Object.values(authenticationInfo.orgIdToOrgMemberInfo).sort())
+        return <div>Finished</div>
+    }
+
+    const WrappedComponent = withRequiredAuthInfo(Component)
+    render(
+        <RequiredAuthProvider authUrl={AUTH_URL}>
+            <WrappedComponent />
+        </RequiredAuthProvider>
+    )
+
+    await waitFor(() => screen.getByText("Finished"))
+    expectCreateClientWasCalledCorrectly()
+})
+
+it("RequiredAuthProvider displays logged out value if logged out", async () => {
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(null)
+
+    const ErrorComponent = () => {
+        return <div>Error</div>
+    }
+    const SuccessComponent = () => {
+        return <div>Finished</div>
+    }
+
+    const WrappedComponent = withAuthInfo(ErrorComponent)
+    render(
+        <RequiredAuthProvider authUrl={AUTH_URL} displayIfLoggedOut={<SuccessComponent />}>
+            <WrappedComponent />
+        </RequiredAuthProvider>
+    )
+
+    await waitFor(() => screen.getByText("Finished"))
+    expectCreateClientWasCalledCorrectly()
+})
+
+it("withRequiredAuthInfo displays logged out value if logged out", async () => {
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(null)
+
+    const ErrorComponent = () => {
+        return <div>Error</div>
+    }
+    const SuccessComponent = () => {
+        return <div>Finished</div>
+    }
+
+    const WrappedComponent = withRequiredAuthInfo(ErrorComponent, {
+        displayIfLoggedOut: <SuccessComponent />,
+    })
+    render(
+        <AuthProvider authUrl={AUTH_URL}>
+            <WrappedComponent />
         </AuthProvider>
     )
 

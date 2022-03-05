@@ -34,7 +34,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
     const WithAuthInfoWrapper = (props: Subtract<P, WithAuthInfoProps>) => {
         const context = useContext(AuthContext)
         if (context === undefined) {
-            throw new Error("withAuthInfo must be used within an AuthProvider")
+            throw new Error("withAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
         }
 
         function displayLoading() {

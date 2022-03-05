@@ -4,7 +4,7 @@ import { AuthContext } from "./AuthContext"
 export function useRedirectFunctions() {
     const context = useContext(AuthContext)
     if (context === undefined) {
-        throw new Error("useRedirectFunctions must be used within an AuthProvider")
+        throw new Error("useRedirectFunctions must be used within an AuthProvider or RequiredAuthProvider")
     }
     const {
         redirectToAccountPage,

@@ -28,7 +28,7 @@ export type UseAuthInfoProps = UseAuthInfoLoading | UseAuthInfoLoggedInProps | U
 export function useAuthInfo(): UseAuthInfoProps {
     const context = useContext(AuthContext)
     if (context === undefined) {
-        throw new Error("useAuthInfo must be used within an AuthProvider")
+        throw new Error("useAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
     }
 
     const { loading, authInfo, selectOrgId, userSelectedOrgId } = context

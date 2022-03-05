@@ -1,5 +1,6 @@
 import { AuthenticationInfo, createClient } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
+import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
 interface InternalAuthState {
     loading: boolean
@@ -21,6 +22,11 @@ interface InternalAuthState {
 export type AuthProviderProps = {
     authUrl: string
     children?: React.ReactNode
+}
+
+export interface RequiredAuthProviderProps extends AuthProviderProps {
+    displayWhileLoading?: React.ReactElement
+    displayIfLoggedOut?: React.ReactElement
 }
 
 export const AuthContext = React.createContext<InternalAuthState | undefined>(undefined)
@@ -79,8 +85,8 @@ export const AuthProvider = (props: AuthProviderProps) => {
                 if (!didCancel) {
                     dispatch({ authInfo })
                 }
-            } catch (err) {
-                console.error("Authentication error", err)
+            } catch (_) {
+                // Exceptions are logged in the JS library
             }
         }
 
@@ -97,7 +103,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
 
     // Watchdog timer to make sure that if we hit the expiration we get rid of the token.
     // This should only be triggered if we are unable to get a new token due to an unexpected error/network timeouts.
-    const expiresAtSeconds = authInfoState.authInfo ? authInfoState.authInfo.expiresAtSeconds : 0;
+    const expiresAtSeconds = authInfoState.authInfo ? authInfoState.authInfo.expiresAtSeconds : 0
     useEffect(() => {
         if (!authInfoState.authInfo) {
             return
@@ -130,6 +136,23 @@ export const AuthProvider = (props: AuthProviderProps) => {
         redirectToCreateOrgPage,
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
+}
+
+export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
+    const WrappedComponent = withRequiredAuthInfo(
+        (props: RequiredAuthProviderProps) => {
+            return <React.Fragment>{props.children}</React.Fragment>
+        },
+        {
+            displayWhileLoading: props.displayWhileLoading,
+            displayIfLoggedOut: props.displayIfLoggedOut,
+        }
+    )
+    return (
+        <AuthProvider authUrl={props.authUrl}>
+            <WrappedComponent {...props} />
+        </AuthProvider>
+    )
 }
 
 function getMillisUntilTokenExpires(expiresAtSeconds: number): number {
