@@ -140,7 +140,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
 
 export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
     const WrappedComponent = withRequiredAuthInfo(
-        (props: RequiredAuthProviderProps) => {
+        () => {
             return <React.Fragment>{props.children}</React.Fragment>
         },
         {
