@@ -4,19 +4,20 @@ import { Subtract } from "utility-types"
 import { AuthContext } from "./AuthContext"
 import { getOrgHelper } from "./OrgHelper"
 import { RedirectToLogin } from "./useRedirectFunctions"
+import { WithLoggedInAuthInfoProps } from "./withAuthInfo"
 
 export interface WithRequiredAuthInfoArgs {
     displayWhileLoading?: React.ReactElement
     displayIfLoggedOut?: React.ReactElement
 }
 
-export function withRequiredAuthInfo<P extends WithRequiredAuthInfoArgs>(
+export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
     Component: React.ComponentType<P>,
     args?: WithRequiredAuthInfoArgs
-): React.ComponentType<Subtract<P, WithRequiredAuthInfoArgs>> {
+): React.ComponentType<Subtract<P, WithLoggedInAuthInfoProps>> {
     const displayName = `withRequiredAuthInfo(${Component.displayName || Component.name || "Component"})`
 
-    const WithRequiredAuthInfoWrapper = (props: Subtract<P, WithRequiredAuthInfoArgs>) => {
+    const WithRequiredAuthInfoWrapper = (props: Subtract<P, WithLoggedInAuthInfoProps>) => {
         const context = useContext(AuthContext)
         if (context === undefined) {
             throw new Error("withRequiredAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
