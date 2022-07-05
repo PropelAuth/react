@@ -31,8 +31,8 @@ afterEach(() => {
 
 it("getter methods work", async () => {
     const orgs = createOrgs(10)
-    const orgIdToOrgMemberInfo = createOrgIdToOrgMemberInfo(orgs)
-    const orgHelper = getOrgHelper(orgIdToOrgMemberInfo, jest.fn(), null)
+    const jsOrgHelper = createJsOrgHelper(orgs)
+    const orgHelper = getOrgHelper(jsOrgHelper, jest.fn(), null)
 
     // Positive cases
     for (let org of orgs) {
@@ -53,9 +53,9 @@ it("getter methods work", async () => {
 
 it("selecting an org calls into the provided function and local storage", async () => {
     const orgs = createOrgs(2)
-    const orgIdToOrgMemberInfo = createOrgIdToOrgMemberInfo(orgs)
+    const jsOrgHelper = createJsOrgHelper(orgs)
     const selectOrgFn = jest.fn()
-    const orgHelper = getOrgHelper(orgIdToOrgMemberInfo, selectOrgFn, null)
+    const orgHelper = getOrgHelper(jsOrgHelper, selectOrgFn, null)
 
     orgHelper.selectOrg(orgs[0].orgId)
     expect(localStorage.getItem(ORG_SELECTION_LOCAL_STORAGE_KEY)).toEqual(orgs[0].orgId)
@@ -68,24 +68,24 @@ it("selecting an org calls into the provided function and local storage", async 
 
 it("getSelectedOrg returns the selected org", async () => {
     const orgs = createOrgs(2)
-    const orgIdToOrgMemberInfo = createOrgIdToOrgMemberInfo(orgs)
-    const orgHelper = getOrgHelper(orgIdToOrgMemberInfo, jest.fn(), orgs[1].orgId)
+    const jsOrgHelper = createJsOrgHelper(orgs)
+    const orgHelper = getOrgHelper(jsOrgHelper, jest.fn(), orgs[1].orgId)
 
     expect(orgHelper.getSelectedOrg()).toEqual(orgs[1])
 })
 
 it("getNotSelectedOrgs returns the not selected orgs", async () => {
     const orgs = createOrgs(3)
-    const orgIdToOrgMemberInfo = createOrgIdToOrgMemberInfo(orgs)
-    const orgHelper = getOrgHelper(orgIdToOrgMemberInfo, jest.fn(), orgs[0].orgId)
+    const jsOrgHelper = createJsOrgHelper(orgs)
+    const orgHelper = getOrgHelper(jsOrgHelper, jest.fn(), orgs[0].orgId)
 
     expect(orgHelper.getNotSelectedOrgs()).toEqual(orgs.slice(1))
 })
 
 it("getSelectedOrg returns the local storage value if nothing is set", async () => {
     const orgs = createOrgs(2)
-    const orgIdToOrgMemberInfo = createOrgIdToOrgMemberInfo(orgs)
-    const orgHelper = getOrgHelper(orgIdToOrgMemberInfo, jest.fn(), null)
+    const jsOrgHelper = createJsOrgHelper(orgs)
+    const orgHelper = getOrgHelper(jsOrgHelper, jest.fn(), null)
 
     localStorage.setItem(ORG_SELECTION_LOCAL_STORAGE_KEY, orgs[1].orgId)
 
@@ -94,8 +94,8 @@ it("getSelectedOrg returns the local storage value if nothing is set", async () 
 
 it("getSelectedOrg returns a deterministic value if nothing is set", async () => {
     const orgs = createOrgs(10)
-    const orgIdToOrgMemberInfo = createOrgIdToOrgMemberInfo(orgs)
-    const orgHelper = getOrgHelper(orgIdToOrgMemberInfo, jest.fn(), null)
+    const jsOrgHelper = createJsOrgHelper(orgs)
+    const orgHelper = getOrgHelper(jsOrgHelper, jest.fn(), null)
 
     const firstValue = orgHelper.getSelectedOrg()
     for (let i = 0; i < 100; i++) {
@@ -105,20 +105,20 @@ it("getSelectedOrg returns a deterministic value if nothing is set", async () =>
 
 it("getSelectedOrg returns null if nothing is set and inference is off", async () => {
     const orgs = createOrgs(2)
-    const orgIdToOrgMemberInfo = createOrgIdToOrgMemberInfo(orgs)
-    const orgHelper = getOrgHelper(orgIdToOrgMemberInfo, jest.fn(), null)
+    const jsOrgHelper = createJsOrgHelper(orgs)
+    const orgHelper = getOrgHelper(jsOrgHelper, jest.fn(), null)
 
     localStorage.setItem(ORG_SELECTION_LOCAL_STORAGE_KEY, orgs[1].orgId)
 
     expect(orgHelper.getSelectedOrg(false)).toBeFalsy()
 })
 
-function createOrgIdToOrgMemberInfo(orgs) {
+function createJsOrgHelper(orgs) {
     let orgIdToOrgMemberInfo = {}
     for (let org of orgs) {
         orgIdToOrgMemberInfo[org.orgId] = org
     }
-    return orgIdToOrgMemberInfo
+    return wrapOrgIdToOrgMemberInfo(orgIdToOrgMemberInfo)
 }
 
 function createOrgs(numOrgs) {
@@ -159,4 +159,30 @@ function getAllProperties(obj) {
         })
     } while ((curr = Object.getPrototypeOf(curr)))
     return allProps
+}
+
+function wrapOrgIdToOrgMemberInfo(orgIdToOrgMemberInfo) {
+    return {
+        getOrg(orgId) {
+            if (orgIdToOrgMemberInfo.hasOwnProperty(orgId)) {
+                return orgIdToOrgMemberInfo[orgId]
+            } else {
+                return undefined
+            }
+        },
+        getOrgIds() {
+            return Object.keys(orgIdToOrgMemberInfo)
+        },
+        getOrgs() {
+            return Object.values(orgIdToOrgMemberInfo)
+        },
+        getOrgByName(orgName) {
+            for (const orgMemberInfo of Object.values(orgIdToOrgMemberInfo)) {
+                if (orgMemberInfo.orgName === orgName || orgMemberInfo.urlSafeOrgName === orgName) {
+                    return orgMemberInfo
+                }
+            }
+            return undefined
+        },
+    }
 }

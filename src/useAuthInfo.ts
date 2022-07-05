@@ -37,7 +37,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             loading: true,
         }
     } else if (authInfo && authInfo.accessToken) {
-        const orgHelper = getOrgHelper(authInfo.orgIdToOrgMemberInfo || {}, selectOrgId, userSelectedOrgId)
+        const orgHelper = getOrgHelper(authInfo.orgHelper, selectOrgId, userSelectedOrgId)
         return {
             loading: false,
             isLoggedIn: true,

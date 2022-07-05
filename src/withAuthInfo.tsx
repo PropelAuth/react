@@ -49,7 +49,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
         if (loading) {
             return displayLoading()
         } else if (authInfo) {
-            const orgHelper = getOrgHelper(authInfo.orgIdToOrgMemberInfo || {}, selectOrgId, userSelectedOrgId)
+            const orgHelper = getOrgHelper(authInfo.orgHelper, selectOrgId, userSelectedOrgId)
             const loggedInProps: P = {
                 ...(props as P),
                 accessToken: authInfo.accessToken,

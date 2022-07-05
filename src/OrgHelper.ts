@@ -1,9 +1,10 @@
-import { OrgIdToOrgMemberInfo, OrgMemberInfo } from "@propelauth/javascript"
+import { OrgHelper as JsOrgHelper, OrgMemberInfo } from "@propelauth/javascript"
 
 export type OrgHelper = {
     getOrgs: () => OrgMemberInfo[]
     getOrgIds: () => string[]
     getOrg: (orgId: string) => OrgMemberInfo | undefined
+    getOrgByName: (orgName: string) => OrgMemberInfo | undefined
 
     getSelectedOrg: (inferDefault?: boolean) => OrgMemberInfo | undefined
     selectOrg: (orgId: string) => void
@@ -11,39 +12,38 @@ export type OrgHelper = {
 }
 
 export function getOrgHelper(
-    orgIdToOrgMemberInfo: OrgIdToOrgMemberInfo,
+    orgHelper: JsOrgHelper,
     selectOrgId: (orgId: string) => void,
     userSelectedOrgId: string | null
 ): OrgHelper {
     return {
         getOrg(orgId: string): OrgMemberInfo | undefined {
-            if (orgIdToOrgMemberInfo.hasOwnProperty(orgId)) {
-                return orgIdToOrgMemberInfo[orgId]
-            } else {
-                return undefined
-            }
+            return orgHelper.getOrg(orgId)
         },
         getOrgIds(): string[] {
-            return Object.keys(orgIdToOrgMemberInfo)
+            return orgHelper.getOrgIds()
         },
         getOrgs(): OrgMemberInfo[] {
-            return Object.values(orgIdToOrgMemberInfo)
+            return orgHelper.getOrgs()
+        },
+        getOrgByName(orgName: string): OrgMemberInfo | undefined {
+            return orgHelper.getOrgByName(orgName)
         },
         getSelectedOrg(inferDefault?: boolean): OrgMemberInfo | undefined {
             // default for inferDefault is true
             inferDefault = inferDefault === undefined ? true : inferDefault
 
             // if the user has selected an org already, return it
-            if (userSelectedOrgId && orgIdToOrgMemberInfo.hasOwnProperty(userSelectedOrgId)) {
-                return orgIdToOrgMemberInfo[userSelectedOrgId]
+            if (userSelectedOrgId && orgHelper.getOrg(userSelectedOrgId)) {
+                return orgHelper.getOrg(userSelectedOrgId)
             } else if (!inferDefault) {
                 return undefined
             }
 
             // otherwise, infer it from local storage
             const previouslySelectedOrgId = loadOrgSelectionFromLocalStorage()
-            if (previouslySelectedOrgId && orgIdToOrgMemberInfo.hasOwnProperty(previouslySelectedOrgId)) {
-                return orgIdToOrgMemberInfo[previouslySelectedOrgId]
+            if (previouslySelectedOrgId && orgHelper.getOrg(previouslySelectedOrgId)) {
+                return orgHelper.getOrg(previouslySelectedOrgId)
             }
 
             // if the user has never selected one before, select one deterministically by name

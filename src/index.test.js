@@ -62,13 +62,12 @@ it("withAuthInfo passes values from client as props", async () => {
     const orgA = createOrg()
     const orgB = createOrg()
     const user = createUser()
+    const orgIdToOrgMemberInfo = { [orgA.orgId]: orgA, [orgB.orgId]: orgB }
     const authenticationInfo = {
         accessToken,
         expiresAtSeconds: INITIAL_TIME_SECONDS + 30 * 60,
-        orgIdToOrgMemberInfo: {
-            [orgA.orgId]: orgA,
-            [orgB.orgId]: orgB,
-        },
+        orgIdToOrgMemberInfo,
+        orgHelper: wrapOrgIdToOrgMemberInfo(orgIdToOrgMemberInfo),
         user,
     }
     mockClient.getAuthenticationInfoOrNull.mockReturnValue(authenticationInfo)
@@ -97,13 +96,12 @@ it("useAuthInfo passes values correctly", async () => {
     const orgA = createOrg()
     const orgB = createOrg()
     const user = createUser()
+    const orgIdToOrgMemberInfo = { [orgA.orgId]: orgA, [orgB.orgId]: orgB }
     const authenticationInfo = {
         accessToken,
         expiresAtSeconds: INITIAL_TIME_SECONDS + 30 * 60,
-        orgIdToOrgMemberInfo: {
-            [orgA.orgId]: orgA,
-            [orgB.orgId]: orgB,
-        },
+        orgIdToOrgMemberInfo,
+        orgHelper: wrapOrgIdToOrgMemberInfo(orgIdToOrgMemberInfo),
         user,
     }
     mockClient.getAuthenticationInfoOrNull.mockReturnValue(authenticationInfo)
@@ -441,9 +439,12 @@ function expectCreateClientWasCalledCorrectly() {
 }
 
 function createOrg() {
+    const orgName = randomString()
+    const urlSafeOrgName = orgName.toLowerCase()
     return {
         orgId: uuidv4(),
-        orgName: randomString(),
+        orgName,
+        urlSafeOrgName,
         userRole: choose(["Owner", "Admin", "Member"]),
     }
 }
@@ -470,13 +471,41 @@ function createAuthenticationInfo() {
     const orgA = createOrg()
     const orgB = createOrg()
     const user = createUser()
+    const orgIdToOrgMemberInfo = {
+        [orgA.orgId]: orgA,
+        [orgB.orgId]: orgB,
+    }
     return {
         accessToken,
         expiresAtSeconds: INITIAL_TIME_SECONDS + 30 * 60,
-        orgIdToOrgMemberInfo: {
-            [orgA.orgId]: orgA,
-            [orgB.orgId]: orgB,
-        },
+        orgIdToOrgMemberInfo,
+        orgHelper: wrapOrgIdToOrgMemberInfo(orgIdToOrgMemberInfo),
         user,
+    }
+}
+
+function wrapOrgIdToOrgMemberInfo(orgIdToOrgMemberInfo) {
+    return {
+        getOrg(orgId) {
+            if (orgIdToOrgMemberInfo.hasOwnProperty(orgId)) {
+                return orgIdToOrgMemberInfo[orgId]
+            } else {
+                return undefined
+            }
+        },
+        getOrgIds() {
+            return Object.keys(orgIdToOrgMemberInfo)
+        },
+        getOrgs() {
+            return Object.values(orgIdToOrgMemberInfo)
+        },
+        getOrgByName(orgName) {
+            for (const orgMemberInfo of Object.values(orgIdToOrgMemberInfo)) {
+                if (orgMemberInfo.orgName === orgName || orgMemberInfo.urlSafeOrgName === orgName) {
+                    return orgMemberInfo
+                }
+            }
+            return undefined
+        },
     }
 }
