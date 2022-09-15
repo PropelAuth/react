@@ -45,9 +45,23 @@ type AuthInfoStateAction = {
 }
 
 function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction): AuthInfoState {
-    return {
-        loading: false,
-        authInfo: action.authInfo,
+    if (!action.authInfo) {
+        return {
+            loading: false,
+            authInfo: action.authInfo,
+        }
+    } else if (_state.loading) {
+        return {
+            loading: false,
+            authInfo: action.authInfo,
+        }
+    } else if (_state.authInfo?.accessToken !== action.authInfo.accessToken) {
+        return {
+            loading: false,
+            authInfo: action.authInfo,
+        }
+    } else {
+        return _state
     }
 }
 
