@@ -5,7 +5,6 @@ import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 interface InternalAuthState {
     loading: boolean
     authInfo: AuthenticationInfo | null
-    triggerRefreshAuthentication: () => void
 
     logout: (redirectOnLogout: boolean) => Promise<void>
 
@@ -54,16 +53,14 @@ function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction
 
 export const AuthProvider = (props: AuthProviderProps) => {
     const [authInfoState, dispatch] = useReducer(authInfoStateReducer, initialAuthInfoState)
-    const [heartbeatCounter, setHeartbeatCounter] = useState<number>(0)
     const [userSelectedOrgId, setUserSelectedOrgId] = useState<string | null>(null)
+    const [loggedInChangeCounter, setLoggedInChangeCounter] = useState(0)
 
-    const triggerRefreshAuthentication = () => setHeartbeatCounter((x) => x + 1)
-
-    // Create client and register observer
+    // Create a client and register an observer that triggers when the user logs in or out
     const client = useMemo(() => {
         // Disable background token refresh as we will do it within React instead
         const client = createClient({ authUrl: props.authUrl, enableBackgroundTokenRefresh: false })
-        client.addLoggedInChangeObserver(triggerRefreshAuthentication)
+        client.addLoggedInChangeObserver(() => setLoggedInChangeCounter((x) => x + 1))
         return client
     }, [props.authUrl])
 
@@ -90,16 +87,33 @@ export const AuthProvider = (props: AuthProviderProps) => {
             }
         }
 
+        const interval = setInterval(refreshToken, 60000)
+        return () => {
+            didCancel = true
+            clearInterval(interval)
+        }
+    }, [client])
+
+    // Refresh the token when the user has logged in or out
+    useEffect(() => {
+        let didCancel = false
+
+        async function refreshToken() {
+            try {
+                const authInfo = await client.getAuthenticationInfoOrNull()
+                if (!didCancel) {
+                    dispatch({ authInfo })
+                }
+            } catch (_) {
+                // Exceptions are logged in the JS library
+            }
+        }
+
         refreshToken()
         return () => {
             didCancel = true
         }
-    }, [client, heartbeatCounter])
-
-    useEffect(() => {
-        const interval = setInterval(triggerRefreshAuthentication, 60000)
-        return () => clearInterval(interval)
-    }, [])
+    }, [client, loggedInChangeCounter])
 
     // Watchdog timer to make sure that if we hit the expiration we get rid of the token.
     // This should only be triggered if we are unable to get a new token due to an unexpected error/network timeouts.
@@ -124,7 +138,6 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const redirectToCreateOrgPage = useCallback(client.redirectToCreateOrgPage, [])
     const value = {
         loading: authInfoState.loading,
-        triggerRefreshAuthentication,
         authInfo: authInfoState.authInfo,
         logout,
         userSelectedOrgId,
