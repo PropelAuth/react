@@ -2,9 +2,9 @@ import hoistNonReactStatics from "hoist-non-react-statics"
 import React, { useContext } from "react"
 import { Subtract } from "utility-types"
 import { AuthContext } from "./AuthContext"
-import { getOrgHelper } from "./OrgHelper"
 import { RedirectToLogin } from "./useRedirectFunctions"
 import { WithLoggedInAuthInfoProps } from "./withAuthInfo"
+import { withAuthInfo } from "./withAuthInfo"
 
 export interface WithRequiredAuthInfoArgs {
     displayWhileLoading?: React.ReactElement
@@ -15,20 +15,10 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
     Component: React.ComponentType<P>,
     args?: WithRequiredAuthInfoArgs
 ): React.ComponentType<Subtract<P, WithLoggedInAuthInfoProps>> {
-    const displayName = `withRequiredAuthInfo(${Component.displayName || Component.name || "Component"})`
-
-    const WithRequiredAuthInfoWrapper = (props: Subtract<P, WithLoggedInAuthInfoProps>) => {
+    const WithRequiredAuthInfoWrapper = (props: Subtract<P, WithLoggedInAuthInfoProps>) => {      
         const context = useContext(AuthContext)
         if (context === undefined) {
             throw new Error("withRequiredAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
-        }
-
-        function displayLoading() {
-            if (args && args.displayWhileLoading) {
-                return args.displayWhileLoading
-            } else {
-                return <React.Fragment />
-            }
         }
 
         function displayLoggedOut() {
@@ -39,25 +29,17 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
             }
         }
 
-        const { loading, authInfo, selectOrgId, userSelectedOrgId } = context
-        if (loading) {
-            return displayLoading()
-        } else if (authInfo) {
-            const orgHelper = getOrgHelper(authInfo.orgHelper, selectOrgId, userSelectedOrgId)
-            const loggedInProps: P = {
-                ...(props as P),
-                accessToken: authInfo.accessToken,
-                isLoggedIn: !!authInfo.accessToken,
-                orgHelper: orgHelper,
-                user: authInfo.user,
-            }
-            return <Component {...loggedInProps} />
+        const { authInfo } = context
+        if (!authInfo) {
+          return displayLoggedOut()
         } else {
-            return displayLoggedOut()
+          const ComponentWithAuthInfo = withAuthInfo(Component, args)
+          return <ComponentWithAuthInfo {...props} />
         }
-    }
-    WithRequiredAuthInfoWrapper.displayName = displayName
-    WithRequiredAuthInfoWrapper.WrappedComponent = Component
 
+    }
+
+    WithRequiredAuthInfoWrapper.displayName = `withRequiredAuthInfo(${Component.displayName || Component.name || "Component"})`
+    WithRequiredAuthInfoWrapper.WrappedComponent = Component
     return hoistNonReactStatics(WithRequiredAuthInfoWrapper, Component)
 }
