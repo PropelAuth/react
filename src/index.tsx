@@ -1,5 +1,11 @@
 export { UserRole } from "@propelauth/javascript"
-export type { OrgIdToOrgMemberInfo, OrgMemberInfo, User } from "@propelauth/javascript"
+export type {
+    OrgIdToOrgMemberInfo,
+    OrgMemberInfo,
+    RedirectToLoginOptions,
+    RedirectToSignupOptions,
+    User,
+} from "@propelauth/javascript"
 export { AuthProvider, RequiredAuthProvider } from "./AuthContext"
 export type { AuthProviderProps, RequiredAuthProviderProps } from "./AuthContext"
 export type { OrgHelper } from "./OrgHelper"
