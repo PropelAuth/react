@@ -1,4 +1,9 @@
-import { AuthenticationInfo, createClient } from "@propelauth/javascript"
+import {
+    AuthenticationInfo,
+    createClient,
+    RedirectToLoginOptions,
+    RedirectToSignupOptions,
+} from "@propelauth/javascript"
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
@@ -11,8 +16,8 @@ interface InternalAuthState {
     userSelectedOrgId: string | null
     selectOrgId: (orgId: string) => void
 
-    redirectToLoginPage: () => void
-    redirectToSignupPage: () => void
+    redirectToLoginPage: (options?: RedirectToLoginOptions) => void
+    redirectToSignupPage: (options?: RedirectToSignupOptions) => void
     redirectToAccountPage: () => void
     redirectToOrgPage: (orgId?: string) => void
     redirectToCreateOrgPage: () => void
