@@ -5,6 +5,7 @@ import {
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
+import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
 interface InternalAuthState {
@@ -13,18 +14,18 @@ interface InternalAuthState {
 
     logout: (redirectOnLogout: boolean) => Promise<void>
 
-    userSelectedOrgId: string | null
-    selectOrgId: (orgId: string) => void
-
     redirectToLoginPage: (options?: RedirectToLoginOptions) => void
     redirectToSignupPage: (options?: RedirectToSignupOptions) => void
     redirectToAccountPage: () => void
     redirectToOrgPage: (orgId?: string) => void
     redirectToCreateOrgPage: () => void
+
+    activeOrgFn: () => string | null
 }
 
 export type AuthProviderProps = {
     authUrl: string
+    getActiveOrgFn?: () => string | null
     children?: React.ReactNode
 }
 
@@ -72,7 +73,6 @@ function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction
 
 export const AuthProvider = (props: AuthProviderProps) => {
     const [authInfoState, dispatch] = useReducer(authInfoStateReducer, initialAuthInfoState)
-    const [userSelectedOrgId, setUserSelectedOrgId] = useState<string | null>(null)
     const [loggedInChangeCounter, setLoggedInChangeCounter] = useState(0)
 
     // Create a client and register an observer that triggers when the user logs in or out
@@ -155,17 +155,17 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const redirectToAccountPage = useCallback(client.redirectToAccountPage, [])
     const redirectToOrgPage = useCallback(client.redirectToOrgPage, [])
     const redirectToCreateOrgPage = useCallback(client.redirectToCreateOrgPage, [])
+    const activeOrgFn = props.getActiveOrgFn || loadOrgSelectionFromLocalStorage
     const value = {
         loading: authInfoState.loading,
         authInfo: authInfoState.authInfo,
         logout,
-        userSelectedOrgId,
-        selectOrgId: setUserSelectedOrgId,
         redirectToLoginPage,
         redirectToSignupPage,
         redirectToAccountPage,
         redirectToOrgPage,
         redirectToCreateOrgPage,
+        activeOrgFn,
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
 }
