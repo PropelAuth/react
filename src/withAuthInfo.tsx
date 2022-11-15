@@ -1,15 +1,15 @@
-import { User } from "@propelauth/javascript"
+import { AccessHelper, OrgHelper, User } from "@propelauth/javascript"
 import hoistNonReactStatics from "hoist-non-react-statics"
 import React, { useContext } from "react"
 import { Subtract } from "utility-types"
 import { AuthContext } from "./AuthContext"
-import { getOrgHelper, OrgHelper } from "./OrgHelper"
 
 export type WithLoggedInAuthInfoProps = {
     isLoggedIn: true
     accessToken: string
     user: User
     orgHelper: OrgHelper
+    accessHelper: AccessHelper
 }
 
 export type WithNotLoggedInAuthInfoProps = {
@@ -17,6 +17,7 @@ export type WithNotLoggedInAuthInfoProps = {
     accessToken: null
     user: null
     orgHelper: null
+    accessHelper: null
 }
 
 export type WithAuthInfoProps = WithLoggedInAuthInfoProps | WithNotLoggedInAuthInfoProps
@@ -45,16 +46,16 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
             }
         }
 
-        const { loading, authInfo, selectOrgId, userSelectedOrgId } = context
+        const { loading, authInfo } = context
         if (loading) {
             return displayLoading()
         } else if (authInfo) {
-            const orgHelper = getOrgHelper(authInfo.orgHelper, selectOrgId, userSelectedOrgId)
             const loggedInProps: P = {
                 ...(props as P),
                 accessToken: authInfo.accessToken,
                 isLoggedIn: !!authInfo.accessToken,
-                orgHelper: orgHelper,
+                orgHelper: authInfo.orgHelper,
+                accessHelper: authInfo.accessHelper,
                 user: authInfo.user,
             }
             return <Component {...loggedInProps} />
@@ -63,8 +64,9 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 ...(props as P),
                 accessToken: null,
                 isLoggedIn: false,
-                orgHelper: null,
                 user: null,
+                orgHelper: null,
+                accessHelper: null,
             }
             return <Component {...notLoggedInProps} />
         }

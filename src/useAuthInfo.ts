@@ -1,7 +1,6 @@
-import { User } from "@propelauth/javascript"
+import { AccessHelper, OrgHelper, User } from "@propelauth/javascript"
 import { useContext } from "react"
 import { AuthContext } from "./AuthContext"
-import { getOrgHelper, OrgHelper } from "./OrgHelper"
 
 export type UseAuthInfoLoading = {
     loading: true
@@ -13,6 +12,7 @@ export type UseAuthInfoLoggedInProps = {
     accessToken: string
     user: User
     orgHelper: OrgHelper
+    accessHelper: AccessHelper
 }
 
 export type UseAuthInfoNotLoggedInProps = {
@@ -21,6 +21,7 @@ export type UseAuthInfoNotLoggedInProps = {
     accessToken: null
     user: null
     orgHelper: null
+    accessHelper: null
 }
 
 export type UseAuthInfoProps = UseAuthInfoLoading | UseAuthInfoLoggedInProps | UseAuthInfoNotLoggedInProps
@@ -31,18 +32,18 @@ export function useAuthInfo(): UseAuthInfoProps {
         throw new Error("useAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
     }
 
-    const { loading, authInfo, selectOrgId, userSelectedOrgId } = context
+    const { loading, authInfo } = context
     if (loading) {
         return {
             loading: true,
         }
     } else if (authInfo && authInfo.accessToken) {
-        const orgHelper = getOrgHelper(authInfo.orgHelper, selectOrgId, userSelectedOrgId)
         return {
             loading: false,
             isLoggedIn: true,
             accessToken: authInfo.accessToken,
-            orgHelper: orgHelper,
+            orgHelper: authInfo.orgHelper,
+            accessHelper: authInfo.accessHelper,
             user: authInfo.user,
         }
     }
@@ -50,7 +51,8 @@ export function useAuthInfo(): UseAuthInfoProps {
         loading: false,
         isLoggedIn: false,
         accessToken: null,
-        orgHelper: null,
         user: null,
+        orgHelper: null,
+        accessHelper: null,
     }
 }

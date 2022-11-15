@@ -1,14 +1,25 @@
-export { UserRole } from "@propelauth/javascript"
 export type {
+    AccessHelper,
+    AccessHelperWithOrg,
+    OrgHelper,
     OrgIdToOrgMemberInfo,
     OrgMemberInfo,
     RedirectToLoginOptions,
     RedirectToSignupOptions,
     User,
 } from "@propelauth/javascript"
+export { useAccessHelper, useOrgHelper } from "./additionalHooks"
+export type {
+    UseAccessHelper,
+    UseAccessHelperLoaded,
+    UseAccessHelperLoading,
+    UseOrgHelper,
+    UseOrgHelperLoaded,
+    UseOrgHelperLoading,
+} from "./additionalHooks"
 export { AuthProvider, RequiredAuthProvider } from "./AuthContext"
 export type { AuthProviderProps, RequiredAuthProviderProps } from "./AuthContext"
-export type { OrgHelper } from "./OrgHelper"
+export { loadOrgSelectionFromLocalStorage, saveOrgSelectionToLocalStorage, useActiveOrg } from "./useActiveOrg"
 export { useAuthInfo } from "./useAuthInfo"
 export { useLogoutFunction } from "./useLogoutFunction"
 export { RedirectToLogin, RedirectToSignup, useRedirectFunctions } from "./useRedirectFunctions"
