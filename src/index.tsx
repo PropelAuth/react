@@ -17,7 +17,7 @@ export type {
     UseOrgHelperLoaded,
     UseOrgHelperLoading,
 } from "./additionalHooks"
-export { AuthProvider, RequiredAuthProvider } from "./AuthContext"
+export { AuthContext, AuthProvider, RequiredAuthProvider } from "./AuthContext"
 export type { AuthProviderProps, RequiredAuthProviderProps } from "./AuthContext"
 export { loadOrgSelectionFromLocalStorage, saveOrgSelectionToLocalStorage, useActiveOrg } from "./useActiveOrg"
 export { useAuthInfo } from "./useAuthInfo"
