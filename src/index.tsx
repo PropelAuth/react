@@ -19,6 +19,8 @@ export type {
 } from "./additionalHooks"
 export { AuthProvider, RequiredAuthProvider } from "./AuthContext"
 export type { AuthProviderProps, RequiredAuthProviderProps } from "./AuthContext"
+export { AuthProviderForTesting } from "./AuthContextForTesting"
+export type { AuthProviderForTestingProps, UserInformationForTesting } from "./AuthContextForTesting"
 export { loadOrgSelectionFromLocalStorage, saveOrgSelectionToLocalStorage, useActiveOrg } from "./useActiveOrg"
 export { useAuthInfo } from "./useAuthInfo"
 export { useLogoutFunction } from "./useLogoutFunction"

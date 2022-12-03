@@ -6,6 +6,7 @@ import { render, screen, waitFor } from "@testing-library/react"
 import React from "react"
 import { v4 as uuidv4 } from "uuid"
 import { AuthProvider, RequiredAuthProvider } from "./AuthContext"
+import { AuthProviderForTesting } from "./AuthContextForTesting"
 import { useAuthInfo } from "./useAuthInfo"
 import { useLogoutFunction } from "./useLogoutFunction"
 import { useRedirectFunctions } from "./useRedirectFunctions"
@@ -414,6 +415,69 @@ it("withAuthInfo renders loading correctly", async () => {
     jest.advanceTimersByTime(50)
     await waitFor(() => screen.getByText("Loading"))
     jest.advanceTimersByTime(50)
+    await waitFor(() => screen.getByText("Finished"))
+})
+
+it("AuthProviderForTesting can be used with useAuthInfo", async () => {
+    const user = {
+        email: "john.doe@example.com",
+        emailConfirmed: true,
+        enabled: true,
+        locked: false,
+        mfaEnabled: false,
+        userId: "john.doe",
+        username: "John Doe",
+        firstName: "John",
+        lastName: "Doe",
+    }
+    const orgMemberInfos = [
+        {
+            orgId: "orgAid",
+            orgName: "orgA",
+            urlSafeOrgName: "orga",
+            userAssignedRole: "Admin",
+            userInheritedRolesPlusCurrentRole: ["Admin", "Member"],
+            userPermissions: [],
+        },
+        {
+            orgId: "orgBid",
+            orgName: "orgB",
+            urlSafeOrgName: "orgB",
+            userAssignedRole: "Owner",
+            userInheritedRolesPlusCurrentRole: ["Owner", "Admin", "Member"],
+            userPermissions: ["somePermission"],
+        },
+    ]
+    const userInformation = {
+        user,
+        orgMemberInfos,
+        accessToken: "could be anything",
+    }
+
+    const Component = () => {
+        const authInfo = useAuthInfo()
+        expect(authInfo.loading).toBeFalsy()
+        expect(authInfo.accessToken).toBe(userInformation.accessToken)
+        expect(authInfo.user).toBe(userInformation.user)
+        expect(authInfo.isLoggedIn).toBe(true)
+
+        let orgIds = authInfo.orgHelper.getOrgIds()
+        expect(orgIds).toContain("orgAid")
+        expect(orgIds).toContain("orgBid")
+        expect(orgIds).not.toContain("orgCid")
+
+        expect(authInfo.accessHelper.hasPermission("orgAid", "somePermission")).toBeFalsy()
+        expect(authInfo.accessHelper.hasPermission("orgBid", "somePermission")).toBeTruthy()
+
+        return <div>Finished</div>
+    }
+
+    render(
+        <AuthProviderForTesting userInformation={userInformation}>
+            <Component />
+        </AuthProviderForTesting>
+    )
+
     await waitFor(() => screen.getByText("Finished"))
 })
 
