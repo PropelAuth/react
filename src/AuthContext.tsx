@@ -171,17 +171,18 @@ export const AuthProvider = (props: AuthProviderProps) => {
 }
 
 export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
+    const { children, displayIfLoggedOut, displayWhileLoading, ...sharedProps } = props;
     const WrappedComponent = withRequiredAuthInfo(
         () => {
-            return <React.Fragment>{props.children}</React.Fragment>
+            return <React.Fragment>{children}</React.Fragment>
         },
         {
-            displayWhileLoading: props.displayWhileLoading,
-            displayIfLoggedOut: props.displayIfLoggedOut,
+            displayWhileLoading: displayWhileLoading,
+            displayIfLoggedOut: displayIfLoggedOut,
         }
     )
     return (
-        <AuthProvider authUrl={props.authUrl}>
+        <AuthProvider {...sharedProps}>
             <WrappedComponent {...props} />
         </AuthProvider>
     )
