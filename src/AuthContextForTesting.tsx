@@ -1,3 +1,4 @@
+import { PropelAuthFeV2Client } from "@propel-auth-fern/fe_v2-client"
 import {
     AccessHelper,
     AccessHelperWithOrg,
@@ -36,6 +37,7 @@ export const AuthProviderForTesting = ({
 }: AuthProviderForTestingProps) => {
     const authInfo = getAuthInfoForTesting(userInformation)
     const activeOrgFnWithDefault = activeOrgFn ? activeOrgFn : () => null
+    const api = new PropelAuthFeV2Client({ environment: "" })
     const contextValue = {
         loading: !!loading,
         authInfo,
@@ -46,6 +48,7 @@ export const AuthProviderForTesting = ({
         redirectToOrgPage: () => {},
         redirectToCreateOrgPage: () => {},
         activeOrgFn: activeOrgFnWithDefault,
+        api,
     }
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

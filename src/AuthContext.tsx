@@ -1,3 +1,4 @@
+import { PropelAuthFeV2Client } from "@propel-auth-fern/fe_v2-client"
 import {
     AuthenticationInfo,
     createClient,
@@ -5,6 +6,8 @@ import {
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
+import { Appearance, AppearanceProvider } from "./AppearanceProvider"
+import { Elements, ElementsProvider } from "./ElementsProvider"
 import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
@@ -21,10 +24,14 @@ interface InternalAuthState {
     redirectToCreateOrgPage: () => void
 
     activeOrgFn: () => string | null
+
+    api: PropelAuthFeV2Client
 }
 
 export type AuthProviderProps = {
     authUrl: string
+    elements: Elements
+    appearance?: Appearance
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
 }
@@ -149,6 +156,8 @@ export const AuthProvider = (props: AuthProviderProps) => {
         return () => clearTimeout(timeout)
     }, [expiresAtSeconds])
 
+    const api = new PropelAuthFeV2Client({ environment: props.authUrl })
+
     const logout = useCallback(client.logout, [])
     const redirectToLoginPage = useCallback(client.redirectToLoginPage, [])
     const redirectToSignupPage = useCallback(client.redirectToSignupPage, [])
@@ -166,8 +175,15 @@ export const AuthProvider = (props: AuthProviderProps) => {
         redirectToOrgPage,
         redirectToCreateOrgPage,
         activeOrgFn,
+        api,
     }
-    return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
+    return (
+        <AuthContext.Provider value={value}>
+            <ElementsProvider elements={props.elements}>
+                <AppearanceProvider appearance={props.appearance}>{props.children}</AppearanceProvider>
+            </ElementsProvider>
+        </AuthContext.Provider>
+    )
 }
 
 export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
