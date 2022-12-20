@@ -78,6 +78,11 @@ export const AppearanceProvider = ({ appearance, children }: AppearanceProviderP
 }
 
 export const useAppearance = () => {
-    const { appearance, setAppearance } = useContext(AppearanceContext)
-    return { appearance, setAppearance }
+    const context = useContext(AppearanceContext)
+
+    if (context === undefined) {
+        throw new Error("You must specify appearance within AuthProvider or RequiredAuthProvider")
+    }
+
+    return { appearance: context.appearance, setAppearance: context.setAppearance }
 }
