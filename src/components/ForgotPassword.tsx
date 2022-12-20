@@ -8,6 +8,7 @@ import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
+import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
 import {
@@ -34,6 +35,7 @@ export type ForgotPasswordAppearance = {
         backButtonContent?: ReactNode
     }
     elements?: {
+        Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>
@@ -50,7 +52,7 @@ export type ForgotPasswordAppearance = {
 
 export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPasswordProps) => {
     const { loginApi } = useApi()
-    const { config } = useConfig()
+    const { configLoading, config } = useConfig()
     const [email, setEmail] = useState("")
     const [error, setError] = useState<string | undefined>(undefined)
     const [passwordResetLoading, setPasswordResetLoading] = useState(false)
@@ -98,6 +100,10 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
         } finally {
             setMagicLinkLoading(false)
         }
+    }
+
+    if (configLoading) {
+        return <Progress appearance={appearance?.elements?.Container} />
     }
 
     if (successMessage) {
