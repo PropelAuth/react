@@ -9,6 +9,7 @@ import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
+import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { Config, useConfig } from "../useConfig"
 import { BAD_REQUEST_CREATE_ORG, NOT_FOUND_CREATE_ORG, UNAUTHORIZED_ORG_USAGE, UNEXPECTED_ERROR } from "./constants"
@@ -29,6 +30,7 @@ export type CreateOrgAppearance = {
         submitButtonContent?: ReactNode
     }
     elements?: {
+        Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         Header?: ElementAppearance<H3Props>
         Logo?: ElementAppearance<ImageProps>
@@ -42,13 +44,13 @@ export type CreateOrgAppearance = {
 
 export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
     const { orgApi } = useApi()
-    const { config } = useConfig()
+    const { configLoading, config } = useConfig()
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState("")
     const [autojoinByDomain, setAutojoinByDomain] = useState(false)
     const [restrictToDomain, setRestrictToDomain] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
-    const orgMetaname = (config && config.orgs_metaname) || "Organization"
+    const orgMetaname = config?.orgs_metaname || "Organization"
 
     async function createOrg(e: SyntheticEvent) {
         try {
@@ -73,6 +75,10 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
         } finally {
             setLoading(false)
         }
+    }
+
+    if (configLoading) {
+        return <Progress appearance={appearance?.elements?.Progress} />
     }
 
     return (

@@ -24,6 +24,7 @@ export type Config = {
 
 export const useConfig = () => {
     const context = useContext(AuthContext)
+    const [loading, setLoading] = useState(false)
 
     if (context === undefined) {
         throw new Error("useConfig must be used within an AuthProvider")
@@ -33,11 +34,13 @@ export const useConfig = () => {
 
     useEffect(() => {
         async function getConfigFromUrl() {
+            setLoading(true)
             // Fetch from API
+            setLoading(false)
         }
 
         getConfigFromUrl()
     }, [])
 
-    return { config }
+    return { configLoading: loading, config }
 }
