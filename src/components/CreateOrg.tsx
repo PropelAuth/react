@@ -78,7 +78,13 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
     }
 
     if (configLoading) {
-        return <Progress appearance={appearance?.elements?.Progress} />
+        return (
+            <div data-contain="component">
+                <Container appearance={appearance?.elements?.Container}>
+                    <Progress appearance={appearance?.elements?.Progress} />
+                </Container>
+            </div>
+        )
     }
 
     return (

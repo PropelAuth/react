@@ -103,7 +103,13 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
     }
 
     if (configLoading) {
-        return <Progress appearance={appearance?.elements?.Container} />
+        return (
+            <div data-contain="component">
+                <Container appearance={appearance?.elements?.Container}>
+                    <Progress appearance={appearance?.elements?.Container} />
+                </Container>
+            </div>
+        )
     }
 
     if (successMessage) {
