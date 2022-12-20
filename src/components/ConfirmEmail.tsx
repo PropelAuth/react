@@ -5,6 +5,7 @@ import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { useConfig } from "../useConfig"
+import { CONFIRM_EMAIL_MESSAGE } from "./constants"
 
 export type ConfirmEmailProps = {
     appearance?: ConfirmEmailAppearance
@@ -26,8 +27,6 @@ export type ConfirmEmailAppearance = {
 
 export const ConfirmEmail = ({ appearance }: ConfirmEmailProps) => {
     const { config } = useConfig()
-    const message = `You should receive an email with a link to confirm your email address within the next few minutes. If you do not receive an email, make sure to check your spam.`
-    // Resend button?
 
     return (
         <div data-contain="component">
@@ -48,7 +47,7 @@ export const ConfirmEmail = ({ appearance }: ConfirmEmailProps) => {
                 </div>
                 <div data-contain="text">
                     <Paragraph appearance={appearance?.elements?.Text}>
-                        {appearance?.options?.textContent || `${message}`}
+                        {appearance?.options?.textContent || `${CONFIRM_EMAIL_MESSAGE}`}
                     </Paragraph>
                 </div>
             </Container>

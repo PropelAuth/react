@@ -33,3 +33,5 @@ export const NOT_FOUND_UPDATE_PASSWORD = "User not found."
 export const BAD_REQUEST_UPDATE_PASSWORD = "Password is too commonly used. Please choose something more secure."
 export const NOT_FOUND_MFA_VERIFY = "User not found."
 export const BAD_REQUEST_MFA_VERIFY = "Incorrect code."
+export const CONFIRM_EMAIL_MESSAGE =
+    "You should receive an email with a link to confirm your email address within the next few minutes. If you do not receive an email, make sure to check your spam."
