@@ -30,7 +30,7 @@ interface InternalAuthState {
 
 export type AuthProviderProps = {
     authUrl: string
-    elements: Elements
+    elements?: Elements
     appearance?: Appearance
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
@@ -177,13 +177,34 @@ export const AuthProvider = (props: AuthProviderProps) => {
         activeOrgFn,
         api,
     }
-    return (
-        <AuthContext.Provider value={value}>
-            <ElementsProvider elements={props.elements}>
+
+    if (props.elements && props.appearance) {
+        return (
+            <AuthContext.Provider value={value}>
+                <ElementsProvider elements={props.elements}>
+                    <AppearanceProvider appearance={props.appearance}>{props.children}</AppearanceProvider>
+                </ElementsProvider>
+            </AuthContext.Provider>
+        )
+    }
+
+    if (props.elements) {
+        return (
+            <AuthContext.Provider value={value}>
+                <ElementsProvider elements={props.elements}>{props.children}</ElementsProvider>
+            </AuthContext.Provider>
+        )
+    }
+
+    if (props.appearance) {
+        return (
+            <AuthContext.Provider value={value}>
                 <AppearanceProvider appearance={props.appearance}>{props.children}</AppearanceProvider>
-            </ElementsProvider>
-        </AuthContext.Provider>
-    )
+            </AuthContext.Provider>
+        )
+    }
+
+    return <AppearanceProvider appearance={props.appearance}>{props.children}</AppearanceProvider>
 }
 
 export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
