@@ -23,9 +23,6 @@ export type Element<T> = (props: T) => JSX.Element
 export type ElementAppearance<T> = string | CSSProperties | Element<T>
 
 export type Appearance = {
-    options?: {
-        displayLogo?: boolean
-    }
     elements?: {
         Alert?: ElementAppearance<AlertProps>
         Button?: ElementAppearance<ButtonProps>
