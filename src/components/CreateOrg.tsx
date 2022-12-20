@@ -10,7 +10,7 @@ import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { useApi } from "../useApi"
-import { Config } from "../useConfig"
+import { Config, useConfig } from "../useConfig"
 import { BAD_REQUEST_CREATE_ORG, NOT_FOUND_CREATE_ORG, UNAUTHORIZED_ORG_USAGE, UNEXPECTED_ERROR } from "./constants"
 
 export type CreateOrgProps = {
@@ -40,8 +40,9 @@ export type CreateOrgAppearance = {
     }
 }
 
-export const CreateOrg = ({ config, setStep, appearance }: CreateOrgProps) => {
+export const CreateOrg = ({ setStep, appearance }: CreateOrgProps) => {
     const { orgApi, loginApi } = useApi()
+    const { config } = useConfig()
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState("")
     const [autojoinByDomain, setAutojoinByDomain] = useState(false)
