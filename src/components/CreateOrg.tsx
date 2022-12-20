@@ -1,5 +1,5 @@
-import { LoginStateEnum } from "@propel-auth-fern/fe_v2-client/resources"
-import React, { Dispatch, ReactNode, SetStateAction, SyntheticEvent, useState } from "react"
+import { OrgResponse } from "@propel-auth-fern/fe_v2-client/resources"
+import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
@@ -15,7 +15,7 @@ import { BAD_REQUEST_CREATE_ORG, NOT_FOUND_CREATE_ORG, UNAUTHORIZED_ORG_USAGE, U
 
 export type CreateOrgProps = {
     config: Config | null
-    setStep: Dispatch<SetStateAction<LoginStateEnum>>
+    onOrgCreated: (response: OrgResponse) => void
     appearance?: CreateOrgAppearance
 }
 
@@ -40,8 +40,8 @@ export type CreateOrgAppearance = {
     }
 }
 
-export const CreateOrg = ({ setStep, appearance }: CreateOrgProps) => {
-    const { orgApi, loginApi } = useApi()
+export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
+    const { orgApi } = useApi()
     const { config } = useConfig()
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState("")
@@ -58,12 +58,7 @@ export const CreateOrg = ({ setStep, appearance }: CreateOrgProps) => {
             const options = { name, autojoinByDomain, restrictToDomain }
             const response = await orgApi.createOrg(options)
             if (response.ok) {
-                const status = await loginApi.loginState()
-                if (status.ok) {
-                    setStep(status.body.loginState)
-                } else {
-                    setError(UNEXPECTED_ERROR)
-                }
+                onOrgCreated(response.body)
             } else {
                 response.error._visit({
                     notFoundCreateOrg: () => setError(NOT_FOUND_CREATE_ORG),

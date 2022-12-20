@@ -99,6 +99,19 @@ export const Login = ({
         }
     }
 
+    const setCurrentStep = async () => {
+        try {
+            const response = await loginApi.loginState()
+            if (response.ok) {
+                setStep(response.body.loginState)
+            } else {
+                throw new Error("Failed to fetch login state")
+            }
+        } catch (e) {
+            console.error(e)
+        }
+    }
+
     useEffect(() => {
         if (step === LoginStateEnum.Finished) {
             onSuccess()
@@ -209,9 +222,9 @@ export const Login = ({
             return <UserMetadata setStep={setStep} config={config} appearance={userMetadataAppearance} />
 
         case LoginStateEnum.OrgCreationRequired:
-            return <CreateOrg setStep={setStep} config={config} appearance={createOrgAppearance} />
+            return <CreateOrg onOrgCreated={setCurrentStep} config={config} appearance={createOrgAppearance} />
 
         default:
-            return null // ?
+            return <span>{UNEXPECTED_ERROR}</span>
     }
 }
