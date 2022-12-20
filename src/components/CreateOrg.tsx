@@ -24,8 +24,8 @@ export type CreateOrgAppearance = {
         headerContent?: ReactNode
         displayLogo?: boolean
         orgNameLabel?: ReactNode
-        autojoinByDomainLabel?: string
-        restrictToDomainLabel?: string
+        autojoinByDomainLabel?: ReactNode
+        restrictToDomainLabel?: ReactNode
         submitButtonContent?: ReactNode
     }
     elements?: {

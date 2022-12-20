@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, CSSProperties, forwardRef } from "react"
+import React, { ChangeEventHandler, CSSProperties, forwardRef, ReactNode } from "react"
 import { ElementAppearance, useAppearance } from "../AppearanceProvider"
 import { useElements } from "../ElementsProvider"
 import { mergeProps } from "./utils"
@@ -7,7 +7,7 @@ export type CheckboxProps = {
     checked: boolean
     onChange: ChangeEventHandler<HTMLInputElement>
     id?: string
-    label?: string
+    label?: ReactNode
     required?: boolean
     disabled?: boolean
     className?: string
