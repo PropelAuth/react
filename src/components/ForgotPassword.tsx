@@ -14,9 +14,11 @@ import { useConfig } from "../useConfig"
 import {
     BAD_REQUEST_FORGOT_PASSWORD,
     BAD_REQUEST_LOGIN_PASSWORDLESS,
+    FORGOT_PASSWORD_MESSAGE,
     FORGOT_PASSWORD_SUCCESS,
     MAGIC_LINK_SUCCESS,
     NOT_FOUND_LOGIN_PASSWORDLESS,
+    PASSWORDLESS_MESSAGE,
     UNEXPECTED_ERROR,
 } from "./constants"
 
@@ -207,12 +209,10 @@ type ForgotPasswordDirectionsProps = {
 }
 
 const ForgotPasswordDirections = ({ appearance, hasPasswordlessLogin }: ForgotPasswordDirectionsProps) => {
-    const passwordMessage = `Enter your email address and we will send you an email with a link that will let you reset your password.`
-    const passwordlessMessage = `You can choose between receiving an email to reset your password or receiving an email with a magic link that will log you in.`
     if (hasPasswordlessLogin) {
-        return <Paragraph appearance={appearance?.elements?.InstructionsText}>{passwordlessMessage}</Paragraph>
+        return <Paragraph appearance={appearance?.elements?.InstructionsText}>{PASSWORDLESS_MESSAGE}</Paragraph>
     } else {
-        return <Paragraph appearance={appearance?.elements?.InstructionsText}>{passwordMessage}</Paragraph>
+        return <Paragraph appearance={appearance?.elements?.InstructionsText}>{FORGOT_PASSWORD_MESSAGE}</Paragraph>
     }
 }
 

@@ -35,3 +35,7 @@ export const NOT_FOUND_MFA_VERIFY = "User not found."
 export const BAD_REQUEST_MFA_VERIFY = "Incorrect code."
 export const CONFIRM_EMAIL_MESSAGE =
     "You should receive an email with a link to confirm your email address within the next few minutes. If you do not receive an email, make sure to check your spam."
+export const FORGOT_PASSWORD_MESSAGE =
+    "Enter your email address and we will send you an email with a link that will let you reset your password."
+export const PASSWORDLESS_MESSAGE =
+    "You can choose between receiving an email to reset your password or receiving an email with a magic link that will log you in."
