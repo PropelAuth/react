@@ -148,17 +148,20 @@ export const useSelectedOrg = ({ orgId }: UseOrgInfoProps) => {
     const [roles, setRoles] = useState<string[]>([])
 
     useEffect(() => {
-        async function init() {
-            const response = await orgApi.selectedOrgStatus({ id: orgId })
-            if (response.ok) {
-                setUsers(response.body.users)
-                setInvitations(response.body.pendingInvites)
-                setRoles(config?.roles || [])
-                setInviteePossibleRoles(response.body.inviteePossibleRoles)
+        let mounted = true
+        orgApi.selectedOrgStatus({ id: orgId }).then((response) => {
+            if (mounted) {
+                if (response.ok) {
+                    setUsers(response.body.users)
+                    setInvitations(response.body.pendingInvites)
+                    setRoles(config?.roles || [])
+                    setInviteePossibleRoles(response.body.inviteePossibleRoles)
+                }
             }
+        })
+        return () => {
+            mounted = false
         }
-
-        init()
     }, [orgId, orgApi, config?.roles])
 
     function setUserRole(userId: string, role: string) {
