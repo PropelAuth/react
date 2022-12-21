@@ -1,4 +1,4 @@
-import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
+import { signup } from "@propel-auth-fern/fe_v2-client/resources/user"
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -111,7 +111,7 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
         try {
             e.preventDefault()
             setLoading(true)
-            const options: PropelAuthFeV2.user.signup.Request = {
+            const options: signup.Request = {
                 _body: {
                     email: email,
                     password: password,
