@@ -43,7 +43,7 @@ export type OrgAppearance = {
         pageNextButtonContent?: ReactNode
         editUserModalHeaderContent?: ReactNode
         changeRoleLabel?: ReactNode
-        saveRoleButtonContent?: ReactNode
+        changeRoleButtonContent?: ReactNode
         removeUserButtonContent?: ReactNode
         resendInvitationButtonContent?: ReactNode
         deleteInvitationButtonContent?: ReactNode
@@ -62,7 +62,7 @@ export type OrgAppearance = {
         EditUserModalHeader?: ElementAppearance<H3Props>
         ChangeRoleLabel?: ElementAppearance<LabelProps>
         ChangeRoleSelect?: ElementAppearance<SelectProps>
-        SaveRoleButton?: ElementAppearance<ButtonProps>
+        ChangeRoleButton?: ElementAppearance<ButtonProps>
         RemoveUserButton?: ElementAppearance<ButtonProps>
         RevokeInvitationButton?: ElementAppearance<ButtonProps>
         ResendInvitationButton?: ElementAppearance<ButtonProps>
@@ -652,9 +652,9 @@ export const EditActiveUser = ({ orgId, user, onClose, setUserRole, removeUser, 
                     <Button
                         loading={loading}
                         disabled={user.role === role}
-                        appearance={appearance?.elements?.SaveRoleButton}
+                        appearance={appearance?.elements?.ChangeRoleButton}
                     >
-                        {appearance?.options?.saveRoleButtonContent || "Save"}
+                        {appearance?.options?.changeRoleButtonContent || "Save"}
                     </Button>
                 </form>
             </div>
