@@ -13,7 +13,7 @@ import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
 import { ConfirmEmail, ConfirmEmailAppearance } from "./ConfirmEmail"
-import { BAD_REQUEST_LOGIN, UNEXPECTED_ERROR } from "./constants"
+import { BAD_REQUEST_LOGIN, NO_ACCOUNT_FOUND_WITH_CREDENTIALS, UNEXPECTED_ERROR } from "./constants"
 import { CreateOrg, CreateOrgAppearance } from "./CreateOrg"
 import { SignInDivider } from "./SignInDivider"
 import { SignInOptions } from "./SignInOptions"
@@ -85,6 +85,7 @@ export const Login = ({
                 getLoginState()
             } else {
                 response.error._visit({
+                    noAccountFoundWithCredentials: () => setError(NO_ACCOUNT_FOUND_WITH_CREDENTIALS),
                     badRequestLogin: () => setError(BAD_REQUEST_LOGIN),
                     _other: () => setError(UNEXPECTED_ERROR),
                 })

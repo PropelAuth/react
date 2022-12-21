@@ -42,3 +42,7 @@ export const PASSWORDLESS_MESSAGE =
     "You can choose between receiving an email to reset your password or receiving an email with a magic link that will log you in."
 export const UNAUTHORIZED_SELECTED_ORG_STATUS = "Unauthorized organization."
 export const NOT_FOUND_SELECTED_ORG_STATUS = "Organization not found."
+export const ORG_CREATION_NOT_ENABLED = "Organization creation not enabled."
+export const LOGIN_PASSWORDLESS_NOT_SUPPORTED = "Passwordless login not supported."
+export const NO_ACCOUNT_FOUND_WITH_CREDENTIALS = "No account found with those credentials."
+export const MFA_ALREADY_DISABLED = "2FA is already disabled."

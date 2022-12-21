@@ -16,8 +16,8 @@ import {
     BAD_REQUEST_LOGIN_PASSWORDLESS,
     FORGOT_PASSWORD_MESSAGE,
     FORGOT_PASSWORD_SUCCESS,
+    LOGIN_PASSWORDLESS_NOT_SUPPORTED,
     MAGIC_LINK_SUCCESS,
-    NOT_FOUND_LOGIN_PASSWORDLESS,
     PASSWORDLESS_MESSAGE,
     UNEXPECTED_ERROR,
 } from "./constants"
@@ -91,7 +91,7 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
                 setSuccessMessage(MAGIC_LINK_SUCCESS)
             } else {
                 response.error._visit({
-                    notFoundLoginPasswordless: () => setError(NOT_FOUND_LOGIN_PASSWORDLESS),
+                    loginPasswordlessNotSupported: () => setError(LOGIN_PASSWORDLESS_NOT_SUPPORTED),
                     badRequestLoginPasswordless: () => setError(BAD_REQUEST_LOGIN_PASSWORDLESS),
                     _other: () => setError(UNEXPECTED_ERROR),
                 })

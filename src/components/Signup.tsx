@@ -1,4 +1,4 @@
-import { signup } from "@propel-auth-fern/fe_v2-client/resources/user"
+import { SignupRequest } from "@propel-auth-fern/fe_v2-client/resources"
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -111,18 +111,16 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
         try {
             e.preventDefault()
             setLoading(true)
-            const options: signup.Request = {
-                _body: {
-                    email: email,
-                    password: password,
-                },
+            const options: SignupRequest = {
+                email: email,
+                password: password,
             }
             if (config.require_name) {
-                options._body.firstName = firstName
-                options._body.lastName = lastName
+                options.firstName = firstName
+                options.lastName = lastName
             }
             if (config.require_username) {
-                options._body.username = username
+                options.username = username
             }
             const inviteToken = getTokenFromURL()
             if (inviteToken) {

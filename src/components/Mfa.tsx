@@ -14,7 +14,7 @@ import { useApi } from "../useApi"
 import {
     BAD_REQUEST_MFA_ENABLE,
     FORBIDDEN,
-    NOT_FOUND_MFA_DISABLE,
+    MFA_ALREADY_DISABLED,
     NOT_FOUND_MFA_ENABLE,
     NOT_FOUND_MFA_STATUS,
     UNAUTHORIZED,
@@ -162,7 +162,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
                 setMfaStatus("Disabled")
             } else {
                 res.error._visit({
-                    notFoundMfaDisable: () => setError(NOT_FOUND_MFA_DISABLE),
+                    mfaAlreadyDisabled: () => setError(MFA_ALREADY_DISABLED),
                     unauthorized: () => setError(UNAUTHORIZED),
                     _other: () => setError(UNEXPECTED_ERROR),
                 })

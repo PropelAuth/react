@@ -12,7 +12,7 @@ import { Label } from "../elements/Label"
 import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { Config, useConfig } from "../useConfig"
-import { BAD_REQUEST_CREATE_ORG, NOT_FOUND_CREATE_ORG, UNAUTHORIZED_ORG_USAGE, UNEXPECTED_ERROR } from "./constants"
+import { BAD_REQUEST_CREATE_ORG, ORG_CREATION_NOT_ENABLED, UNAUTHORIZED_ORG_USAGE, UNEXPECTED_ERROR } from "./constants"
 
 export type CreateOrgProps = {
     config: Config | null
@@ -63,7 +63,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
                 onOrgCreated(response.body)
             } else {
                 response.error._visit({
-                    notFoundCreateOrg: () => setError(NOT_FOUND_CREATE_ORG),
+                    orgCreationNotEnabled: () => setError(ORG_CREATION_NOT_ENABLED),
                     badRequestCreateOrg: () => setError(BAD_REQUEST_CREATE_ORG),
                     unauthorizedOrgUsage: () => setError(UNAUTHORIZED_ORG_USAGE),
                     _other: () => setError(UNEXPECTED_ERROR),
