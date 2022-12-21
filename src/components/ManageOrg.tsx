@@ -74,11 +74,24 @@ export const ManageOrg = ({ orgId, appearance }: ManageOrgProps) => {
     const [filters, setFilters] = useState<string[]>([])
     const { users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg({ orgId })
     const { results } = useOrgSearch({ users, invitations, query, filters })
-    const rowsPerPage = appearance?.options?.rowsPerPage
-    const itemsPerPage = (rowsPerPage && rowsPerPage >= 5 && rowsPerPage <= 100 && rowsPerPage) || 10
+    const itemsPerPage = getItemsPerPage(appearance?.options?.rowsPerPage)
     const { items, controls } = usePagination<UserOrInvitation>({ items: results, itemsPerPage })
     const { rows, editRowModal } = useRowEditor({ rows: items, orgId, methods, appearance })
     const columns = [null, "Email", "Role", "Status", null]
+
+    function getItemsPerPage(num: number | undefined) {
+        if (!num) {
+            return 10
+        } else if (num < 5) {
+            console.error("rowsPerPage must be at least 5")
+            return 5
+        } else if (num > 100) {
+            console.error("rowsPerPage must be less than 100")
+            return 100
+        } else {
+            return num
+        }
+    }
 
     return (
         <div data-contain="component" data-width="full">
