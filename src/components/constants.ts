@@ -39,3 +39,5 @@ export const FORGOT_PASSWORD_MESSAGE =
     "Enter your email address and we will send you an email with a link that will let you reset your password."
 export const PASSWORDLESS_MESSAGE =
     "You can choose between receiving an email to reset your password or receiving an email with a magic link that will log you in."
+export const UNAUTHORIZED_SELECTED_ORG_STATUS = "Unauthorized organization."
+export const NOT_FOUND_SELECTED_ORG_STATUS = "Organization not found."

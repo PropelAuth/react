@@ -21,7 +21,9 @@ import {
     NOT_FOUND_INVITE_USER,
     NOT_FOUND_REMOVE_USER,
     NOT_FOUND_REVOKE_USER_INVITATION,
+    NOT_FOUND_SELECTED_ORG_STATUS,
     UNAUTHORIZED,
+    UNAUTHORIZED_SELECTED_ORG_STATUS,
     UNEXPECTED_ERROR,
 } from "./constants"
 import { threeDaysFromNow } from "./helpers"
@@ -146,6 +148,7 @@ export const useSelectedOrg = ({ orgId }: UseOrgInfoProps) => {
     const [invitations, setInvitations] = useState<Invitation[]>([])
     const [inviteePossibleRoles, setInviteePossibleRoles] = useState<string[]>([])
     const [roles, setRoles] = useState<string[]>([])
+    const [error, setError] = useState<string | undefined>()
 
     useEffect(() => {
         let mounted = true
@@ -156,6 +159,12 @@ export const useSelectedOrg = ({ orgId }: UseOrgInfoProps) => {
                     setInvitations(response.body.pendingInvites)
                     setRoles(config?.roles || [])
                     setInviteePossibleRoles(response.body.inviteePossibleRoles)
+                } else {
+                    response.error._visit({
+                        notFoundSelectedOrgStatus: () => setError(NOT_FOUND_SELECTED_ORG_STATUS),
+                        unauthorizedOrgSelectedOrgStatus: () => setError(UNAUTHORIZED_SELECTED_ORG_STATUS),
+                        _other: () => setError(UNEXPECTED_ERROR),
+                    })
                 }
             }
         })
@@ -199,6 +208,7 @@ export const useSelectedOrg = ({ orgId }: UseOrgInfoProps) => {
             addInvitation,
             removeInvitation,
         },
+        error,
     }
 }
 
