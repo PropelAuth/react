@@ -15,8 +15,8 @@ import { Table, TableProps } from "../elements/Table"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
 import { NOT_FOUND_SELECTED_ORG_STATUS, UNAUTHORIZED_SELECTED_ORG_STATUS, UNEXPECTED_ERROR } from "./constants"
-import { EditActiveUser } from "./EditActiveUser"
 import { EditExpiredInvitation } from "./EditExpiredInvitation"
+import { EditOrgUser } from "./EditOrgUser"
 import { EditPendingInvitation } from "./EditPendingInvitation"
 import { InviteUserAppearance } from "./InviteUser"
 import { OrgControls } from "./OrgControls"
@@ -263,7 +263,7 @@ export const useRowEditor = ({ rows, orgId, methods, appearance }: UseRowEditorP
         if (rowToEdit) {
             if (rowToEdit.status === "active" && rowToEdit.userId) {
                 return (
-                    <EditActiveUser
+                    <EditOrgUser
                         orgId={orgId}
                         user={rowToEdit as User}
                         onClose={closeEditRow}

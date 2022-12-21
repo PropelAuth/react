@@ -8,7 +8,7 @@ import { useApi } from "../useApi"
 import { FORBIDDEN, NOT_FOUND_CHANGE_ROLE, NOT_FOUND_REMOVE_USER, UNAUTHORIZED, UNEXPECTED_ERROR } from "./constants"
 import { OrgAppearance, User } from "./ManageOrg"
 
-export type EditActiveUserProps = {
+export type EditOrgUserProps = {
     orgId: string
     user: User
     onClose: VoidFunction
@@ -17,7 +17,7 @@ export type EditActiveUserProps = {
     appearance?: OrgAppearance
 }
 
-export const EditActiveUser = ({ orgId, user, onClose, setUserRole, removeUser, appearance }: EditActiveUserProps) => {
+export const EditOrgUser = ({ orgId, user, onClose, setUserRole, removeUser, appearance }: EditOrgUserProps) => {
     const { orgUserApi } = useApi()
     const [role, setRole] = useState(user.role)
     const [loading, setLoading] = useState(false)
