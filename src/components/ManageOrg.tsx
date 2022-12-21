@@ -74,7 +74,8 @@ export const ManageOrg = ({ orgId, appearance }: ManageOrgProps) => {
     const [filters, setFilters] = useState<string[]>([])
     const { users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg({ orgId })
     const { results } = useOrgSearch({ users, invitations, query, filters })
-    const itemsPerPage = appearance?.options?.rowsPerPage || 10
+    const rowsPerPage = appearance?.options?.rowsPerPage
+    const itemsPerPage = (rowsPerPage && rowsPerPage >= 5 && rowsPerPage <= 100 && rowsPerPage) || 10
     const { items, controls } = usePagination<UserOrInvitation>({ items: results, itemsPerPage })
     const { rows, editRowModal } = useRowEditor({ rows: items, orgId, methods, appearance })
     const columns = [null, "Email", "Role", "Status", null]
