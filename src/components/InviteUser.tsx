@@ -72,7 +72,13 @@ export const InviteUser = ({ orgId, onSuccess, appearance }: InviteUserProps) =>
     }
 
     if (!inviteePossibleRoles || inviteePossibleRoles.length === 0) {
-        return null // ?
+        return (
+            <div data-contain="component">
+                <Container appearance={appearance?.elements?.Container}>
+                    <span>You do not have permission to invite other users</span>
+                </Container>
+            </div>
+        )
     }
 
     return (
