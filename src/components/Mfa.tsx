@@ -379,7 +379,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
                 <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
-                    {UNEXPECTED_ERROR}
+                    {statusError}
                 </Alert>
             </Container>
         </div>
