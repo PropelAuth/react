@@ -24,11 +24,11 @@ export type LoginProps = {
     onRedirectToSignup?: VoidFunction
     onRedirectToForgotPassword?: VoidFunction
     presetEmail?: string
-    appearance?: LoginAppearance
-    confirmEmailAppearance?: ConfirmEmailAppearance
-    verifyAppearance?: VerifyAppearance
-    userMetadataAppearance?: UserMetadataAppearance
-    createOrgAppearance?: CreateOrgAppearance
+    appearance?: LoginAppearance &
+        ConfirmEmailAppearance &
+        VerifyAppearance &
+        UserMetadataAppearance &
+        CreateOrgAppearance
 }
 
 export type LoginAppearance = {
@@ -63,10 +63,6 @@ export const Login = ({
     onRedirectToForgotPassword,
     presetEmail,
     appearance,
-    confirmEmailAppearance,
-    verifyAppearance,
-    userMetadataAppearance,
-    createOrgAppearance,
 }: LoginProps) => {
     const { config } = useConfig()
     const [step, setStep] = useState<LoginStateEnum>(LoginStateEnum.LoginRequired)
@@ -213,16 +209,16 @@ export const Login = ({
             )
 
         case LoginStateEnum.ConfirmEmailRequired:
-            return <ConfirmEmail appearance={confirmEmailAppearance} />
+            return <ConfirmEmail appearance={appearance} />
 
         case LoginStateEnum.TwoFactorRequired:
-            return <Verify setStep={setStep} appearance={verifyAppearance} />
+            return <Verify setStep={setStep} appearance={appearance} />
 
         case LoginStateEnum.UserMetadataRequired:
-            return <UserMetadata setStep={setStep} config={config} appearance={userMetadataAppearance} />
+            return <UserMetadata setStep={setStep} config={config} appearance={appearance} />
 
         case LoginStateEnum.OrgCreationRequired:
-            return <CreateOrg onOrgCreated={setCurrentStep} config={config} appearance={createOrgAppearance} />
+            return <CreateOrg onOrgCreated={setCurrentStep} config={config} appearance={appearance} />
 
         default:
             return <span>{UNEXPECTED_ERROR}</span>
