@@ -1,5 +1,4 @@
-import { LoginStateEnum } from "@propel-auth-fern/fe_v2-client/resources"
-import React, { Dispatch, MouseEvent, ReactNode, SetStateAction, SyntheticEvent, useState } from "react"
+import React, { MouseEvent, ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
@@ -13,7 +12,7 @@ import { useConfig } from "../useConfig"
 import { BAD_REQUEST_MFA_VERIFY, FORBIDDEN, NOT_FOUND_MFA_VERIFY, UNEXPECTED_ERROR } from "./constants"
 
 export type VerifyProps = {
-    setStep: Dispatch<SetStateAction<LoginStateEnum>>
+    getLoginState: VoidFunction
     appearance?: VerifyAppearance
 }
 
@@ -35,7 +34,7 @@ export type VerifyAppearance = {
     }
 }
 
-export const Verify = ({ setStep, appearance }: VerifyProps) => {
+export const Verify = ({ getLoginState, appearance }: VerifyProps) => {
     const { config } = useConfig()
     const { mfaApi } = useApi()
     const [loading, setLoading] = useState(false)
@@ -65,7 +64,7 @@ export const Verify = ({ setStep, appearance }: VerifyProps) => {
             setError(undefined)
             const response = await mfaApi.mfaVerify({ code })
             if (response.ok) {
-                setStep(response.body)
+                getLoginState()
             } else {
                 response.error._visit({
                     badRequestMfaVerify: () => setError(BAD_REQUEST_MFA_VERIFY),

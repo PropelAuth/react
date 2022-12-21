@@ -1,5 +1,4 @@
-import { LoginStateEnum } from "@propel-auth-fern/fe_v2-client/resources"
-import React, { Dispatch, ReactNode, SetStateAction, SyntheticEvent, useState } from "react"
+import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
@@ -14,7 +13,7 @@ import { BAD_REQUEST_UPDATE_METADATA, NOT_FOUND_UPDATE_METADATA, UNEXPECTED_ERRO
 
 export type UserMetadataProps = {
     config: Config | null
-    setStep: Dispatch<SetStateAction<LoginStateEnum>>
+    getLoginState: VoidFunction
     appearance?: UserMetadataAppearance
 }
 
@@ -45,7 +44,7 @@ export interface UpdateMetadataOptions {
     lastName?: string
 }
 
-export const UserMetadata = ({ config, setStep, appearance }: UserMetadataProps) => {
+export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadataProps) => {
     const { userApi, loginApi } = useApi()
     const [loading, setLoading] = useState(false)
     const [firstName, setFirstName] = useState("")
@@ -70,7 +69,7 @@ export const UserMetadata = ({ config, setStep, appearance }: UserMetadataProps)
             if (response.ok) {
                 const status = await loginApi.loginState()
                 if (status.ok) {
-                    setStep(status.body.loginState)
+                    getLoginState()
                 } else {
                     setError(UNEXPECTED_ERROR)
                 }

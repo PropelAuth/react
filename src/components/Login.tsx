@@ -9,6 +9,7 @@ import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
+import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
 import { ConfirmEmail, ConfirmEmailAppearance } from "./ConfirmEmail"
@@ -43,6 +44,7 @@ export type LoginAppearance = {
         forgotPasswordButtonContent?: ReactNode
     }
     elements?: {
+        Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>
@@ -65,12 +67,12 @@ export const Login = ({
     appearance,
 }: LoginProps) => {
     const { config } = useConfig()
-    const [step, setStep] = useState<LoginStateEnum>(LoginStateEnum.LoginRequired)
-    const [loading, setLoading] = useState(false)
+    const { loginApi } = useApi()
+    const { loginStateLoading, loginState, getLoginState } = useLoginState()
     const [email, setEmail] = useState(presetEmail || "")
     const [password, setPassword] = useState("")
+    const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
-    const { loginApi } = useApi()
 
     const login = async (e: SyntheticEvent) => {
         try {
@@ -80,7 +82,7 @@ export const Login = ({
             const options = { email, password }
             const response = await loginApi.login(options)
             if (response.ok) {
-                setStep(response.body)
+                getLoginState()
             } else {
                 response.error._visit({
                     badRequestLogin: () => setError(BAD_REQUEST_LOGIN),
@@ -95,26 +97,23 @@ export const Login = ({
         }
     }
 
-    const setCurrentStep = async () => {
-        try {
-            const response = await loginApi.loginState()
-            if (response.ok) {
-                setStep(response.body.loginState)
-            } else {
-                throw new Error("Failed to fetch login state")
-            }
-        } catch (e) {
-            console.error(e)
-        }
-    }
-
     useEffect(() => {
-        if (step === LoginStateEnum.Finished) {
+        if (loginState === LoginStateEnum.Finished) {
             onSuccess()
         }
-    }, [step, onSuccess])
+    }, [loginState, onSuccess])
 
-    switch (step) {
+    if (loginStateLoading) {
+        return (
+            <div data-contain="component">
+                <Container appearance={appearance?.elements?.Container}>
+                    <Progress appearance={appearance?.elements?.Progress} />
+                </Container>
+            </div>
+        )
+    }
+
+    switch (loginState) {
         case LoginStateEnum.LoginRequired:
             return (
                 <div data-contain="component">
@@ -212,15 +211,53 @@ export const Login = ({
             return <ConfirmEmail appearance={appearance} />
 
         case LoginStateEnum.TwoFactorRequired:
-            return <Verify setStep={setStep} appearance={appearance} />
+            return <Verify getLoginState={getLoginState} appearance={appearance} />
 
         case LoginStateEnum.UserMetadataRequired:
-            return <UserMetadata setStep={setStep} config={config} appearance={appearance} />
+            return <UserMetadata getLoginState={getLoginState} config={config} appearance={appearance} />
 
         case LoginStateEnum.OrgCreationRequired:
-            return <CreateOrg onOrgCreated={setCurrentStep} config={config} appearance={appearance} />
+            return <CreateOrg onOrgCreated={getLoginState} config={config} appearance={appearance} />
 
         default:
-            return <span>{UNEXPECTED_ERROR}</span>
+            return (
+                <div data-contain="component">
+                    <Container appearance={appearance?.elements?.Container}>
+                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                            {UNEXPECTED_ERROR}
+                        </Alert>
+                    </Container>
+                </div>
+            )
+    }
+}
+
+export const useLoginState = () => {
+    const { loginApi } = useApi()
+    const [loading, setLoading] = useState<boolean>(false)
+    const [state, setState] = useState<LoginStateEnum | undefined>(undefined)
+    const [refreshCounter, setRefreshCounter] = useState(0)
+
+    useEffect(() => {
+        let mounted = true
+        setLoading(true)
+        loginApi.loginState().then((response) => {
+            if (mounted) {
+                if (response.ok) {
+                    setState(response.body.loginState)
+                }
+            }
+        })
+        setLoading(false)
+        return () => {
+            mounted = false
+            setLoading(false)
+        }
+    }, [refreshCounter])
+
+    return {
+        loginStateLoading: loading,
+        loginState: state,
+        getLoginState: () => setRefreshCounter((c) => c++),
     }
 }
