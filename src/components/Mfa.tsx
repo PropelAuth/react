@@ -9,12 +9,14 @@ import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
 import { Modal, ModalProps } from "../elements/Modal"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
+import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import {
     BAD_REQUEST_MFA_ENABLE,
     FORBIDDEN,
     NOT_FOUND_MFA_DISABLE,
     NOT_FOUND_MFA_ENABLE,
+    NOT_FOUND_MFA_STATUS,
     UNAUTHORIZED,
     UNEXPECTED_ERROR,
 } from "./constants"
@@ -42,6 +44,7 @@ export type MfaAppearance = {
         closeEnableMfaModalButtonContent?: ReactNode
     }
     elements?: {
+        Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         EnableMfaButton?: ElementAppearance<ButtonProps>
         EnableMfaModal?: ElementAppearance<ModalProps>
@@ -70,11 +73,11 @@ export type MfaAppearance = {
     }
 }
 
-export type MfaStatus = "Loading" | "Error" | "Enabled" | "Disabled"
+export type MfaStatus = "Enabled" | "Disabled"
 
 export const Mfa = ({ appearance }: MfaProps) => {
     const { mfaApi } = useApi()
-    const [mfaStatus, setMfaStatus] = useState<MfaStatus>("Loading")
+    const [mfaStatus, setMfaStatus] = useState<MfaStatus | undefined>(undefined)
     const [showQr, setShowQr] = useState(true)
     const [showDisableModal, setShowDisableModal] = useState(false)
     const [showEnableModal, setShowEnableModal] = useState(false)
@@ -83,32 +86,44 @@ export const Mfa = ({ appearance }: MfaProps) => {
     const [backupCodes, setBackupCodes] = useState<string[]>([])
     const [newQr, setNewQr] = useState("")
     const [newSecret, setNewSecret] = useState("")
+    const [statusLoading, setStatusLoading] = useState(false)
+    const [statusError, setStatusError] = useState<string | undefined>(undefined)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
 
     useEffect(() => {
-        async function fetchStatus() {
-            try {
-                const res = await mfaApi.mfaStatus()
-                if (res.ok) {
-                    if (res.body.type === "Enabled") {
-                        setMfaStatus(res.body.type)
-                        setBackupCodes(res.body.backupCodes)
-                    } else if (res.body.type === "Disabled") {
-                        setMfaStatus(res.body.type)
-                        setNewSecret(res.body.newSecret)
-                        setNewQr(res.body.newQr)
+        let mounted = true
+        setStatusLoading(true)
+        mfaApi
+            .mfaStatus()
+            .then((response) => {
+                if (mounted) {
+                    if (response.ok) {
+                        if (response.body.type === "Enabled") {
+                            setMfaStatus(response.body.type)
+                            setBackupCodes(response.body.backupCodes)
+                        } else if (response.body.type === "Disabled") {
+                            setMfaStatus(response.body.type)
+                            setNewSecret(response.body.newSecret)
+                            setNewQr(response.body.newQr)
+                        }
+                    } else {
+                        response.error._visit({
+                            notFoundMfaStatus: () => setStatusError(NOT_FOUND_MFA_STATUS),
+                            unauthorized: () => setStatusError(UNAUTHORIZED),
+                            _other: () => setStatusError(UNEXPECTED_ERROR),
+                        })
                     }
-                } else {
-                    setMfaStatus("Error")
                 }
-            } catch (e) {
-                setMfaStatus("Error")
-                console.error(e)
-            }
+            })
+            .catch(() => {
+                setStatusError(UNEXPECTED_ERROR)
+            })
+        setStatusLoading(false)
+        return () => {
+            setStatusLoading(false)
+            mounted = false
         }
-
-        fetchStatus()
     }, [mfaStatus, mfaApi])
 
     async function enableMfa() {
@@ -178,8 +193,14 @@ export const Mfa = ({ appearance }: MfaProps) => {
         }
     }
 
-    if (mfaStatus === "Loading" || mfaStatus === "Error") {
-        return null // ?
+    if (statusLoading) {
+        return (
+            <div data-contain="component">
+                <Container appearance={appearance?.elements?.Container}>
+                    <Progress appearance={appearance?.elements?.Progress} />
+                </Container>
+            </div>
+        )
     }
 
     if (mfaStatus === "Enabled") {
@@ -272,82 +293,94 @@ export const Mfa = ({ appearance }: MfaProps) => {
         )
     }
 
+    if (mfaStatus === "Disabled") {
+        return (
+            <div data-contain="component">
+                <Container appearance={appearance?.elements?.Container}>
+                    <Button onClick={() => setShowEnableModal(true)} appearance={appearance?.elements?.EnableMfaButton}>
+                        {appearance?.options?.enableMfaButtonContent || "Enable 2FA"}
+                    </Button>
+                    <Modal
+                        show={showEnableModal}
+                        setShow={setShowEnableModal}
+                        appearance={appearance?.elements?.EnableMfaModal}
+                        onClose={() => setError(undefined)}
+                    >
+                        <H3 appearance={appearance?.elements?.EnableMfaModalHeader}>
+                            {appearance?.options?.enableMfaModalHeaderContent || "Enable 2FA"}
+                        </H3>
+                        <Paragraph appearance={appearance?.elements?.EnableMfaModalText}>
+                            Two-Factor Authentication makes your account more secure by requiring a code in addition to
+                            your normal login. You&#39;ll need an Authenticator app like Google Authenticator or Authy.
+                        </Paragraph>
+                        <div data-contain="qr_code">
+                            {showQr ? (
+                                <>
+                                    <Image
+                                        src={`data:image/png;base64,${newQr}`}
+                                        alt={"qr code"}
+                                        appearance={appearance?.elements?.QrCodeImage}
+                                    />
+                                    <div onClick={() => setShowQr(false)}>
+                                        {appearance?.options?.toggleQrSecretInputContent || (
+                                            <small>Not working? Enter a code instead</small>
+                                        )}
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <Input
+                                        onChange={() => null}
+                                        type="text"
+                                        value={newSecret}
+                                        readOnly
+                                        appearance={appearance?.elements?.QrSecretInput}
+                                    />
+                                    <div onClick={() => setShowQr(true)}>
+                                        {appearance?.options?.toggleQrCodeImageContent || (
+                                            <small>Prefer an image? Scan a QR code instead</small>
+                                        )}
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                        <div>
+                            <Label htmlFor={"code"} appearance={appearance?.elements?.EnableMfaCodeLabel}>
+                                {appearance?.options?.enableMfaCodeLabel || "Enter the 6-digit code from the app"}
+                            </Label>
+                            <Input
+                                id={"code"}
+                                value={code}
+                                onChange={(e) => setCode(e.target.value)}
+                                appearance={appearance?.elements?.EnableMfaCodeInput}
+                            />
+                        </div>
+                        <Button
+                            onClick={() => setShowEnableModal(false)}
+                            appearance={appearance?.elements?.CloseEnableMfaModalButton}
+                        >
+                            {appearance?.options?.closeEnableMfaModalButtonContent || "Cancel"}
+                        </Button>
+                        <Button onClick={enableMfa} appearance={appearance?.elements?.EnableMfaModalButton}>
+                            {appearance?.options?.enableMfaModalButtonContent || "Enable 2FA"}
+                        </Button>
+                        {error && (
+                            <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                                {error}
+                            </Alert>
+                        )}
+                    </Modal>
+                </Container>
+            </div>
+        )
+    }
+
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                <Button onClick={() => setShowEnableModal(true)} appearance={appearance?.elements?.EnableMfaButton}>
-                    {appearance?.options?.enableMfaButtonContent || "Enable 2FA"}
-                </Button>
-                <Modal
-                    show={showEnableModal}
-                    setShow={setShowEnableModal}
-                    appearance={appearance?.elements?.EnableMfaModal}
-                    onClose={() => setError(undefined)}
-                >
-                    <H3 appearance={appearance?.elements?.EnableMfaModalHeader}>
-                        {appearance?.options?.enableMfaModalHeaderContent || "Enable 2FA"}
-                    </H3>
-                    <Paragraph appearance={appearance?.elements?.EnableMfaModalText}>
-                        Two-Factor Authentication makes your account more secure by requiring a code in addition to your
-                        normal login. You&#39;ll need an Authenticator app like Google Authenticator or Authy.
-                    </Paragraph>
-                    <div data-contain="qr_code">
-                        {showQr ? (
-                            <>
-                                <Image
-                                    src={`data:image/png;base64,${newQr}`}
-                                    alt={"qr code"}
-                                    appearance={appearance?.elements?.QrCodeImage}
-                                />
-                                <div onClick={() => setShowQr(false)}>
-                                    {appearance?.options?.toggleQrSecretInputContent || (
-                                        <small>Not working? Enter a code instead</small>
-                                    )}
-                                </div>
-                            </>
-                        ) : (
-                            <>
-                                <Input
-                                    onChange={() => null}
-                                    type="text"
-                                    value={newSecret}
-                                    readOnly
-                                    appearance={appearance?.elements?.QrSecretInput}
-                                />
-                                <div onClick={() => setShowQr(true)}>
-                                    {appearance?.options?.toggleQrCodeImageContent || (
-                                        <small>Prefer an image? Scan a QR code instead</small>
-                                    )}
-                                </div>
-                            </>
-                        )}
-                    </div>
-                    <div>
-                        <Label htmlFor={"code"} appearance={appearance?.elements?.EnableMfaCodeLabel}>
-                            {appearance?.options?.enableMfaCodeLabel || "Enter the 6-digit code from the app"}
-                        </Label>
-                        <Input
-                            id={"code"}
-                            value={code}
-                            onChange={(e) => setCode(e.target.value)}
-                            appearance={appearance?.elements?.EnableMfaCodeInput}
-                        />
-                    </div>
-                    <Button
-                        onClick={() => setShowEnableModal(false)}
-                        appearance={appearance?.elements?.CloseEnableMfaModalButton}
-                    >
-                        {appearance?.options?.closeEnableMfaModalButtonContent || "Cancel"}
-                    </Button>
-                    <Button onClick={enableMfa} appearance={appearance?.elements?.EnableMfaModalButton}>
-                        {appearance?.options?.enableMfaModalButtonContent || "Enable 2FA"}
-                    </Button>
-                    {error && (
-                        <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
-                            {error}
-                        </Alert>
-                    )}
-                </Modal>
+                <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                    {UNEXPECTED_ERROR}
+                </Alert>
             </Container>
         </div>
     )
