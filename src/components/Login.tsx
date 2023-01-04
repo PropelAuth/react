@@ -13,7 +13,7 @@ import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
 import { ConfirmEmail, ConfirmEmailAppearance } from "./ConfirmEmail"
-import { BAD_REQUEST_LOGIN, NO_ACCOUNT_FOUND_WITH_CREDENTIALS, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { BAD_REQUEST, NO_ACCOUNT_FOUND_WITH_CREDENTIALS, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { CreateOrg, CreateOrgAppearance } from "./CreateOrg"
 import { SignInDivider } from "./SignInDivider"
 import { SignInOptions } from "./SignInOptions"
@@ -86,7 +86,17 @@ export const Login = ({
             } else {
                 response.error._visit({
                     noAccountFoundWithCredentials: () => setError(NO_ACCOUNT_FOUND_WITH_CREDENTIALS),
-                    badRequestLogin: () => setError(BAD_REQUEST_LOGIN),
+                    badRequestLogin: ({ email, error, password }) => {
+                        if (email && !!email.length) {
+                            setError(email.join(", "))
+                        } else if (error && !!error.length) {
+                            setError(error.join(", "))
+                        } else if (password && !!password.length) {
+                            setError(password.join(", "))
+                        } else {
+                            setError(BAD_REQUEST)
+                        }
+                    },
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }

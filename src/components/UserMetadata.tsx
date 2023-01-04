@@ -10,7 +10,8 @@ import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { useApi } from "../useApi"
 import { Config } from "../useConfig"
-import { BAD_REQUEST_UPDATE_METADATA, NOT_FOUND_UPDATE_METADATA, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { useRedirectFunctions } from "../useRedirectFunctions"
+import { BAD_REQUEST, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
 export type UserMetadataProps = {
     config: Config | null
@@ -46,6 +47,7 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
     const [lastName, setLastName] = useState("")
     const [username, setUsername] = useState("")
     const [error, setError] = useState<string | undefined>(undefined)
+    const { redirectToLoginPage } = useRedirectFunctions()
 
     async function updateMetadata(e: SyntheticEvent) {
         try {
@@ -70,8 +72,18 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
                 }
             } else {
                 response.error._visit({
-                    notFoundUpdateMetadata: () => setError(NOT_FOUND_UPDATE_METADATA),
-                    badRequestUpdateMetadata: () => setError(BAD_REQUEST_UPDATE_METADATA),
+                    unauthorized: redirectToLoginPage,
+                    badRequestUpdateMetadata: ({ firstName, lastName, username }) => {
+                        if (firstName && !!firstName.length) {
+                            setError(firstName.join(", "))
+                        } else if (lastName && !!lastName.length) {
+                            setError(lastName.join(", "))
+                        } else if (username && !!username.length) {
+                            setError(username.join(", "))
+                        } else {
+                            setError(BAD_REQUEST)
+                        }
+                    },
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }

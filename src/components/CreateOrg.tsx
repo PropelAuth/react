@@ -13,7 +13,7 @@ import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { Config, useConfig } from "../useConfig"
 import {
-    BAD_REQUEST_CREATE_ORG,
+    BAD_REQUEST,
     ORG_CREATION_NOT_ENABLED,
     UNAUTHORIZED_ORG_USAGE,
     UNEXPECTED_ERROR,
@@ -70,7 +70,15 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
             } else {
                 response.error._visit({
                     orgCreationNotEnabled: () => setError(ORG_CREATION_NOT_ENABLED),
-                    badRequestCreateOrg: () => setError(BAD_REQUEST_CREATE_ORG),
+                    badRequestCreateOrg: ({ error, name }) => {
+                        if (name && !!name.length) {
+                            setError(name.join(", "))
+                        } else if (error && !!error.length) {
+                            setError(error.join(", "))
+                        } else {
+                            setError(BAD_REQUEST)
+                        }
+                    },
                     unauthorizedOrgUsage: () => setError(UNAUTHORIZED_ORG_USAGE),
                     _other: () => setError(UNEXPECTED_ERROR),
                 })

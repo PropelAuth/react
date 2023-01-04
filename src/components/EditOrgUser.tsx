@@ -7,10 +7,10 @@ import { Select } from "../elements/Select"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import {
+    BAD_REQUEST,
     FORBIDDEN,
     NOT_FOUND_CHANGE_ROLE,
     NOT_FOUND_REMOVE_USER,
-    UNAUTHORIZED,
     UNEXPECTED_ERROR,
     X_CSRF_TOKEN,
 } from "./constants"
@@ -56,7 +56,7 @@ export const EditOrgUser = ({ orgId, user, onClose, setUserRole, removeUser, app
             } else {
                 response.error._visit({
                     unauthorized: redirectToLoginPage,
-                    badChangeRoleRequest: (err) => setError(err.role?.join(", ") || "Invalid request"),
+                    badChangeRoleRequest: (err) => setError(err.role?.join(", ") || BAD_REQUEST),
                     notFoundChangeRole: () => setError(NOT_FOUND_CHANGE_ROLE),
                     forbiddenErrorChangeRole: () => setError(FORBIDDEN),
                     _other: () => setError(UNEXPECTED_ERROR),
@@ -83,7 +83,7 @@ export const EditOrgUser = ({ orgId, user, onClose, setUserRole, removeUser, app
                 response.error._visit({
                     notFoundRemoveUser: () => setError(NOT_FOUND_REMOVE_USER),
                     forbiddenRemoveUser: () => setError(FORBIDDEN),
-                    unauthorized: () => setError(UNAUTHORIZED),
+                    unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }

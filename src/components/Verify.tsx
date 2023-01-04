@@ -9,7 +9,7 @@ import { Input, InputProps } from "../elements/Input"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
-import { BAD_REQUEST_MFA_VERIFY, FORBIDDEN, NOT_FOUND_MFA_VERIFY, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { BAD_REQUEST, FORBIDDEN, NOT_FOUND_MFA_VERIFY, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
 export type VerifyProps = {
     getLoginState: VoidFunction
@@ -67,7 +67,7 @@ export const Verify = ({ getLoginState, appearance }: VerifyProps) => {
                 getLoginState()
             } else {
                 response.error._visit({
-                    badRequestMfaVerify: () => setError(BAD_REQUEST_MFA_VERIFY),
+                    badRequestMfaVerify: (err) => setError(err.code?.join(", ") || BAD_REQUEST),
                     notFoundMfaVerify: () => setError(NOT_FOUND_MFA_VERIFY),
                     forbiddenMfaVerify: () => setError(FORBIDDEN),
                     _other: () => setError(UNEXPECTED_ERROR),

@@ -3,12 +3,12 @@ import { Alert } from "../elements/Alert"
 import { Button } from "../elements/Button"
 import { H3 } from "../elements/H3"
 import { useApi } from "../useApi"
+import { useRedirectFunctions } from "../useRedirectFunctions"
 import {
-    BAD_REQUEST_INVITE_USER,
+    BAD_REQUEST,
     FORBIDDEN,
     NOT_FOUND_INVITE_USER,
     NOT_FOUND_REVOKE_USER_INVITATION,
-    UNAUTHORIZED,
     UNEXPECTED_ERROR,
     X_CSRF_TOKEN,
 } from "./constants"
@@ -35,6 +35,7 @@ export const EditExpiredInvitation = ({
     const { orgUserApi } = useApi()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
+    const { redirectToLoginPage } = useRedirectFunctions()
 
     async function deleteInvitation() {
         try {
@@ -49,7 +50,7 @@ export const EditExpiredInvitation = ({
                 response.error._visit({
                     notFoundRevokeUserInvitation: () => setError(NOT_FOUND_REVOKE_USER_INVITATION),
                     forbiddenRevokeUserInvitation: () => setError(FORBIDDEN),
-                    unauthorized: () => setError(UNAUTHORIZED),
+                    unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }
@@ -81,8 +82,16 @@ export const EditExpiredInvitation = ({
                 } else {
                     invite.error._visit({
                         notFoundInviteUser: () => setError(NOT_FOUND_INVITE_USER),
-                        badRequestInviteUser: () => setError(BAD_REQUEST_INVITE_USER),
-                        unauthorized: () => setError(UNAUTHORIZED),
+                        badRequestInviteUser: ({ email, role }) => {
+                            if (email && !!email.length) {
+                                setError(email.join(", "))
+                            } else if (role && !!role.length) {
+                                setError(role.join(", "))
+                            } else {
+                                setError(BAD_REQUEST)
+                            }
+                        },
+                        unauthorized: redirectToLoginPage,
                         _other: () => setError(UNEXPECTED_ERROR),
                     })
                 }
@@ -90,7 +99,7 @@ export const EditExpiredInvitation = ({
                 response.error._visit({
                     notFoundRevokeUserInvitation: () => setError(NOT_FOUND_REVOKE_USER_INVITATION),
                     forbiddenRevokeUserInvitation: () => setError(FORBIDDEN),
-                    unauthorized: () => setError(UNAUTHORIZED),
+                    unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }

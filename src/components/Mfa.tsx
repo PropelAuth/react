@@ -13,7 +13,7 @@ import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import {
-    BAD_REQUEST_MFA_ENABLE,
+    BAD_REQUEST,
     FORBIDDEN,
     MFA_ALREADY_DISABLED,
     MFA_ALREADY_ENABLED,
@@ -138,7 +138,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
             } else {
                 res.error._visit({
                     mfaAlreadyEnabled: () => setError(MFA_ALREADY_ENABLED),
-                    badRequestMfaEnable: () => setError(BAD_REQUEST_MFA_ENABLE),
+                    badRequestMfaEnable: (err) => setError(err.code?.join(", ") || BAD_REQUEST),
                     forbiddenMfaEnable: () => setError(FORBIDDEN),
                     unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),

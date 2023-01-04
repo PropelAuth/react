@@ -11,7 +11,7 @@ import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { useApi } from "../useApi"
 import { Config, useConfig } from "../useConfig"
-import { BAD_REQUEST_SIGNUP, SIGNUP_NOT_ALLOWED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { BAD_REQUEST, SIGNUP_NOT_ALLOWED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { getTokenFromURL } from "./helpers"
 import { SignInDivider } from "./SignInDivider"
 import { SignInOptions } from "./SignInOptions"
@@ -133,7 +133,21 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
             } else {
                 response.error._visit({
                     signupNotAllowed: () => setError(SIGNUP_NOT_ALLOWED),
-                    badRequestSignup: (err) => setError(BAD_REQUEST_SIGNUP),
+                    badRequestSignup: ({ email, firstName, lastName, password, username }) => {
+                        if (email && !!email.length) {
+                            setError(email.join(", "))
+                        } else if (firstName && !!firstName.length) {
+                            setError(firstName.join(", "))
+                        } else if (lastName && !!lastName.length) {
+                            setError(lastName.join(", "))
+                        } else if (password && !!password.length) {
+                            setError(password.join(", "))
+                        } else if (username && !!username.length) {
+                            setError(username.join(", "))
+                        } else {
+                            setError(BAD_REQUEST)
+                        }
+                    },
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }

@@ -12,10 +12,9 @@ import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import {
+    BAD_REQUEST,
     BAD_REQUEST_UPDATE_EMAIL,
     BAD_REQUEST_UPDATE_PASSWORD,
-    BAD_REQUEST_UPDATE_USERNAME,
-    NOT_FOUND_UPDATE_EMAIL,
     NOT_FOUND_UPDATE_NAME,
     NOT_FOUND_UPDATE_PASSWORD,
     NOT_FOUND_UPDATE_USERNAME,
@@ -93,6 +92,7 @@ export const UpdateEmail = ({ appearance }: UpdateEmailProps) => {
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
     const [showConfirmationModal, setShowConfirmationModal] = useState(false)
+    const { redirectToLoginPage } = useRedirectFunctions()
 
     async function handleSubmit(event: FormEvent) {
         try {
@@ -103,7 +103,7 @@ export const UpdateEmail = ({ appearance }: UpdateEmailProps) => {
                 setShowConfirmationModal(true)
             } else {
                 res.error._visit({
-                    notFoundUpdateEmail: () => setError(NOT_FOUND_UPDATE_EMAIL),
+                    unauthorized: redirectToLoginPage,
                     badRequestUpdateEmail: () => setError(BAD_REQUEST_UPDATE_EMAIL),
                     tooManyRequests: () => setError(TOO_MANY_REQUESTS),
                     _other: () => setError(UNEXPECTED_ERROR),
@@ -286,7 +286,7 @@ export const UpdateUsername = ({ appearance }: UpdateUsernameProps) => {
                 res.error._visit({
                     unauthorized: redirectToLoginPage,
                     notFoundUpdateUsername: () => setError(NOT_FOUND_UPDATE_USERNAME),
-                    badRequestUpdateUsername: () => setError(BAD_REQUEST_UPDATE_USERNAME),
+                    badRequestUpdateUsername: (err) => setError(err.username?.join(", ") || BAD_REQUEST),
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }

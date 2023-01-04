@@ -12,8 +12,7 @@ import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
 import {
-    BAD_REQUEST_FORGOT_PASSWORD,
-    BAD_REQUEST_LOGIN_PASSWORDLESS,
+    BAD_REQUEST,
     FORGOT_PASSWORD_MESSAGE,
     FORGOT_PASSWORD_SUCCESS,
     LOGIN_PASSWORDLESS_NOT_SUPPORTED,
@@ -71,7 +70,7 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
                 setSuccessMessage(FORGOT_PASSWORD_SUCCESS)
             } else {
                 response.error._visit({
-                    badRequestForgotPassword: () => setError(BAD_REQUEST_FORGOT_PASSWORD),
+                    badRequestForgotPassword: (err) => setError(err.email?.join(", ") || BAD_REQUEST),
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }
@@ -97,7 +96,15 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
             } else {
                 response.error._visit({
                     loginPasswordlessNotSupported: () => setError(LOGIN_PASSWORDLESS_NOT_SUPPORTED),
-                    badRequestLoginPasswordless: () => setError(BAD_REQUEST_LOGIN_PASSWORDLESS),
+                    badRequestLoginPasswordless: ({ email, error }) => {
+                        if (email && !!email.length) {
+                            setError(email.join(", "))
+                        } else if (error && !!error.length) {
+                            setError(error.join(", "))
+                        } else {
+                            setError(BAD_REQUEST)
+                        }
+                    },
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }

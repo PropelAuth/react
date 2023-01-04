@@ -3,7 +3,8 @@ import { Alert } from "../elements/Alert"
 import { Button } from "../elements/Button"
 import { H3 } from "../elements/H3"
 import { useApi } from "../useApi"
-import { FORBIDDEN, NOT_FOUND_REVOKE_USER_INVITATION, UNAUTHORIZED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { useRedirectFunctions } from "../useRedirectFunctions"
+import { FORBIDDEN, NOT_FOUND_REVOKE_USER_INVITATION, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { OrgAppearance, UserOrInvitation } from "./ManageOrg"
 
 export type EditPendingInvitationProps = {
@@ -24,6 +25,7 @@ export const EditPendingInvitation = ({
     const { orgUserApi } = useApi()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
+    const { redirectToLoginPage } = useRedirectFunctions()
 
     async function revokeInvitation() {
         try {
@@ -38,7 +40,7 @@ export const EditPendingInvitation = ({
                 response.error._visit({
                     notFoundRevokeUserInvitation: () => setError(NOT_FOUND_REVOKE_USER_INVITATION),
                     forbiddenRevokeUserInvitation: () => setError(FORBIDDEN),
-                    unauthorized: () => setError(UNAUTHORIZED),
+                    unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }

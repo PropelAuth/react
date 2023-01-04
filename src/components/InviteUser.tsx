@@ -8,13 +8,8 @@ import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
 import { Select, SelectProps } from "../elements/Select"
 import { useApi } from "../useApi"
-import {
-    BAD_REQUEST_INVITE_USER,
-    NOT_FOUND_INVITE_USER,
-    UNAUTHORIZED,
-    UNEXPECTED_ERROR,
-    X_CSRF_TOKEN,
-} from "./constants"
+import { useRedirectFunctions } from "../useRedirectFunctions"
+import { BAD_REQUEST, NOT_FOUND_INVITE_USER, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { threeDaysFromNow } from "./helpers"
 import { Invitation, useSelectedOrg } from "./ManageOrg"
 
@@ -46,6 +41,7 @@ export type InviteUserAppearance = {
 export const InviteUser = ({ orgId, onSuccess, appearance }: InviteUserProps) => {
     const { orgUserApi } = useApi()
     const { inviteePossibleRoles } = useSelectedOrg({ orgId })
+    const { redirectToLoginPage } = useRedirectFunctions()
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
     const [email, setEmail] = useState("")
@@ -64,8 +60,16 @@ export const InviteUser = ({ orgId, onSuccess, appearance }: InviteUserProps) =>
             } else {
                 response.error._visit({
                     notFoundInviteUser: () => setError(NOT_FOUND_INVITE_USER),
-                    badRequestInviteUser: () => setError(BAD_REQUEST_INVITE_USER),
-                    unauthorized: () => setError(UNAUTHORIZED),
+                    badRequestInviteUser: ({ email, role }) => {
+                        if (email && !!email.length) {
+                            setError(email.join(", "))
+                        } else if (role && !!role.length) {
+                            setError(role.join(", "))
+                        } else {
+                            setError(BAD_REQUEST)
+                        }
+                    },
+                    unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }
