@@ -178,33 +178,28 @@ export const AuthProvider = (props: AuthProviderProps) => {
         api,
     }
 
-    if (props.elements && props.appearance) {
-        return (
-            <AuthContext.Provider value={value}>
-                <ElementsProvider elements={props.elements}>
-                    <AppearanceProvider appearance={props.appearance}>{props.children}</AppearanceProvider>
-                </ElementsProvider>
-            </AuthContext.Provider>
+    let OurElementsProvider = ({ children }: WithChildren) => <>{children}</>
+    const elements = props.elements
+    if (elements) {
+        OurElementsProvider = ({ children }: WithChildren) => (
+            <ElementsProvider elements={elements}>{children}</ElementsProvider>
         )
     }
 
-    if (props.elements) {
-        return (
-            <AuthContext.Provider value={value}>
-                <ElementsProvider elements={props.elements}>{props.children}</ElementsProvider>
-            </AuthContext.Provider>
-        )
-    }
-
+    let OurAppearanceProvider = ({ children }: WithChildren) => <>{children}</>
     if (props.appearance) {
-        return (
-            <AuthContext.Provider value={value}>
-                <AppearanceProvider appearance={props.appearance}>{props.children}</AppearanceProvider>
-            </AuthContext.Provider>
+        OurAppearanceProvider = ({ children }: WithChildren) => (
+            <AppearanceProvider appearance={props.appearance}>{children}</AppearanceProvider>
         )
     }
 
-    return <AppearanceProvider appearance={props.appearance}>{props.children}</AppearanceProvider>
+    return (
+        <AuthContext.Provider value={value}>
+            <OurElementsProvider>
+                <OurAppearanceProvider>{props.children}</OurAppearanceProvider>
+            </OurElementsProvider>
+        </AuthContext.Provider>
+    )
 }
 
 export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
@@ -228,4 +223,8 @@ export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
 function getMillisUntilTokenExpires(expiresAtSeconds: number): number {
     let millisUntilTokenExpires = expiresAtSeconds * 1000 - Date.now()
     return Math.max(0, millisUntilTokenExpires)
+}
+
+type WithChildren = {
+    children?: React.ReactNode
 }
