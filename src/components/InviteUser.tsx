@@ -8,7 +8,13 @@ import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
 import { Select, SelectProps } from "../elements/Select"
 import { useApi } from "../useApi"
-import { BAD_REQUEST_INVITE_USER, NOT_FOUND_INVITE_USER, UNAUTHORIZED, UNEXPECTED_ERROR } from "./constants"
+import {
+    BAD_REQUEST_INVITE_USER,
+    NOT_FOUND_INVITE_USER,
+    UNAUTHORIZED,
+    UNEXPECTED_ERROR,
+    X_CSRF_TOKEN,
+} from "./constants"
 import { threeDaysFromNow } from "./helpers"
 import { Invitation, useSelectedOrg } from "./ManageOrg"
 
@@ -51,7 +57,7 @@ export const InviteUser = ({ orgId, onSuccess, appearance }: InviteUserProps) =>
             e.preventDefault()
             setLoading(true)
             setError(undefined)
-            const options = { email, role, orgId }
+            const options = { email, role, orgId, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgUserApi.inviteUser(options)
             if (response.ok) {
                 onSuccess({ email, role, expiresAtSeconds: threeDaysFromNow() })

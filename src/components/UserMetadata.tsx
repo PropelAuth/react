@@ -10,7 +10,7 @@ import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { useApi } from "../useApi"
 import { Config } from "../useConfig"
-import { BAD_REQUEST_UPDATE_METADATA, NOT_FOUND_UPDATE_METADATA, UNEXPECTED_ERROR } from "./constants"
+import { BAD_REQUEST_UPDATE_METADATA, NOT_FOUND_UPDATE_METADATA, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
 export type UserMetadataProps = {
     config: Config | null
@@ -52,7 +52,7 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
             e.preventDefault()
             setLoading(true)
             setError(undefined)
-            const options: UpdateUserFacingMetadataRequest = {}
+            const options: UpdateUserFacingMetadataRequest = { xCsrfToken: X_CSRF_TOKEN }
             if (config && config.requireUsersToSetName) {
                 options.firstName = firstName
                 options.lastName = lastName

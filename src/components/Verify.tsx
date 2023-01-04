@@ -9,7 +9,7 @@ import { Input, InputProps } from "../elements/Input"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
-import { BAD_REQUEST_MFA_VERIFY, FORBIDDEN, NOT_FOUND_MFA_VERIFY, UNEXPECTED_ERROR } from "./constants"
+import { BAD_REQUEST_MFA_VERIFY, FORBIDDEN, NOT_FOUND_MFA_VERIFY, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
 export type VerifyProps = {
     getLoginState: VoidFunction
@@ -62,7 +62,7 @@ export const Verify = ({ getLoginState, appearance }: VerifyProps) => {
             e.preventDefault()
             setLoading(true)
             setError(undefined)
-            const response = await mfaApi.mfaVerify({ code })
+            const response = await mfaApi.mfaVerify({ code, xCsrfToken: X_CSRF_TOKEN })
             if (response.ok) {
                 getLoginState()
             } else {

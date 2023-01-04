@@ -1,3 +1,4 @@
+import { UpdatePasswordRequest } from "@propel-auth-fern/fe_v2-client/resources"
 import React, { FormEvent, ReactNode, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -21,6 +22,7 @@ import {
     UNEXPECTED_ERROR,
     UPDATE_NAME_SUCCESS,
     UPDATE_USERNAME_SUCCESS,
+    X_CSRF_TOKEN,
 } from "./constants"
 
 export type UpdateProfileProps = {
@@ -95,7 +97,7 @@ export const UpdateEmail = ({ appearance }: UpdateEmailProps) => {
         try {
             event.preventDefault()
             setLoading(true)
-            const res = await userApi.updateEmail({ newEmail: email })
+            const res = await userApi.updateEmail({ newEmail: email, xCsrfToken: X_CSRF_TOKEN })
             if (res.ok) {
                 setShowConfirmationModal(true)
             } else {
@@ -173,7 +175,7 @@ export const UpdateName = ({ appearance }: UpdateNameProps) => {
         try {
             event.preventDefault()
             setLoading(true)
-            const res = await userApi.updateName({ firstName, lastName })
+            const res = await userApi.updateName({ firstName, lastName, xCsrfToken: X_CSRF_TOKEN })
             if (res.ok) {
                 setSuccess(UPDATE_NAME_SUCCESS)
             } else {
@@ -250,7 +252,7 @@ export const UpdateUsername = ({ appearance }: UpdateUsernameProps) => {
         try {
             event.preventDefault()
             setLoading(true)
-            const res = await userApi.updateUsername({ username })
+            const res = await userApi.updateUsername({ username, xCsrfToken: X_CSRF_TOKEN })
             if (res.ok) {
                 setSuccess(UPDATE_USERNAME_SUCCESS)
             } else {
@@ -290,11 +292,6 @@ export const UpdateUsername = ({ appearance }: UpdateUsernameProps) => {
     )
 }
 
-export type UpdatePasswordOptions = {
-    password: string
-    currentPassword?: string
-}
-
 export type UpdatePasswordProps = {
     appearance?: UpdateProfileAppearance
 }
@@ -313,7 +310,7 @@ export const UpdatePassword = ({ appearance }: UpdatePasswordProps) => {
         try {
             event.preventDefault()
             setLoading(true)
-            let options: UpdatePasswordOptions = { password: newPassword }
+            let options: UpdatePasswordRequest = { password: newPassword, xCsrfToken: X_CSRF_TOKEN }
             if (hasPassword) {
                 options.currentPassword = oldPassword
             }

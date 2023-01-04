@@ -13,7 +13,7 @@ import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
 import { ConfirmEmail, ConfirmEmailAppearance } from "./ConfirmEmail"
-import { BAD_REQUEST_LOGIN, NO_ACCOUNT_FOUND_WITH_CREDENTIALS, UNEXPECTED_ERROR } from "./constants"
+import { BAD_REQUEST_LOGIN, NO_ACCOUNT_FOUND_WITH_CREDENTIALS, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { CreateOrg, CreateOrgAppearance } from "./CreateOrg"
 import { SignInDivider } from "./SignInDivider"
 import { SignInOptions } from "./SignInOptions"
@@ -79,7 +79,7 @@ export const Login = ({
             e.preventDefault()
             setLoading(true)
             setError(undefined)
-            const options = { email, password }
+            const options = { email, password, xCsrfToken: X_CSRF_TOKEN }
             const response = await loginApi.login(options)
             if (response.ok) {
                 getLoginState()

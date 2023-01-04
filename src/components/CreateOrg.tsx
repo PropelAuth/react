@@ -12,7 +12,13 @@ import { Label } from "../elements/Label"
 import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { Config, useConfig } from "../useConfig"
-import { BAD_REQUEST_CREATE_ORG, ORG_CREATION_NOT_ENABLED, UNAUTHORIZED_ORG_USAGE, UNEXPECTED_ERROR } from "./constants"
+import {
+    BAD_REQUEST_CREATE_ORG,
+    ORG_CREATION_NOT_ENABLED,
+    UNAUTHORIZED_ORG_USAGE,
+    UNEXPECTED_ERROR,
+    X_CSRF_TOKEN,
+} from "./constants"
 
 export type CreateOrgProps = {
     config: Config | null
@@ -57,7 +63,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
             e.preventDefault()
             setLoading(true)
             setError(undefined)
-            const options = { name, autojoinByDomain, restrictToDomain }
+            const options = { name, autojoinByDomain, restrictToDomain, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgApi.createOrg(options)
             if (response.ok) {
                 onOrgCreated(response.body)

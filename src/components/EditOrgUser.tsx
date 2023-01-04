@@ -5,7 +5,14 @@ import { H3 } from "../elements/H3"
 import { Label } from "../elements/Label"
 import { Select } from "../elements/Select"
 import { useApi } from "../useApi"
-import { FORBIDDEN, NOT_FOUND_CHANGE_ROLE, NOT_FOUND_REMOVE_USER, UNAUTHORIZED, UNEXPECTED_ERROR } from "./constants"
+import {
+    FORBIDDEN,
+    NOT_FOUND_CHANGE_ROLE,
+    NOT_FOUND_REMOVE_USER,
+    UNAUTHORIZED,
+    UNEXPECTED_ERROR,
+    X_CSRF_TOKEN,
+} from "./constants"
 import { OrgAppearance, User } from "./ManageOrg"
 
 export type EditOrgUserProps = {
@@ -39,7 +46,7 @@ export const EditOrgUser = ({ orgId, user, onClose, setUserRole, removeUser, app
             e.preventDefault()
             setLoading(true)
             setError(undefined)
-            const options = { role, orgId, userId: user.userId }
+            const options = { role, orgId, userId: user.userId, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgUserApi.changeRole(options)
             if (response.ok) {
                 setUserRole(user.userId, role)
@@ -63,7 +70,7 @@ export const EditOrgUser = ({ orgId, user, onClose, setUserRole, removeUser, app
         try {
             setLoading(true)
             setError(undefined)
-            const options = { orgId, userId: user.userId }
+            const options = { orgId, userId: user.userId, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgUserApi.removeUser(options)
             if (response.ok) {
                 removeUser(user.userId)

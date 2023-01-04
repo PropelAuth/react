@@ -3,7 +3,7 @@ import { Alert } from "../elements/Alert"
 import { Button } from "../elements/Button"
 import { H3 } from "../elements/H3"
 import { useApi } from "../useApi"
-import { FORBIDDEN, NOT_FOUND_REVOKE_USER_INVITATION, UNAUTHORIZED, UNEXPECTED_ERROR } from "./constants"
+import { FORBIDDEN, NOT_FOUND_REVOKE_USER_INVITATION, UNAUTHORIZED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { OrgAppearance, UserOrInvitation } from "./ManageOrg"
 
 export type EditPendingInvitationProps = {
@@ -29,7 +29,7 @@ export const EditPendingInvitation = ({
         try {
             setLoading(true)
             setError(undefined)
-            const options = { email: user.email, orgId }
+            const options = { email: user.email, orgId, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgUserApi.revokeUserInvitation(options)
             if (response.ok) {
                 removeInvitation(user.email)

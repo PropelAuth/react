@@ -11,7 +11,7 @@ import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { useApi } from "../useApi"
 import { Config, useConfig } from "../useConfig"
-import { BAD_REQUEST_SIGNUP, UNEXPECTED_ERROR } from "./constants"
+import { BAD_REQUEST_SIGNUP, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { getTokenFromURL } from "./helpers"
 import { SignInDivider } from "./SignInDivider"
 import { SignInOptions } from "./SignInOptions"
@@ -114,6 +114,7 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
             const options: SignupRequest = {
                 email: email,
                 password: password,
+                xCsrfToken: X_CSRF_TOKEN,
             }
             if (config.requireUsersToSetName) {
                 options.firstName = firstName

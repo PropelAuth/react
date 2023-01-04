@@ -10,6 +10,7 @@ import {
     NOT_FOUND_REVOKE_USER_INVITATION,
     UNAUTHORIZED,
     UNEXPECTED_ERROR,
+    X_CSRF_TOKEN,
 } from "./constants"
 import { threeDaysFromNow } from "./helpers"
 import { Invitation, OrgAppearance, UserOrInvitation } from "./ManageOrg"
@@ -39,7 +40,7 @@ export const EditExpiredInvitation = ({
         try {
             setLoading(true)
             setError(undefined)
-            const options = { email: user.email, orgId }
+            const options = { email: user.email, orgId, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgUserApi.revokeUserInvitation(options)
             if (response.ok) {
                 removeInvitation(user.email)
@@ -64,7 +65,7 @@ export const EditExpiredInvitation = ({
         try {
             setLoading(true)
             setError(undefined)
-            const options = { email: user.email, orgId }
+            const options = { email: user.email, orgId, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgUserApi.revokeUserInvitation(options)
             if (response.ok) {
                 removeInvitation(user.email)
