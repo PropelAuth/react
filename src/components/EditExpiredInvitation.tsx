@@ -82,11 +82,14 @@ export const EditExpiredInvitation = ({
                 } else {
                     invite.error._visit({
                         notFoundInviteUser: () => setError(NOT_FOUND_INVITE_USER),
-                        badRequestInviteUser: ({ email, role }) => {
-                            if (email && !!email.length) {
-                                setError(email.join(", "))
-                            } else if (role && !!role.length) {
-                                setError(role.join(", "))
+                        badRequestInviteUser: (err) => {
+                            if (err.email || err.role) {
+                                if (err.email) {
+                                    setError(err.email.join(", "))
+                                }
+                                if (err.role) {
+                                    setError(err.role.join(", "))
+                                }
                             } else {
                                 setError(BAD_REQUEST)
                             }

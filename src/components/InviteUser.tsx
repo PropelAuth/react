@@ -43,6 +43,8 @@ export const InviteUser = ({ orgId, onSuccess, appearance }: InviteUserProps) =>
     const { inviteePossibleRoles } = useSelectedOrg({ orgId })
     const { redirectToLoginPage } = useRedirectFunctions()
     const [loading, setLoading] = useState(false)
+    const [emailError, setEmailError] = useState<string | undefined>(undefined)
+    const [roleError, setRoleError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
     const [email, setEmail] = useState("")
     const [role, setRole] = useState("")
@@ -60,11 +62,14 @@ export const InviteUser = ({ orgId, onSuccess, appearance }: InviteUserProps) =>
             } else {
                 response.error._visit({
                     notFoundInviteUser: () => setError(NOT_FOUND_INVITE_USER),
-                    badRequestInviteUser: ({ email, role }) => {
-                        if (email && !!email.length) {
-                            setError(email.join(", "))
-                        } else if (role && !!role.length) {
-                            setError(role.join(", "))
+                    badRequestInviteUser: (err) => {
+                        if (err.email || err.role) {
+                            if (err.email) {
+                                setEmailError(err.email.join(", "))
+                            }
+                            if (err.role) {
+                                setRoleError(err.role.join(", "))
+                            }
                         } else {
                             setError(BAD_REQUEST)
                         }
@@ -114,6 +119,11 @@ export const InviteUser = ({ orgId, onSuccess, appearance }: InviteUserProps) =>
                                 required
                                 appearance={appearance?.elements?.EmailInput}
                             />
+                            {emailError && (
+                                <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                                    {emailError}
+                                </Alert>
+                            )}
                         </div>
                         <div>
                             <Label htmlFor={"role"} appearance={appearance?.elements?.RoleLabel}>
@@ -127,6 +137,11 @@ export const InviteUser = ({ orgId, onSuccess, appearance }: InviteUserProps) =>
                                 })}
                                 appearance={appearance?.elements?.RoleSelect}
                             />
+                            {roleError && (
+                                <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                                    {roleError}
+                                </Alert>
+                            )}
                         </div>
                         <Button loading={loading} disabled={disabled} appearance={appearance?.elements?.SubmitButton}>
                             {appearance?.options?.submitButtonContent || "Invite User"}

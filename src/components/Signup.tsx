@@ -105,6 +105,11 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
     const [username, setUsername] = useState("")
+    const [emailError, setEmailError] = useState<string | undefined>(undefined)
+    const [firstNameError, setFirstNameError] = useState<string | undefined>(undefined)
+    const [lastNameError, setLastNameError] = useState<string | undefined>(undefined)
+    const [passwordError, setPasswordError] = useState<string | undefined>(undefined)
+    const [usernameError, setUsernameError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
 
     const signup = async (e: SyntheticEvent) => {
@@ -133,17 +138,23 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
             } else {
                 response.error._visit({
                     signupNotAllowed: () => setError(SIGNUP_NOT_ALLOWED),
-                    badRequestSignup: ({ email, firstName, lastName, password, username }) => {
-                        if (email && !!email.length) {
-                            setError(email.join(", "))
-                        } else if (firstName && !!firstName.length) {
-                            setError(firstName.join(", "))
-                        } else if (lastName && !!lastName.length) {
-                            setError(lastName.join(", "))
-                        } else if (password && !!password.length) {
-                            setError(password.join(", "))
-                        } else if (username && !!username.length) {
-                            setError(username.join(", "))
+                    badRequestSignup: (err) => {
+                        if (err.email || err.firstName || err.lastName || err.password || err.username) {
+                            if (err.email) {
+                                setEmailError(err.email.join(", "))
+                            }
+                            if (err.firstName) {
+                                setFirstNameError(err.firstName.join(", "))
+                            }
+                            if (err.lastName) {
+                                setLastNameError(err.lastName.join(", "))
+                            }
+                            if (err.password) {
+                                setPasswordError(err.password.join(", "))
+                            }
+                            if (err.username) {
+                                setUsernameError(err.username.join(", "))
+                            }
                         } else {
                             setError(BAD_REQUEST)
                         }
@@ -174,6 +185,11 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                                 onChange={(e) => setFirstName(e.target.value)}
                                 appearance={appearance?.elements?.FirstNameInput}
                             />
+                            {firstNameError && (
+                                <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                    {firstNameError}
+                                </Alert>
+                            )}
                         </div>
                         <div>
                             <Label htmlFor="last_name">{appearance?.options?.lastNameLabel || "Last name"}</Label>
@@ -185,6 +201,11 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                                 onChange={(e) => setLastName(e.target.value)}
                                 appearance={appearance?.elements?.LastNameInput}
                             />
+                            {lastNameError && (
+                                <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                    {lastNameError}
+                                </Alert>
+                            )}
                         </div>
                     </>
                 )}
@@ -199,6 +220,11 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                         onChange={(e) => setEmail(e.target.value)}
                         appearance={appearance?.elements?.EmailInput}
                     />
+                    {emailError && (
+                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                            {emailError}
+                        </Alert>
+                    )}
                 </div>
                 {config.requireUsersToSetUsername && (
                     <div>
@@ -211,6 +237,11 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                             onChange={(e) => setUsername(e.target.value)}
                             appearance={appearance?.elements?.UsernameInput}
                         />
+                        {usernameError && (
+                            <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                {usernameError}
+                            </Alert>
+                        )}
                     </div>
                 )}
                 <div>
@@ -223,6 +254,11 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                         onChange={(e) => setPassword(e.target.value)}
                         appearance={appearance?.elements?.PasswordInput}
                     />
+                    {passwordError && (
+                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                            {passwordError}
+                        </Alert>
+                    )}
                 </div>
                 <Button appearance={appearance?.elements?.SubmitButton} loading={loading}>
                     {appearance?.options?.submitButtonContent || "Sign Up"}

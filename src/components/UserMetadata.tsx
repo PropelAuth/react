@@ -46,6 +46,9 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
     const [firstName, setFirstName] = useState("")
     const [lastName, setLastName] = useState("")
     const [username, setUsername] = useState("")
+    const [firstNameError, setFirstNameError] = useState<string | undefined>(undefined)
+    const [lastNameError, setLastNameError] = useState<string | undefined>(undefined)
+    const [usernameError, setUsernameError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
     const { redirectToLoginPage } = useRedirectFunctions()
 
@@ -73,13 +76,17 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
             } else {
                 response.error._visit({
                     unauthorized: redirectToLoginPage,
-                    badRequestUpdateMetadata: ({ firstName, lastName, username }) => {
-                        if (firstName && !!firstName.length) {
-                            setError(firstName.join(", "))
-                        } else if (lastName && !!lastName.length) {
-                            setError(lastName.join(", "))
-                        } else if (username && !!username.length) {
-                            setError(username.join(", "))
+                    badRequestUpdateMetadata: (err) => {
+                        if (err.firstName || err.lastName || err.username) {
+                            if (err.firstName) {
+                                setFirstNameError(err.firstName.join(", "))
+                            }
+                            if (err.lastName) {
+                                setLastNameError(err.lastName.join(", "))
+                            }
+                            if (err.username) {
+                                setUsernameError(err.username.join(", "))
+                            }
                         } else {
                             setError(BAD_REQUEST)
                         }
@@ -127,6 +134,11 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
                                         onChange={(e) => setFirstName(e.target.value)}
                                         appearance={appearance?.elements?.FirstNameInput}
                                     />
+                                    {firstNameError && (
+                                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                            {firstNameError}
+                                        </Alert>
+                                    )}
                                 </div>
                                 <div>
                                     <Label htmlFor="last_name">
@@ -139,6 +151,11 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
                                         onChange={(e) => setLastName(e.target.value)}
                                         appearance={appearance?.elements?.LastNameInput}
                                     />
+                                    {lastNameError && (
+                                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                            {lastNameError}
+                                        </Alert>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -152,6 +169,11 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
                                     onChange={(e) => setUsername(e.target.value)}
                                     appearance={appearance?.elements?.UsernameInput}
                                 />
+                                {usernameError && (
+                                    <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                        {usernameError}
+                                    </Alert>
+                                )}
                             </div>
                         )}
                         <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>

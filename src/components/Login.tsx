@@ -72,6 +72,8 @@ export const Login = ({
     const [email, setEmail] = useState(presetEmail || "")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
+    const [emailError, setEmailError] = useState<string | undefined>(undefined)
+    const [passwordError, setPasswordError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
 
     const login = async (e: SyntheticEvent) => {
@@ -86,13 +88,17 @@ export const Login = ({
             } else {
                 response.error._visit({
                     noAccountFoundWithCredentials: () => setError(NO_ACCOUNT_FOUND_WITH_CREDENTIALS),
-                    badRequestLogin: ({ email, error, password }) => {
-                        if (email && !!email.length) {
-                            setError(email.join(", "))
-                        } else if (error && !!error.length) {
-                            setError(error.join(", "))
-                        } else if (password && !!password.length) {
-                            setError(password.join(", "))
+                    badRequestLogin: (err) => {
+                        if (err.email || err.error || err.password) {
+                            if (err.email) {
+                                setEmailError(err.email.join(", "))
+                            }
+                            if (err.error) {
+                                setError(err.error.join(", "))
+                            }
+                            if (err.password) {
+                                setPasswordError(err.password.join(", "))
+                            }
                         } else {
                             setError(BAD_REQUEST)
                         }
@@ -169,6 +175,11 @@ export const Login = ({
                                             onChange={(e) => setEmail(e.target.value)}
                                             appearance={appearance?.elements?.EmailInput}
                                         />
+                                        {emailError && (
+                                            <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                                {emailError}
+                                            </Alert>
+                                        )}
                                     </div>
                                     <div>
                                         <Label htmlFor="password">
@@ -182,6 +193,11 @@ export const Login = ({
                                             onChange={(e) => setPassword(e.target.value)}
                                             appearance={appearance?.elements?.PasswordInput}
                                         />
+                                        {passwordError && (
+                                            <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                                {passwordError}
+                                            </Alert>
+                                        )}
                                     </div>
                                     <Button appearance={appearance?.elements?.SubmitButton} loading={loading}>
                                         {appearance?.options?.submitButtonContent || "Login"}

@@ -55,6 +55,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
     const [name, setName] = useState("")
     const [autojoinByDomain, setAutojoinByDomain] = useState(false)
     const [restrictToDomain, setRestrictToDomain] = useState(false)
+    const [orgNameError, setOrgNameError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
     const orgMetaname = config?.orgsMetaname || "Organization"
 
@@ -70,11 +71,14 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
             } else {
                 response.error._visit({
                     orgCreationNotEnabled: () => setError(ORG_CREATION_NOT_ENABLED),
-                    badRequestCreateOrg: ({ error, name }) => {
-                        if (name && !!name.length) {
-                            setError(name.join(", "))
-                        } else if (error && !!error.length) {
-                            setError(error.join(", "))
+                    badRequestCreateOrg: (err) => {
+                        if (err.name || err.error) {
+                            if (err.name) {
+                                setOrgNameError(err.name.join(", "))
+                            }
+                            if (err.error) {
+                                setError(err.error.join(", "))
+                            }
                         } else {
                             setError(BAD_REQUEST)
                         }
@@ -132,6 +136,11 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
                                 appearance={appearance?.elements?.OrgNameInput}
                                 required
                             />
+                            {orgNameError && (
+                                <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                    {orgNameError}
+                                </Alert>
+                            )}
                         </div>
                         <div>
                             <Checkbox

@@ -56,6 +56,7 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
     const { loginApi } = useApi()
     const { configLoading, config } = useConfig()
     const [email, setEmail] = useState("")
+    const [emailError, setEmailError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
     const [passwordResetLoading, setPasswordResetLoading] = useState(false)
     const [magicLinkLoading, setMagicLinkLoading] = useState(false)
@@ -96,11 +97,14 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
             } else {
                 response.error._visit({
                     loginPasswordlessNotSupported: () => setError(LOGIN_PASSWORDLESS_NOT_SUPPORTED),
-                    badRequestLoginPasswordless: ({ email, error }) => {
-                        if (email && !!email.length) {
-                            setError(email.join(", "))
-                        } else if (error && !!error.length) {
-                            setError(error.join(", "))
+                    badRequestLoginPasswordless: (err) => {
+                        if (err.email || err.error) {
+                            if (err.email) {
+                                setEmailError(err.email.join(", "))
+                            }
+                            if (err.error) {
+                                setError(err.error.join(", "))
+                            }
                         } else {
                             setError(BAD_REQUEST)
                         }
@@ -187,6 +191,11 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
                                 onChange={(e) => setEmail(e.target.value)}
                                 appearance={appearance?.elements?.EmailInput}
                             />
+                            {emailError && (
+                                <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                    {emailError}
+                                </Alert>
+                            )}
                         </div>
                         <Button loading={passwordResetLoading} appearance={appearance?.elements?.SubmitButton}>
                             {appearance?.options?.resetPasswordButtonContent || "Reset Password"}
