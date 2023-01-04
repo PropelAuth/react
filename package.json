@@ -13,37 +13,28 @@
     "user"
   ],
   "dependencies": {
-    "@propel-auth-fern/fe_v2-client": "^0.0.51",
+    "@propel-auth-fern/fe_v2-client": "^0.0.72",
     "@propelauth/javascript": "^2.0.0",
     "hoist-non-react-statics": "^3.3.2",
     "utility-types": "^3.10.0"
   },
   "devDependencies": {
-    "@babel/cli": "^7.13.16",
-    "@babel/core": "^7.14.0",
-    "@babel/preset-env": "^7.14.0",
-    "@babel/preset-react": "^7.13.13",
-    "@babel/preset-typescript": "^7.13.0",
-    "@rollup/plugin-babel": "^5.3.0",
-    "@rollup/plugin-commonjs": "^18.00",
-    "@rollup/plugin-node-resolve": "^11.2.1",
     "@testing-library/react": "^12.0.0",
+    "@types/estree": "^1.0.0",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/jest": "^26.0.23",
-    "@types/react": "^17.0.4",
-    "@types/react-dom": "^17.0.3",
-    "babel-loader": "^8.2.2",
-    "core-js": "^3.11.1",
+    "@types/react": "^18.0.4",
+    "@types/react-dom": "^18.0.3",
     "jest": "^27.0.6",
     "prettier": "^2.4.1",
     "prettier-plugin-organize-imports": "^2.3.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
-    "rollup": "^2.46.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-terser": "^7.0.2",
+    "ts-loader": "^9.4.2",
     "typescript": "^4.2.4",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "webpack": "^5.75.0",
+    "webpack-cli": "^5.0.1"
   },
   "peerDependencies": {
     "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
@@ -54,15 +45,18 @@
     "not dead"
   ],
   "scripts": {
-    "type-check": "tsc --noEmit",
-    "type-check:watch": "npm run type-check -- --watch",
-    "build:types": "tsc --emitDeclarationOnly",
-    "build:js": "rollup -c",
-    "build": "npm run test && npm run build:types && npm run build:js",
+    "build:umd": "BUILD_MODE=umd webpack",
+    "build:umd-min": "BUILD_MODE=umd-min webpack",
+    "build:types": "tsc --outDir ./dist --declaration --emitDeclarationOnly",
+    "build": "npm run build:umd && npm run build:umd-min && npm run build:types",
     "test": "jest --silent",
     "prepublishOnly": "npm run build"
   },
-  "main": "dist/index.cjs.js",
-  "module": "dist/index.esm.js",
-  "types": "dist/types/index.d.ts"
+  "main": "./dist/propelauth-react.js",
+  "types": "./types/index.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "types"
+  ]
 }

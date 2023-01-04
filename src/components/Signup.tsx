@@ -62,8 +62,8 @@ export const Signup = ({ onSuccess, onRedirectToLogin, presetEmail, appearance }
                 {appearance?.options?.displayLogo !== false && config && (
                     <div data-contain="logo">
                         <Image
-                            src={config.logo_url}
-                            alt={config.site_display_name}
+                            src={config.logoUrl}
+                            alt={config.siteDisplayName}
                             appearance={appearance?.elements?.Logo}
                         />
                     </div>
@@ -73,15 +73,15 @@ export const Signup = ({ onSuccess, onRedirectToLogin, presetEmail, appearance }
                 </div>
                 <SignInOptions config={config} buttonAppearance={appearance?.elements?.SocialButton} />
                 {config &&
-                    config.has_password_login &&
-                    config.has_any_social_login &&
+                    config.hasPasswordLogin &&
+                    config.hasAnyNonPasswordLogin &&
                     appearance?.options?.divider !== false && (
                         <SignInDivider
                             appearance={appearance?.elements?.Divider}
                             options={appearance?.options?.divider}
                         />
                     )}
-                {config && config.has_password_login && (
+                {config && config.hasPasswordLogin && (
                     <SignupForm config={config} onSuccess={onSuccess} presetEmail={presetEmail} />
                 )}
                 <BottomLinks onRedirectToLogin={onRedirectToLogin} appearance={appearance} />
@@ -115,11 +115,11 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                 email: email,
                 password: password,
             }
-            if (config.require_name) {
+            if (config.requireUsersToSetName) {
                 options.firstName = firstName
                 options.lastName = lastName
             }
-            if (config.require_username) {
+            if (config.requireUsersToSetUsername) {
                 options.username = username
             }
             const inviteToken = getTokenFromURL()
@@ -146,7 +146,7 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
     return (
         <div data-contain="form">
             <form onSubmit={signup}>
-                {config.require_name && (
+                {config.requireUsersToSetName && (
                     <>
                         <div>
                             <Label htmlFor="first_name">{appearance?.options?.firstNameLabel || "First name"}</Label>
@@ -184,7 +184,7 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                         appearance={appearance?.elements?.EmailInput}
                     />
                 </div>
-                {config.require_username && (
+                {config.requireUsersToSetUsername && (
                     <div>
                         <Label htmlFor="username">{appearance?.options?.usernameLabel || "Username"}</Label>
                         <Input

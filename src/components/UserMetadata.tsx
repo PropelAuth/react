@@ -1,3 +1,4 @@
+import { UpdateUserFacingMetadataRequest } from "@propel-auth-fern/fe_v2-client/resources/user/client/requests/UpdateUserFacingMetadataRequest"
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -38,12 +39,6 @@ export type UserMetadataAppearance = {
     }
 }
 
-export interface UpdateMetadataOptions {
-    username?: string
-    firstName?: string
-    lastName?: string
-}
-
 export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadataProps) => {
     const { userApi, loginApi } = useApi()
     const [loading, setLoading] = useState(false)
@@ -57,12 +52,12 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
             e.preventDefault()
             setLoading(true)
             setError(undefined)
-            const options: UpdateMetadataOptions = {}
-            if (config && config.require_name) {
+            const options: UpdateUserFacingMetadataRequest = {}
+            if (config && config.requireUsersToSetName) {
                 options.firstName = firstName
                 options.lastName = lastName
             }
-            if (config && config.require_username) {
+            if (config && config.requireUsersToSetUsername) {
                 options.username = username
             }
             const response = await userApi.updateMetadata(options)
@@ -94,8 +89,8 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
                 {appearance?.options?.displayLogo && config && (
                     <div data-contain="logo">
                         <Image
-                            src={config.logo_url}
-                            alt={config.site_display_name}
+                            src={config.logoUrl}
+                            alt={config.siteDisplayName}
                             appearance={appearance?.elements?.Logo}
                         />
                     </div>
@@ -107,7 +102,7 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
                 </div>
                 <div data-contain="form">
                     <form onSubmit={updateMetadata}>
-                        {config && config.require_name && (
+                        {config && config.requireUsersToSetName && (
                             <>
                                 <div>
                                     <Label htmlFor="first_name">
@@ -135,7 +130,7 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
                                 </div>
                             </>
                         )}
-                        {config && config.require_username && (
+                        {config && config.requireUsersToSetUsername && (
                             <div>
                                 <Label htmlFor="username">{appearance?.options?.usernameLabel || "Username"}</Label>
                                 <Input

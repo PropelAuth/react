@@ -34,8 +34,8 @@ export const ConfirmEmail = ({ appearance }: ConfirmEmailProps) => {
                 {appearance?.options?.displayLogo && config && (
                     <div data-contain="logo">
                         <Image
-                            src={config.logo_url}
-                            alt={config.site_display_name}
+                            src={config.logoUrl}
+                            alt={config.siteDisplayName}
                             appearance={appearance?.elements?.Logo}
                         />
                     </div>

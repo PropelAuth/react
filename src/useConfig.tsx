@@ -1,46 +1,39 @@
+import { AuthConfigurationResponse } from "@propel-auth-fern/fe_v2-client/resources"
 import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "./AuthContext"
+import { useApi } from "./useApi"
 
-export type Config = {
-    logo_url: string
-    site_display_name: string
-    has_google_login: boolean
-    has_github_login: boolean
-    has_microsoft_login: boolean
-    has_slack_login: boolean
-    has_linkedin_login: boolean
-    has_passwordless_login: boolean
-    has_any_social_login: boolean
-    has_sso_login: boolean
-    has_password_login: boolean
-    only_extra_login_is_passwordless: boolean
-    require_username: boolean
-    require_name: boolean
-    profile_picture_url: string
-    require_profile_picture: boolean
-    orgs_metaname: string
-    roles: string[]
-}
+export type Config = AuthConfigurationResponse
 
 export const useConfig = () => {
     const context = useContext(AuthContext)
     const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
 
     if (context === undefined) {
         throw new Error("useConfig must be used within an AuthProvider")
     }
 
+    const { configApi } = useApi()
     const [config, setConfig] = useState<Config | null>(null)
 
     useEffect(() => {
         async function getConfigFromUrl() {
             setLoading(true)
-            // Fetch from API
+            setError(false)
+            let response = await configApi.config()
+            if (response.ok) {
+                setConfig(response.body)
+            } else {
+                response.error._visit({
+                    _other: () => setError(true),
+                })
+            }
             setLoading(false)
         }
 
         getConfigFromUrl()
     }, [])
 
-    return { configLoading: loading, config }
+    return { configLoading: loading, config, error }
 }

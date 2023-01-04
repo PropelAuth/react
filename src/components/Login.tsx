@@ -122,8 +122,8 @@ export const Login = ({
                         {appearance?.options?.displayLogo !== false && config && (
                             <div data-contain="logo">
                                 <Image
-                                    src={config.logo_url}
-                                    alt={config.site_display_name}
+                                    src={config.logoUrl}
+                                    alt={config.siteDisplayName}
                                     appearance={appearance?.elements?.Logo}
                                 />
                             </div>
@@ -133,19 +133,19 @@ export const Login = ({
                                 {appearance?.options?.headerContent || "Welcome"}
                             </H3>
                         </div>
-                        {config && (config.has_passwordless_login || config.has_any_social_login) && (
+                        {config && (config.hasPasswordlessLogin || config.hasAnyNonPasswordLogin) && (
                             <SignInOptions buttonAppearance={appearance?.elements?.SocialButton} config={config} />
                         )}
                         {config &&
-                            config.has_password_login &&
-                            config.has_any_social_login &&
+                            config.hasPasswordLogin &&
+                            config.hasAnyNonPasswordLogin &&
                             appearance?.options?.divider !== false && (
                                 <SignInDivider
                                     appearance={appearance?.elements?.Divider}
                                     options={appearance?.options?.divider}
                                 />
                             )}
-                        {config && config.has_password_login && (
+                        {config && config.hasPasswordLogin && (
                             <div data-contain="form">
                                 <form onSubmit={login}>
                                     <div>

@@ -36,7 +36,7 @@ function apiUploadProfilePicture(formData: FormData): Promise<UploadProfilePictu
             }
         }
 
-        http.open("post", "/api/fe/v1/update_profile_image")
+        http.open("post", "/api/fe/v2/update_profile_image")
         http.withCredentials = true
         http.setRequestHeader("X-CSRF-Token", "-.-")
         http.send(formData)
@@ -60,6 +60,7 @@ export const useApi = () => {
         orgApi: context.api.org,
         userApi: context.api.user,
         orgUserApi: context.api.userInOrg,
+        configApi: context.api.config,
         legacyApi: legacyApi,
     }
 }

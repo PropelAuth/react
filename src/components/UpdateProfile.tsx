@@ -72,8 +72,8 @@ export const UpdateProfile = ({ appearance }: UpdateProfileProps) => {
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
                 <UpdateEmail appearance={appearance} />
-                {config && config.require_name && <UpdateName appearance={appearance} />}
-                {config && config.require_username && <UpdateUsername appearance={appearance} />}
+                {config && config.requireUsersToSetName && <UpdateName appearance={appearance} />}
+                {config && config.requireUsersToSetUsername && <UpdateUsername appearance={appearance} />}
                 <UpdatePassword appearance={appearance} />
             </Container>
         </div>

@@ -50,7 +50,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
     const [autojoinByDomain, setAutojoinByDomain] = useState(false)
     const [restrictToDomain, setRestrictToDomain] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
-    const orgMetaname = config?.orgs_metaname || "Organization"
+    const orgMetaname = config?.orgsMetaname || "Organization"
 
     async function createOrg(e: SyntheticEvent) {
         try {
@@ -93,8 +93,8 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
                 {appearance?.options?.displayLogo && config && (
                     <div data-contain="logo">
                         <Image
-                            src={config.logo_url}
-                            alt={config.site_display_name}
+                            src={config.logoUrl}
+                            alt={config.siteDisplayName}
                             appearance={appearance?.elements?.Logo}
                         />
                     </div>

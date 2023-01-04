@@ -121,8 +121,8 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
                     {appearance?.options?.displayLogo && config && (
                         <div data-contain="logo">
                             <Image
-                                src={config.logo_url}
-                                alt={config.site_display_name}
+                                src={config.logoUrl}
+                                alt={config.siteDisplayName}
                                 appearance={appearance?.elements?.Logo}
                             />
                         </div>
@@ -146,8 +146,8 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
                 {appearance?.options?.displayLogo && config && (
                     <div data-contain="logo">
                         <Image
-                            src={config.logo_url}
-                            alt={config.site_display_name}
+                            src={config.logoUrl}
+                            alt={config.siteDisplayName}
                             appearance={appearance?.elements?.Logo}
                         />
                     </div>
@@ -160,7 +160,7 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
                 <div data-contain="content">
                     <ForgotPasswordDirections
                         appearance={appearance}
-                        hasPasswordlessLogin={config?.has_passwordless_login || false}
+                        hasPasswordlessLogin={config?.hasPasswordlessLogin || false}
                     />
                 </div>
                 <div data-contain="form">
@@ -181,7 +181,7 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
                         </Button>
                     </form>
                 </div>
-                {config && config.has_passwordless_login && (
+                {config && config.hasPasswordlessLogin && (
                     <div data-contain="form">
                         <Button
                             loading={magicLinkLoading}

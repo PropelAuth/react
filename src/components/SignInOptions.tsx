@@ -23,37 +23,37 @@ export const SignInOptions = ({ config, buttonAppearance }: SignInOptionsProps) 
 
     return (
         <div data-contain="social_buttons">
-            {config && config.has_google_login && (
+            {config && config.hasGoogleLogin && (
                 <Button onClick={loginWithSocial(GOOGLE_LOGIN_PATH)} appearance={buttonAppearance}>
                     <GoogleLogo />
                     <span>Sign in with Google</span>
                 </Button>
             )}
-            {config && config.has_github_login && (
+            {config && config.hasGithubLogin && (
                 <Button onClick={loginWithSocial(GITHUB_LOGIN_PATH)} appearance={buttonAppearance}>
                     <GithubLogo />
                     <span>Sign in with Github</span>
                 </Button>
             )}
-            {config && config.has_slack_login && (
+            {config && config.hasSlackLogin && (
                 <Button onClick={loginWithSocial(SLACK_LOGIN_PATH)} appearance={buttonAppearance}>
                     <SlackLogo />
                     <span>Sign in with Slack</span>
                 </Button>
             )}
-            {config && config.has_microsoft_login && (
+            {config && config.hasMicrosoftLogin && (
                 <Button onClick={loginWithSocial(MICROSOFT_LOGIN_PATH)} appearance={buttonAppearance}>
                     <MicrosoftLogo />
                     <span>Sign in with Microsoft</span>
                 </Button>
             )}
-            {config && config.has_linkedin_login && (
+            {config && config.hasLinkedinLogin && (
                 <Button onClick={loginWithSocial(LINKEDIN_LOGIN_PATH)} appearance={buttonAppearance}>
                     <LinkedinLogo />
                     <span>Sign in with LinkedIn</span>
                 </Button>
             )}
-            {config && config.has_passwordless_login && (
+            {config && config.hasPasswordlessLogin && (
                 <Button onClick={loginWithSocial(PASSWORDLESS_LOGIN_PATH)} appearance={buttonAppearance}>
                     <PasswordlessLogo />
                     <span>Sign in with Email</span>
