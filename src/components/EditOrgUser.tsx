@@ -5,6 +5,7 @@ import { H3 } from "../elements/H3"
 import { Label } from "../elements/Label"
 import { Select } from "../elements/Select"
 import { useApi } from "../useApi"
+import { useRedirectFunctions } from "../useRedirectFunctions"
 import {
     FORBIDDEN,
     NOT_FOUND_CHANGE_ROLE,
@@ -26,6 +27,7 @@ export type EditOrgUserProps = {
 
 export const EditOrgUser = ({ orgId, user, onClose, setUserRole, removeUser, appearance }: EditOrgUserProps) => {
     const { orgUserApi } = useApi()
+    const { redirectToLoginPage } = useRedirectFunctions()
     const [role, setRole] = useState(user.role)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
@@ -53,6 +55,8 @@ export const EditOrgUser = ({ orgId, user, onClose, setUserRole, removeUser, app
                 onClose()
             } else {
                 response.error._visit({
+                    unauthorized: redirectToLoginPage,
+                    badChangeRoleRequest: (err) => setError(err.role?.join(", ") || "Invalid request"),
                     notFoundChangeRole: () => setError(NOT_FOUND_CHANGE_ROLE),
                     forbiddenErrorChangeRole: () => setError(FORBIDDEN),
                     _other: () => setError(UNEXPECTED_ERROR),

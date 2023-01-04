@@ -11,7 +11,7 @@ import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { useApi } from "../useApi"
 import { Config, useConfig } from "../useConfig"
-import { BAD_REQUEST_SIGNUP, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { BAD_REQUEST_SIGNUP, SIGNUP_NOT_ALLOWED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { getTokenFromURL } from "./helpers"
 import { SignInDivider } from "./SignInDivider"
 import { SignInOptions } from "./SignInOptions"
@@ -132,7 +132,8 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                 onSuccess()
             } else {
                 response.error._visit({
-                    badRequestSignup: () => setError(BAD_REQUEST_SIGNUP),
+                    signupNotAllowed: () => setError(SIGNUP_NOT_ALLOWED),
+                    badRequestSignup: (err) => setError(BAD_REQUEST_SIGNUP),
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }

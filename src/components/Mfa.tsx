@@ -11,14 +11,14 @@ import { Modal, ModalProps } from "../elements/Modal"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
+import { useRedirectFunctions } from "../useRedirectFunctions"
 import {
     BAD_REQUEST_MFA_ENABLE,
     FORBIDDEN,
     MFA_ALREADY_DISABLED,
-    NOT_FOUND_MFA_ENABLE,
-    NOT_FOUND_MFA_STATUS,
-    UNAUTHORIZED,
+    MFA_ALREADY_ENABLED,
     UNEXPECTED_ERROR,
+    X_CSRF_TOKEN,
 } from "./constants"
 
 export type MfaProps = {
@@ -77,6 +77,7 @@ export type MfaStatus = "Enabled" | "Disabled"
 
 export const Mfa = ({ appearance }: MfaProps) => {
     const { mfaApi } = useApi()
+    const { redirectToLoginPage } = useRedirectFunctions()
     const [mfaStatus, setMfaStatus] = useState<MfaStatus | undefined>(undefined)
     const [showQr, setShowQr] = useState(true)
     const [showDisableModal, setShowDisableModal] = useState(false)
@@ -95,7 +96,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
         let mounted = true
         setStatusLoading(true)
         mfaApi
-            .mfaStatus()
+            .mfaStatus({ xCsrfToken: X_CSRF_TOKEN })
             .then((response) => {
                 if (mounted) {
                     if (response.ok) {
@@ -109,8 +110,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
                         }
                     } else {
                         response.error._visit({
-                            notFoundMfaStatus: () => setStatusError(NOT_FOUND_MFA_STATUS),
-                            unauthorized: () => setStatusError(UNAUTHORIZED),
+                            unauthorized: redirectToLoginPage,
                             _other: () => setStatusError(UNEXPECTED_ERROR),
                         })
                     }
@@ -129,7 +129,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
     async function enableMfa() {
         try {
             setLoading(true)
-            const res = await mfaApi.mfaEnable({ code })
+            const res = await mfaApi.mfaEnable({ code, xCsrfToken: X_CSRF_TOKEN })
             if (res.ok) {
                 setShowEnableModal(false)
                 setCode("")
@@ -137,10 +137,10 @@ export const Mfa = ({ appearance }: MfaProps) => {
                 setMfaStatus("Enabled")
             } else {
                 res.error._visit({
-                    notFoundMfaEnable: () => setError(NOT_FOUND_MFA_ENABLE),
+                    mfaAlreadyEnabled: () => setError(MFA_ALREADY_ENABLED),
                     badRequestMfaEnable: () => setError(BAD_REQUEST_MFA_ENABLE),
                     forbiddenMfaEnable: () => setError(FORBIDDEN),
-                    unauthorized: () => setError(UNAUTHORIZED),
+                    unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }
@@ -155,7 +155,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
     async function disableMfa() {
         try {
             setLoading(true)
-            const res = await mfaApi.mfaDisable()
+            const res = await mfaApi.mfaDisable({ xCsrfToken: X_CSRF_TOKEN })
             if (res.ok) {
                 setShowDisableModal(false)
                 setError(undefined)
@@ -163,7 +163,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
             } else {
                 res.error._visit({
                     mfaAlreadyDisabled: () => setError(MFA_ALREADY_DISABLED),
-                    unauthorized: () => setError(UNAUTHORIZED),
+                    unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }

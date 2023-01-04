@@ -10,6 +10,7 @@ import { Modal, ModalProps } from "../elements/Modal"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
+import { useRedirectFunctions } from "../useRedirectFunctions"
 import {
     BAD_REQUEST_UPDATE_EMAIL,
     BAD_REQUEST_UPDATE_PASSWORD,
@@ -165,21 +166,36 @@ export type UpdateNameProps = {
 
 export const UpdateName = ({ appearance }: UpdateNameProps) => {
     const { userApi } = useApi()
+    const { redirectToLoginPage } = useRedirectFunctions()
     const [firstName, setFirstName] = useState("") // GET FROM METADATA
     const [lastName, setLastName] = useState("") // GET FROM METADATA
     const [loading, setLoading] = useState(false)
+    const [firstNameError, setFirstNameError] = useState<string | undefined>(undefined)
+    const [lastNameError, setLastNameError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
     const [success, setSuccess] = useState<string | undefined>(undefined)
+
+    function clearErrors() {
+        setError(undefined)
+        setFirstNameError(undefined)
+        setLastNameError(undefined)
+    }
 
     async function handleSubmit(event: FormEvent) {
         try {
             event.preventDefault()
             setLoading(true)
+            clearErrors()
             const res = await userApi.updateName({ firstName, lastName, xCsrfToken: X_CSRF_TOKEN })
             if (res.ok) {
                 setSuccess(UPDATE_NAME_SUCCESS)
             } else {
                 res.error._visit({
+                    unauthorized: redirectToLoginPage,
+                    badRequestUpdateName: (err) => {
+                        setFirstNameError(err.firstName?.join(", "))
+                        setLastNameError(err.lastName?.join(", "))
+                    },
                     notFoundUpdateName: () => setError(NOT_FOUND_UPDATE_NAME),
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
@@ -206,6 +222,11 @@ export const UpdateName = ({ appearance }: UpdateNameProps) => {
                         onChange={(e) => setFirstName(e.target.value)}
                         appearance={appearance?.elements?.FirstNameInput}
                     />
+                    {firstNameError && (
+                        <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                            {firstNameError}
+                        </Alert>
+                    )}
                 </div>
                 <div>
                     <Label htmlFor={"last_name"} appearance={appearance?.elements?.LastNameLabel}>
@@ -218,6 +239,11 @@ export const UpdateName = ({ appearance }: UpdateNameProps) => {
                         onChange={(e) => setLastName(e.target.value)}
                         appearance={appearance?.elements?.LastNameInput}
                     />
+                    {lastNameError && (
+                        <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                            {lastNameError}
+                        </Alert>
+                    )}
                 </div>
                 <Button loading={loading} appearance={appearance?.elements?.SubmitNameButton}>
                     {appearance?.options?.updateNameButtonContent || "Update Name"}
@@ -243,6 +269,7 @@ export type UpdateUsernameProps = {
 
 export const UpdateUsername = ({ appearance }: UpdateUsernameProps) => {
     const { userApi } = useApi()
+    const { redirectToLoginPage } = useRedirectFunctions()
     const [username, setUsername] = useState("") // get from user metadata
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
@@ -257,6 +284,7 @@ export const UpdateUsername = ({ appearance }: UpdateUsernameProps) => {
                 setSuccess(UPDATE_USERNAME_SUCCESS)
             } else {
                 res.error._visit({
+                    unauthorized: redirectToLoginPage,
                     notFoundUpdateUsername: () => setError(NOT_FOUND_UPDATE_USERNAME),
                     badRequestUpdateUsername: () => setError(BAD_REQUEST_UPDATE_USERNAME),
                     _other: () => setError(UNEXPECTED_ERROR),
@@ -298,6 +326,7 @@ export type UpdatePasswordProps = {
 
 export const UpdatePassword = ({ appearance }: UpdatePasswordProps) => {
     const { userApi } = useApi()
+    const { redirectToLoginPage } = useRedirectFunctions()
     const [hasPassword, setHasPassword] = useState(true) // get from user metadata
     const [oldPassword, setOldPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
@@ -321,6 +350,7 @@ export const UpdatePassword = ({ appearance }: UpdatePasswordProps) => {
                 setHasPassword(true)
             } else {
                 res.error._visit({
+                    unauthorized: redirectToLoginPage,
                     notFoundUpdatePassword: () => setError(NOT_FOUND_UPDATE_PASSWORD),
                     badRequestUpdatePassword: () => setError(BAD_REQUEST_UPDATE_PASSWORD),
                     _other: () => setError(UNEXPECTED_ERROR),
