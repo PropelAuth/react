@@ -19,12 +19,17 @@
     "utility-types": "^3.10.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.20.12",
+    "@babel/preset-env": "^7.20.2",
+    "@babel/preset-react": "^7.18.6",
+    "@babel/preset-typescript": "^7.18.6",
     "@testing-library/react": "^12.0.0",
     "@types/estree": "^1.0.0",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/jest": "^26.0.23",
     "@types/react": "^18.0.4",
     "@types/react-dom": "^18.0.3",
+    "babel-jest": "^29.3.1",
     "jest": "^27.0.6",
     "prettier": "^2.4.1",
     "prettier-plugin-organize-imports": "^2.3.3",
@@ -48,7 +53,7 @@
     "build:umd": "BUILD_MODE=umd webpack",
     "build:umd-min": "BUILD_MODE=umd-min webpack",
     "build:types": "tsc --outDir ./dist --declaration --emitDeclarationOnly",
-    "build": "npm run build:umd && npm run build:umd-min && npm run build:types",
+    "build": "npm run test && npm run build:umd && npm run build:umd-min && npm run build:types",
     "test": "jest --silent",
     "prepublishOnly": "npm run build"
   },
