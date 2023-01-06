@@ -26,6 +26,7 @@ interface InternalAuthState {
     activeOrgFn: () => string | null
 
     api: PropelAuthFeV2Client
+    authUrl: string
 }
 
 export type AuthProviderProps = {
@@ -176,6 +177,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
         redirectToCreateOrgPage,
         activeOrgFn,
         api,
+        authUrl: props.authUrl,
     }
 
     let OurElementsProvider = ({ children }: WithChildren) => <>{children}</>

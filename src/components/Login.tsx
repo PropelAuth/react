@@ -17,6 +17,7 @@ import { BAD_REQUEST, NO_ACCOUNT_FOUND_WITH_CREDENTIALS, UNEXPECTED_ERROR, X_CSR
 import { CreateOrg, CreateOrgAppearance } from "./CreateOrg"
 import { SignInDivider } from "./SignInDivider"
 import { SignInOptions } from "./SignInOptions"
+import { UpdatePassword, UpdatePasswordAppearance } from "./UpdatePassword"
 import { UserMetadata, UserMetadataAppearance } from "./UserMetadata"
 import { Verify, VerifyAppearance } from "./Verify"
 
@@ -29,6 +30,7 @@ export type LoginProps = {
         ConfirmEmailAppearance &
         VerifyAppearance &
         UserMetadataAppearance &
+        UpdatePasswordAppearance &
         CreateOrgAppearance
 }
 
@@ -242,6 +244,9 @@ export const Login = ({
 
         case LoginStateEnum.UserMetadataRequired:
             return <UserMetadata getLoginState={getLoginState} config={config} appearance={appearance} />
+
+        case LoginStateEnum.UpdatePasswordRequired:
+            return <UpdatePassword getLoginState={getLoginState} config={config} appearance={appearance} />
 
         case LoginStateEnum.OrgCreationRequired:
             return <CreateOrg onOrgCreated={getLoginState} config={config} appearance={appearance} />

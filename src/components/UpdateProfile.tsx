@@ -85,18 +85,18 @@ export const UpdateProfile = ({ appearance }: UpdateProfileProps) => {
         return (
             <div data-contain="component">
                 <Container appearance={appearance?.elements?.Container}>
-                    <UpdateEmail appearance={appearance} initialEmail={authInfo.user.email} />
+                    <EditEmail appearance={appearance} initialEmail={authInfo.user.email} />
                     {config && config.requireUsersToSetName && (
-                        <UpdateName
+                        <EditName
                             appearance={appearance}
                             initialFirstName={authInfo.user.firstName}
                             initialLastName={authInfo.user.lastName}
                         />
                     )}
                     {config && config.requireUsersToSetUsername && (
-                        <UpdateUsername appearance={appearance} initialUsername={authInfo.user.username} />
+                        <EditUsername appearance={appearance} initialUsername={authInfo.user.username} />
                     )}
-                    <UpdatePassword appearance={appearance} />
+                    <EditPassword appearance={appearance} />
                 </Container>
             </div>
         )
@@ -113,12 +113,12 @@ export const UpdateProfile = ({ appearance }: UpdateProfileProps) => {
     )
 }
 
-export type UpdateEmailProps = {
+export type EditEmailProps = {
     initialEmail: string
     appearance?: UpdateProfileAppearance
 }
 
-export const UpdateEmail = ({ appearance, initialEmail }: UpdateEmailProps) => {
+export const EditEmail = ({ appearance, initialEmail }: EditEmailProps) => {
     const { userApi } = useApi()
     const [email, setEmail] = useState(initialEmail)
     const [loading, setLoading] = useState(false)
@@ -192,13 +192,13 @@ export const UpdateEmail = ({ appearance, initialEmail }: UpdateEmailProps) => {
     )
 }
 
-export type UpdateNameProps = {
+export type EditNameProps = {
     initialFirstName?: string
     initialLastName?: string
     appearance?: UpdateProfileAppearance
 }
 
-export const UpdateName = ({ appearance, initialFirstName, initialLastName }: UpdateNameProps) => {
+export const EditName = ({ appearance, initialFirstName, initialLastName }: EditNameProps) => {
     const { userApi } = useApi()
     const { redirectToLoginPage } = useRedirectFunctions()
     const [firstName, setFirstName] = useState(initialFirstName || "")
@@ -297,12 +297,12 @@ export const UpdateName = ({ appearance, initialFirstName, initialLastName }: Up
     )
 }
 
-export type UpdateUsernameProps = {
+export type EditUsernameProps = {
     initialUsername?: string
     appearance?: UpdateProfileAppearance
 }
 
-export const UpdateUsername = ({ appearance, initialUsername }: UpdateUsernameProps) => {
+export const EditUsername = ({ appearance, initialUsername }: EditUsernameProps) => {
     const { userApi } = useApi()
     const { redirectToLoginPage } = useRedirectFunctions()
     const [username, setUsername] = useState(initialUsername || "")
@@ -355,11 +355,11 @@ export const UpdateUsername = ({ appearance, initialUsername }: UpdateUsernamePr
     )
 }
 
-export type UpdatePasswordProps = {
+export type EditPasswordProps = {
     appearance?: UpdateProfileAppearance
 }
 
-export const UpdatePassword = ({ appearance }: UpdatePasswordProps) => {
+export const EditPassword = ({ appearance }: EditPasswordProps) => {
     const { userApi } = useApi()
     const { redirectToLoginPage } = useRedirectFunctions()
     const [hasPassword, setHasPassword] = useState(true) // get from user metadata

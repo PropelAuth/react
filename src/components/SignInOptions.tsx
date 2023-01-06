@@ -1,7 +1,9 @@
 import React from "react"
+import { useAuthUrl } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Button, ButtonProps } from "../elements/Button"
 import { Config } from "../useConfig"
+import { withHttp } from "./helpers"
 
 export type SignInOptionsProps = {
     config: Config | null
@@ -9,6 +11,7 @@ export type SignInOptionsProps = {
 }
 
 export const SignInOptions = ({ config, buttonAppearance }: SignInOptionsProps) => {
+    const { authUrl } = useAuthUrl()
     const GOOGLE_LOGIN_PATH = "/google/login"
     const GITHUB_LOGIN_PATH = "/github/login"
     const SLACK_LOGIN_PATH = "/slack/login"
@@ -17,44 +20,44 @@ export const SignInOptions = ({ config, buttonAppearance }: SignInOptionsProps) 
     const PASSWORDLESS_LOGIN_PATH = "/login_passwordless"
 
     const loginWithSocial = (path: string) => {
-        const url = path // use url from config?
-        return () => (window.location.href = url)
+        const url = withHttp(authUrl)
+        return window.location.replace(url + path)
     }
 
     return (
         <div data-contain="social_buttons">
             {config && config.hasGoogleLogin && (
-                <Button onClick={loginWithSocial(GOOGLE_LOGIN_PATH)} appearance={buttonAppearance}>
+                <Button onClick={() => loginWithSocial(GOOGLE_LOGIN_PATH)} appearance={buttonAppearance}>
                     <GoogleLogo />
                     <span>Sign in with Google</span>
                 </Button>
             )}
             {config && config.hasGithubLogin && (
-                <Button onClick={loginWithSocial(GITHUB_LOGIN_PATH)} appearance={buttonAppearance}>
+                <Button onClick={() => loginWithSocial(GITHUB_LOGIN_PATH)} appearance={buttonAppearance}>
                     <GithubLogo />
                     <span>Sign in with Github</span>
                 </Button>
             )}
             {config && config.hasSlackLogin && (
-                <Button onClick={loginWithSocial(SLACK_LOGIN_PATH)} appearance={buttonAppearance}>
+                <Button onClick={() => loginWithSocial(SLACK_LOGIN_PATH)} appearance={buttonAppearance}>
                     <SlackLogo />
                     <span>Sign in with Slack</span>
                 </Button>
             )}
             {config && config.hasMicrosoftLogin && (
-                <Button onClick={loginWithSocial(MICROSOFT_LOGIN_PATH)} appearance={buttonAppearance}>
+                <Button onClick={() => loginWithSocial(MICROSOFT_LOGIN_PATH)} appearance={buttonAppearance}>
                     <MicrosoftLogo />
                     <span>Sign in with Microsoft</span>
                 </Button>
             )}
             {config && config.hasLinkedinLogin && (
-                <Button onClick={loginWithSocial(LINKEDIN_LOGIN_PATH)} appearance={buttonAppearance}>
+                <Button onClick={() => loginWithSocial(LINKEDIN_LOGIN_PATH)} appearance={buttonAppearance}>
                     <LinkedinLogo />
                     <span>Sign in with LinkedIn</span>
                 </Button>
             )}
             {config && config.hasPasswordlessLogin && (
-                <Button onClick={loginWithSocial(PASSWORDLESS_LOGIN_PATH)} appearance={buttonAppearance}>
+                <Button onClick={() => loginWithSocial(PASSWORDLESS_LOGIN_PATH)} appearance={buttonAppearance}>
                     <PasswordlessLogo />
                     <span>Sign in with Email</span>
                 </Button>

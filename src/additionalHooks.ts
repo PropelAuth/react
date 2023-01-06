@@ -1,4 +1,6 @@
 import { AccessHelper, OrgHelper } from "@propelauth/javascript"
+import { useContext } from "react"
+import { AuthContext } from "./AuthContext"
 import { useAuthInfo } from "./useAuthInfo"
 
 export type UseOrgHelperLoading = {
@@ -65,4 +67,14 @@ export function useAccessHelper(): UseAccessHelper {
             accessHelper: null,
         }
     }
+}
+
+export function useAuthUrl() {
+    const context = useContext(AuthContext)
+
+    if (context === undefined) {
+        throw new Error("useAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
+    }
+
+    return { authUrl: context.authUrl }
 }
