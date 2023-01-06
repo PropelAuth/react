@@ -84,10 +84,10 @@ export const ManageOrg = ({ appearance }: ManageOrgProps) => {
     if (!activeOrg) {
         return null // TODO: Handle this case better
     }
-    const { activeOrgId, setActiveOrgId, allOrgs } = activeOrg
+    const { activeOrgId } = activeOrg
     const [query, setQuery] = useState<string>("")
     const [filters, setFilters] = useState<string[]>([])
-    const { users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg({ orgId: activeOrgId })
+    const { users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg()
     const { results } = useOrgSearch({ users, invitations, query, filters })
     const itemsPerPage = getItemsPerPage(appearance?.options?.rowsPerPage)
     const { items, controls } = usePagination<UserOrInvitation>({ items: results, itemsPerPage })
@@ -115,7 +115,10 @@ export const ManageOrg = ({ appearance }: ManageOrgProps) => {
             <div data-contain="org_header" data-width="full">
                 <H3 appearance={appearance?.elements?.Header}>{appearance?.options?.headerContent || "Welcome"}</H3>
                 <div data-contain="org_header_actions">
-                    <Button appearance={appearance?.elements?.CreateOrgButton}>
+                    <Button
+                        onClick={() => setShowCreateOrgModal(true)}
+                        appearance={appearance?.elements?.CreateOrgButton}
+                    >
                         {appearance?.options?.createOrgButtonContent || "Create Organization"}
                     </Button>
                     <Modal
@@ -126,7 +129,7 @@ export const ManageOrg = ({ appearance }: ManageOrgProps) => {
                     >
                         <CreateOrg onOrgCreated={() => setShowCreateOrgModal(false)} />
                     </Modal>
-                    <Button appearance={appearance?.elements?.JoinOrgButton}>
+                    <Button onClick={() => setShowJoinOrgModal(true)} appearance={appearance?.elements?.JoinOrgButton}>
                         {appearance?.options?.joinOrgButtonContent || "Join Organization"}
                     </Button>
                     <Modal
@@ -206,11 +209,8 @@ export type UserOrInvitation = {
     canBeDeleted?: boolean
 }
 
-export type UseOrgInfoProps = {
-    orgId: string
-}
-
-export const useSelectedOrg = ({ orgId }: UseOrgInfoProps) => {
+export const useSelectedOrg = () => {
+    const activeOrg = useActiveOrg()
     const { orgApi } = useApi()
     const { config } = useConfig()
     const [users, setUsers] = useState<User[]>([])
@@ -221,7 +221,7 @@ export const useSelectedOrg = ({ orgId }: UseOrgInfoProps) => {
 
     useEffect(() => {
         let mounted = true
-        orgApi.selectedOrgStatus({ id: orgId }).then((response) => {
+        orgApi.selectedOrgStatus({ id: activeOrg?.activeOrgId }).then((response) => {
             if (mounted) {
                 if (response.ok) {
                     setUsers(response.body.users)
@@ -240,7 +240,7 @@ export const useSelectedOrg = ({ orgId }: UseOrgInfoProps) => {
         return () => {
             mounted = false
         }
-    }, [orgId, orgApi, config?.roles])
+    }, [activeOrg, orgApi, config?.roles])
 
     function setUserRole(userId: string, role: string) {
         setUsers((users) => {

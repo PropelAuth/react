@@ -40,7 +40,7 @@ export type InviteUserAppearance = {
 
 export const InviteUser = ({ orgId, onSuccess, appearance }: InviteUserProps) => {
     const { orgUserApi } = useApi()
-    const { inviteePossibleRoles } = useSelectedOrg({ orgId })
+    const { inviteePossibleRoles } = useSelectedOrg()
     const { redirectToLoginPage } = useRedirectFunctions()
     const [loading, setLoading] = useState(false)
     const [emailError, setEmailError] = useState<string | undefined>(undefined)
