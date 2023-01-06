@@ -7,6 +7,7 @@ import { Image, ImageProps } from "../elements/Image"
 import { Modal, ModalProps } from "../elements/Modal"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { useApi } from "../useApi"
+import { useAuthInfo } from "../useAuthInfo"
 import { UNEXPECTED_ERROR } from "./constants"
 
 export type ProfilePictureProps = {
@@ -31,7 +32,8 @@ export type ProfilePictureAppearance = {
 
 export const ProfilePicture = ({ appearance }: ProfilePictureProps) => {
     const { legacyApi } = useApi()
-    const [imageUrl, setImageUrl] = useState("") // TODO: hook up auth info
+    const authInfo = useAuthInfo()
+    const [imageUrl, setImageUrl] = useState(authInfo.loading ? undefined : authInfo.user?.pictureUrl)
     const [showUploadModal, setShowUploadModal] = useState(false)
     const [files, setFiles] = useState<FileList | null>(null)
     const [loading, setLoading] = useState<boolean>(false)

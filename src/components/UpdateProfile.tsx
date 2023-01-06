@@ -8,7 +8,9 @@ import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
 import { Modal, ModalProps } from "../elements/Modal"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
+import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
+import { useAuthInfo } from "../useAuthInfo"
 import { useConfig } from "../useConfig"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import {
@@ -43,6 +45,7 @@ export type UpdateProfileAppearance = {
         updatePasswordButtonContent?: ReactNode
     }
     elements?: {
+        Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         EmailLabel?: ElementAppearance<LabelProps>
         EmailInput?: ElementAppearance<InputProps>
@@ -70,25 +73,54 @@ export type UpdateProfileAppearance = {
 
 export const UpdateProfile = ({ appearance }: UpdateProfileProps) => {
     const { config } = useConfig()
+    const authInfo = useAuthInfo()
+
+    if (authInfo.loading) {
+        return (
+            <Container appearance={appearance?.elements?.Container}>
+                <Progress appearance={appearance?.elements?.Progress} />
+            </Container>
+        )
+    } else if (authInfo.user) {
+        return (
+            <div data-contain="component">
+                <Container appearance={appearance?.elements?.Container}>
+                    <UpdateEmail appearance={appearance} initialEmail={authInfo.user.email} />
+                    {config && config.requireUsersToSetName && (
+                        <UpdateName
+                            appearance={appearance}
+                            initialFirstName={authInfo.user.firstName}
+                            initialLastName={authInfo.user.lastName}
+                        />
+                    )}
+                    {config && config.requireUsersToSetUsername && (
+                        <UpdateUsername appearance={appearance} initialUsername={authInfo.user.username} />
+                    )}
+                    <UpdatePassword appearance={appearance} />
+                </Container>
+            </div>
+        )
+    }
+
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                <UpdateEmail appearance={appearance} />
-                {config && config.requireUsersToSetName && <UpdateName appearance={appearance} />}
-                {config && config.requireUsersToSetUsername && <UpdateUsername appearance={appearance} />}
-                <UpdatePassword appearance={appearance} />
+                <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                    {UNEXPECTED_ERROR}
+                </Alert>
             </Container>
         </div>
     )
 }
 
 export type UpdateEmailProps = {
+    initialEmail: string
     appearance?: UpdateProfileAppearance
 }
 
-export const UpdateEmail = ({ appearance }: UpdateEmailProps) => {
+export const UpdateEmail = ({ appearance, initialEmail }: UpdateEmailProps) => {
     const { userApi } = useApi()
-    const [email, setEmail] = useState("") // get from useAuthInfo
+    const [email, setEmail] = useState(initialEmail)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
     const [showConfirmationModal, setShowConfirmationModal] = useState(false)
@@ -161,14 +193,16 @@ export const UpdateEmail = ({ appearance }: UpdateEmailProps) => {
 }
 
 export type UpdateNameProps = {
+    initialFirstName?: string
+    initialLastName?: string
     appearance?: UpdateProfileAppearance
 }
 
-export const UpdateName = ({ appearance }: UpdateNameProps) => {
+export const UpdateName = ({ appearance, initialFirstName, initialLastName }: UpdateNameProps) => {
     const { userApi } = useApi()
     const { redirectToLoginPage } = useRedirectFunctions()
-    const [firstName, setFirstName] = useState("") // GET FROM METADATA
-    const [lastName, setLastName] = useState("") // GET FROM METADATA
+    const [firstName, setFirstName] = useState(initialFirstName || "")
+    const [lastName, setLastName] = useState(initialLastName || "")
     const [loading, setLoading] = useState(false)
     const [firstNameError, setFirstNameError] = useState<string | undefined>(undefined)
     const [lastNameError, setLastNameError] = useState<string | undefined>(undefined)
@@ -264,13 +298,14 @@ export const UpdateName = ({ appearance }: UpdateNameProps) => {
 }
 
 export type UpdateUsernameProps = {
+    initialUsername?: string
     appearance?: UpdateProfileAppearance
 }
 
-export const UpdateUsername = ({ appearance }: UpdateUsernameProps) => {
+export const UpdateUsername = ({ appearance, initialUsername }: UpdateUsernameProps) => {
     const { userApi } = useApi()
     const { redirectToLoginPage } = useRedirectFunctions()
-    const [username, setUsername] = useState("") // get from user metadata
+    const [username, setUsername] = useState(initialUsername || "")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
     const [success, setSuccess] = useState<string | undefined>(undefined)
