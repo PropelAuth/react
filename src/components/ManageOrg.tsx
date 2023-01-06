@@ -247,7 +247,7 @@ export const useRowEditor = ({ rows, orgId, methods, appearance }: UseRowEditorP
 
     const editableRows = rows.map((row) => {
         return {
-            user_id: row.userId,
+            userId: row.userId,
             email: row.email,
             role: row.role,
             status: row.status.charAt(0).toUpperCase() + row.status.slice(1),
