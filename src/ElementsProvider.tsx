@@ -8,7 +8,6 @@ import React, {
     useContext,
     useState,
 } from "react"
-import "../assets/base-styles.css"
 import { AlertProps } from "./elements/Alert"
 import { ButtonProps } from "./elements/Button"
 import { CheckboxProps } from "./elements/Checkbox"
