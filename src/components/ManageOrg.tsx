@@ -85,6 +85,7 @@ export const ManageOrg = ({ appearance }: ManageOrgProps) => {
         return null // TODO: Handle this case better
     }
     const { activeOrgId } = activeOrg
+    const { config } = useConfig()
     const [query, setQuery] = useState<string>("")
     const [filters, setFilters] = useState<string[]>([])
     const { users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg()
@@ -95,6 +96,7 @@ export const ManageOrg = ({ appearance }: ManageOrgProps) => {
     const columns = [null, "Email", "Role", "Status", null]
     const [showCreateOrgModal, setShowCreateOrgModal] = useState(false)
     const [showJoinOrgModal, setShowJoinOrgModal] = useState(false)
+    const orgMetaname = config?.orgsMetaname || "Organization"
 
     function getItemsPerPage(num: number | undefined) {
         if (!num) {
@@ -113,7 +115,7 @@ export const ManageOrg = ({ appearance }: ManageOrgProps) => {
     return (
         <div data-contain="component" data-width="full">
             <div data-contain="org_header" data-width="full">
-                <H3 appearance={appearance?.elements?.Header}>{appearance?.options?.headerContent || "Welcome"}</H3>
+                <H3 appearance={appearance?.elements?.Header}>{appearance?.options?.headerContent || orgMetaname}</H3>
                 <div data-contain="org_header_actions">
                     <Button
                         onClick={() => setShowCreateOrgModal(true)}

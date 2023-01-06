@@ -125,7 +125,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
                     <form onSubmit={createOrg}>
                         <div>
                             <Label htmlFor="org_name">
-                                {appearance?.options?.orgNameLabel || orgMetaname + "name"}
+                                {appearance?.options?.orgNameLabel || orgMetaname + " name"}
                             </Label>
                             <Input
                                 id={"org_name"}
