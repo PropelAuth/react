@@ -1,10 +1,11 @@
 import React, { ReactNode, useEffect, useState } from "react"
+import { useOrgHelper } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
 import { AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
 import { CheckboxProps } from "../elements/Checkbox"
 import { Container, ContainerProps } from "../elements/Container"
-import { H3Props } from "../elements/H3"
+import { H3, H3Props } from "../elements/H3"
 import { InputProps } from "../elements/Input"
 import { LabelProps } from "../elements/Label"
 import { Modal, ModalProps } from "../elements/Modal"
@@ -15,6 +16,7 @@ import { Table, TableProps } from "../elements/Table"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
 import { NOT_FOUND_SELECTED_ORG_STATUS, UNAUTHORIZED_SELECTED_ORG_STATUS, UNEXPECTED_ERROR } from "./constants"
+import { CreateOrg } from "./CreateOrg"
 import { EditExpiredInvitation } from "./EditExpiredInvitation"
 import { EditOrgUser } from "./EditOrgUser"
 import { EditPendingInvitation } from "./EditPendingInvitation"
@@ -31,6 +33,9 @@ export type ManageOrgProps = {
 export type OrgAppearance = {
     options?: {
         rowsPerPage?: number
+        headerContent?: number
+        createOrgButtonContent?: ReactNode
+        joinOrgButtonContent?: ReactNode
         editUserButtonContent?: ReactNode
         filterButtonContent?: ReactNode
         inviteUserButtonContent?: ReactNode
@@ -45,6 +50,11 @@ export type OrgAppearance = {
     }
     elements?: {
         Container?: ElementAppearance<ContainerProps>
+        Header?: ElementAppearance<H3Props>
+        CreateOrgButton?: ElementAppearance<ButtonProps>
+        CreateOrgModal?: ElementAppearance<ModalProps>
+        JoinOrgButton?: ElementAppearance<ButtonProps>
+        JoinOrgModal?: ElementAppearance<ModalProps>
         SearchInput?: ElementAppearance<InputProps>
         FilterButton?: ElementAppearance<ButtonProps>
         FilterPopover?: ElementAppearance<PopoverProps>
@@ -69,15 +79,22 @@ export type OrgAppearance = {
     }
 }
 
-export const ManageOrg = ({ orgId, appearance }: ManageOrgProps) => {
+export const ManageOrg = ({ appearance }: ManageOrgProps) => {
+    const activeOrg = useActiveOrg()
+    if (!activeOrg) {
+        return null // TODO: Handle this case better
+    }
+    const { activeOrgId, setActiveOrgId, allOrgs } = activeOrg
     const [query, setQuery] = useState<string>("")
     const [filters, setFilters] = useState<string[]>([])
-    const { users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg({ orgId })
+    const { users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg({ orgId: activeOrgId })
     const { results } = useOrgSearch({ users, invitations, query, filters })
     const itemsPerPage = getItemsPerPage(appearance?.options?.rowsPerPage)
     const { items, controls } = usePagination<UserOrInvitation>({ items: results, itemsPerPage })
-    const { rows, editRowModal } = useRowEditor({ rows: items, orgId, methods, appearance })
+    const { rows, editRowModal } = useRowEditor({ rows: items, orgId: activeOrgId, methods, appearance })
     const columns = [null, "Email", "Role", "Status", null]
+    const [showCreateOrgModal, setShowCreateOrgModal] = useState(false)
+    const [showJoinOrgModal, setShowJoinOrgModal] = useState(false)
 
     function getItemsPerPage(num: number | undefined) {
         if (!num) {
@@ -95,10 +112,36 @@ export const ManageOrg = ({ orgId, appearance }: ManageOrgProps) => {
 
     return (
         <div data-contain="component" data-width="full">
+            <div data-contain="org_header" data-width="full">
+                <H3 appearance={appearance?.elements?.Header}>{appearance?.options?.headerContent || "Welcome"}</H3>
+                <div data-contain="org_header_actions">
+                    <Button appearance={appearance?.elements?.CreateOrgButton}>
+                        {appearance?.options?.createOrgButtonContent || "Create Organization"}
+                    </Button>
+                    <Modal
+                        show={showCreateOrgModal}
+                        setShow={setShowCreateOrgModal}
+                        appearance={appearance?.elements?.CreateOrgModal}
+                        onClose={() => setShowCreateOrgModal(false)}
+                    >
+                        <CreateOrg onOrgCreated={() => setShowCreateOrgModal(false)} />
+                    </Modal>
+                    <Button appearance={appearance?.elements?.JoinOrgButton}>
+                        {appearance?.options?.joinOrgButtonContent || "Join Organization"}
+                    </Button>
+                    <Modal
+                        show={showJoinOrgModal}
+                        setShow={setShowJoinOrgModal}
+                        appearance={appearance?.elements?.JoinOrgModal}
+                        onClose={() => setShowJoinOrgModal(false)}
+                    >
+                        <p>TODO</p>
+                    </Modal>
+                </div>
+            </div>
             <Container appearance={appearance?.elements?.Container}>
                 <div data-contain="search_action">
                     <OrgControls
-                        orgId={orgId}
                         query={query}
                         setQuery={setQuery}
                         filters={filters}
@@ -119,6 +162,25 @@ export const ManageOrg = ({ orgId, appearance }: ManageOrgProps) => {
             </Container>
         </div>
     )
+}
+
+export const useActiveOrg = () => {
+    const { orgHelper } = useOrgHelper()
+
+    if (!orgHelper) {
+        return undefined
+    }
+
+    // TODO: use query params and/or prop
+    const orgIds = orgHelper.getOrgIds()
+    const allOrgs = orgHelper.getOrgs()
+
+    if (orgIds.length <= 0) {
+        return undefined
+    }
+
+    const [activeOrgId, setActiveOrgId] = useState(orgIds[0])
+    return { activeOrgId, setActiveOrgId, allOrgs }
 }
 
 export type User = {
@@ -322,7 +384,7 @@ export const useOrgSearch = ({ users, invitations, query, filters }: UseOrgSearc
     useEffect(() => {
         const _users: UserOrInvitation[] = users.map((user) => {
             return {
-                user_id: user.userId,
+                userId: user.userId,
                 email: user.email,
                 role: user.role,
                 status: "active",

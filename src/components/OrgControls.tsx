@@ -1,14 +1,16 @@
+import { OrgMemberInfo } from "@propelauth/javascript"
 import React, { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
 import { Button } from "../elements/Button"
 import { Checkbox } from "../elements/Checkbox"
 import { Input } from "../elements/Input"
 import { Modal } from "../elements/Modal"
+import { Paragraph } from "../elements/Paragraph"
 import { Popover } from "../elements/Popover"
+import { Select } from "../elements/Select"
 import { InviteUser } from "./InviteUser"
-import { Invitation, OrgAppearance } from "./ManageOrg"
+import { Invitation, OrgAppearance, useActiveOrg } from "./ManageOrg"
 
 export type OrgControlsProps = {
-    orgId: string
     query: string
     setQuery: Dispatch<SetStateAction<string>>
     filters: string[]
@@ -20,7 +22,6 @@ export type OrgControlsProps = {
 }
 
 export const OrgControls = ({
-    orgId,
     query,
     setQuery,
     filters,
@@ -30,6 +31,11 @@ export const OrgControls = ({
     addInvitation,
     appearance,
 }: OrgControlsProps) => {
+    const activeOrg = useActiveOrg()
+    if (!activeOrg) {
+        return null // TODO: Handle this case better
+    }
+    const { activeOrgId, setActiveOrgId, allOrgs } = activeOrg
     const [filterPopover, setFilterPopover] = useState<HTMLButtonElement | null>(null)
     const [showFilterPopover, setShowFilterPopover] = useState(false)
     const [showInviteModal, setShowInviteModal] = useState(false)
@@ -55,6 +61,7 @@ export const OrgControls = ({
 
     return (
         <>
+            <OrgTextOrSelect activeOrgId={activeOrgId} setActiveOrgId={setActiveOrgId} allOrgs={allOrgs} />
             <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -118,9 +125,31 @@ export const OrgControls = ({
                     onClose={() => setShowInviteModal(false)}
                     appearance={appearance?.elements?.InviteModal}
                 >
-                    <InviteUser orgId={orgId} onSuccess={onSuccessfulInvite} />
+                    <InviteUser orgId={activeOrgId} onSuccess={onSuccessfulInvite} />
                 </Modal>
             )}
         </>
     )
+}
+
+export type OrgTextOrSelectProps = {
+    activeOrgId: string
+    setActiveOrgId: Dispatch<SetStateAction<string>>
+    allOrgs: OrgMemberInfo[]
+}
+
+export const OrgTextOrSelect = ({ activeOrgId, setActiveOrgId, allOrgs }: OrgTextOrSelectProps) => {
+    const activeOrgName = allOrgs.find((org) => org.orgId === activeOrgId)?.orgName
+    const options = allOrgs.map((org) => {
+        return {
+            label: org.orgName,
+            value: org.orgId,
+        }
+    })
+
+    if (allOrgs.length > 0) {
+        return <Select value={activeOrgId} onChange={(e) => setActiveOrgId(e.target.value)} options={options} />
+    }
+
+    return <Paragraph>{activeOrgName}</Paragraph>
 }

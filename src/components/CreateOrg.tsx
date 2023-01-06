@@ -11,7 +11,7 @@ import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
-import { Config, useConfig } from "../useConfig"
+import { useConfig } from "../useConfig"
 import {
     BAD_REQUEST,
     ORG_CREATION_NOT_ENABLED,
@@ -21,7 +21,6 @@ import {
 } from "./constants"
 
 export type CreateOrgProps = {
-    config: Config | null
     onOrgCreated: (response: OrgResponse) => void
     appearance?: CreateOrgAppearance
 }

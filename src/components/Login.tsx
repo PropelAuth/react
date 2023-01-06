@@ -249,7 +249,7 @@ export const Login = ({
             return <UpdatePassword getLoginState={getLoginState} config={config} appearance={appearance} />
 
         case LoginStateEnum.OrgCreationRequired:
-            return <CreateOrg onOrgCreated={getLoginState} config={config} appearance={appearance} />
+            return <CreateOrg onOrgCreated={getLoginState} appearance={appearance} />
 
         default:
             return (
