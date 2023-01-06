@@ -361,8 +361,9 @@ export type EditPasswordProps = {
 
 export const EditPassword = ({ appearance }: EditPasswordProps) => {
     const { userApi } = useApi()
+    const authInfo = useAuthInfo()
     const { redirectToLoginPage } = useRedirectFunctions()
-    const [hasPassword, setHasPassword] = useState(true) // get from user metadata
+    const [hasPassword, setHasPassword] = useState(authInfo.loading ? undefined : authInfo.user?.hasPassword)
     const [oldPassword, setOldPassword] = useState("")
     const [newPassword, setNewPassword] = useState("")
     const [loading, setLoading] = useState(false)
