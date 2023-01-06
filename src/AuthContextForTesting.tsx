@@ -49,6 +49,7 @@ export const AuthProviderForTesting = ({
         redirectToCreateOrgPage: () => {},
         activeOrgFn: activeOrgFnWithDefault,
         api,
+        authUrl: "",
     }
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
