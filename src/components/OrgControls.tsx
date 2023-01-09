@@ -1,3 +1,4 @@
+import { OrgMemberInfo } from "@propelauth/javascript"
 import React, { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
 import { useOrgHelper } from "../additionalHooks"
 import { Button } from "../elements/Button"
@@ -141,7 +142,13 @@ export type OrgTextOrSelectProps = {
 
 export const OrgTextOrSelect = ({ appearance, orgId, setOrgId }: OrgTextOrSelectProps) => {
     const { orgHelper } = useOrgHelper()
-    const allOrgs = orgHelper?.getOrgs().sort() || []
+    function byOrgName(a: OrgMemberInfo, b: OrgMemberInfo) {
+        var orgA = a.orgName.toUpperCase()
+        var orgB = b.orgName.toUpperCase()
+        return orgA < orgB ? -1 : orgA > orgB ? 1 : 0
+    }
+
+    const allOrgs = orgHelper?.getOrgs().sort(byOrgName) || []
     const activeOrgName = allOrgs.find((org) => org.orgId === orgId)?.orgName
     const options = allOrgs.map((org) => {
         return {
