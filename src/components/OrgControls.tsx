@@ -7,7 +7,7 @@ import { Modal } from "../elements/Modal"
 import { Paragraph } from "../elements/Paragraph"
 import { Popover } from "../elements/Popover"
 import { Select } from "../elements/Select"
-import { InviteUser } from "./InviteUser"
+import { InviteUser, InviteUserAppearance } from "./InviteUser"
 import { Invitation, OrgAppearance, useActiveOrg } from "./ManageOrg"
 
 export type OrgControlsProps = {
@@ -19,6 +19,7 @@ export type OrgControlsProps = {
     inviteePossibleRoles: string[]
     addInvitation: (invitation: Invitation) => void
     appearance?: OrgAppearance
+    inviteUserAppearance?: InviteUserAppearance
 }
 
 export const OrgControls = ({
@@ -30,6 +31,7 @@ export const OrgControls = ({
     inviteePossibleRoles,
     addInvitation,
     appearance,
+    inviteUserAppearance,
 }: OrgControlsProps) => {
     const activeOrg = useActiveOrg()
     if (!activeOrg) {
@@ -125,7 +127,7 @@ export const OrgControls = ({
                     onClose={() => setShowInviteModal(false)}
                     appearance={appearance?.elements?.InviteModal}
                 >
-                    <InviteUser orgId={activeOrgId} onSuccess={onSuccessfulInvite} />
+                    <InviteUser orgId={activeOrgId} onSuccess={onSuccessfulInvite} appearance={inviteUserAppearance} />
                 </Modal>
             )}
         </>

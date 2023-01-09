@@ -25,7 +25,6 @@ import { OrgControls } from "./OrgControls"
 import { OrgPagination, usePagination } from "./OrgPagination"
 
 export type ManageOrgProps = {
-    orgId: string
     appearance?: OrgAppearance
     inviteUserAppearance?: InviteUserAppearance
 }
@@ -79,7 +78,7 @@ export type OrgAppearance = {
     }
 }
 
-export const ManageOrg = ({ appearance }: ManageOrgProps) => {
+export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) => {
     const activeOrg = useActiveOrg()
     if (!activeOrg) {
         return null // TODO: Handle this case better
@@ -155,6 +154,7 @@ export const ManageOrg = ({ appearance }: ManageOrgProps) => {
                         inviteePossibleRoles={inviteePossibleRoles}
                         addInvitation={methods.addInvitation}
                         appearance={appearance}
+                        inviteUserAppearance={inviteUserAppearance}
                     />
                 </div>
                 <div data-contain="table">
