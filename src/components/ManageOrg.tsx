@@ -89,6 +89,11 @@ export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) 
     const [showJoinOrgModal, setShowJoinOrgModal] = useState(false)
     const orgMetaname = config?.orgsMetaname || "Organization"
 
+    function orgCreatedCallback(id: string) {
+        setShowCreateOrgModal(false)
+        setOrgId(id)
+    }
+
     return (
         <div data-contain="component" data-width="full">
             <div data-contain="org_header" data-width="full">
@@ -106,7 +111,7 @@ export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) 
                         appearance={appearance?.elements?.CreateOrgModal}
                         onClose={() => setShowCreateOrgModal(false)}
                     >
-                        <CreateOrg onOrgCreated={() => setShowCreateOrgModal(false)} />
+                        <CreateOrg onOrgCreated={({ orgId }) => orgCreatedCallback(orgId)} />
                     </Modal>
                     <Button onClick={() => setShowJoinOrgModal(true)} appearance={appearance?.elements?.JoinOrgButton}>
                         {appearance?.options?.joinOrgButtonContent || "Join Organization"}
@@ -147,7 +152,7 @@ export type ManageOrgInnerProps = {
 export const ManageOrgInner = ({ appearance, inviteUserAppearance, orgId, setOrgId }: ManageOrgInnerProps) => {
     const [query, setQuery] = useState<string>("")
     const [filters, setFilters] = useState<string[]>([])
-    const { users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg({ orgId })
+    const { loading, users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg({ orgId })
     const { results } = useOrgSearch({ users, invitations, query, filters })
     const itemsPerPage = getItemsPerPage(appearance?.options?.rowsPerPage)
     const { items, controls } = usePagination<UserOrInvitation>({ items: results, itemsPerPage })
@@ -166,6 +171,10 @@ export const ManageOrgInner = ({ appearance, inviteUserAppearance, orgId, setOrg
         } else {
             return num
         }
+    }
+
+    if (loading) {
+        return <Progress appearance={appearance?.elements?.Progress} />
     }
 
     return (
