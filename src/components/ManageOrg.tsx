@@ -111,7 +111,7 @@ export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) 
                         appearance={appearance?.elements?.CreateOrgModal}
                         onClose={() => setShowCreateOrgModal(false)}
                     >
-                        <CreateOrg onOrgCreated={({ orgId }) => orgCreatedCallback(orgId)} />
+                        <CreateOrg onOrgCreated={(res) => orgCreatedCallback(res.orgId)} />
                     </Modal>
                     <Button onClick={() => setShowJoinOrgModal(true)} appearance={appearance?.elements?.JoinOrgButton}>
                         {appearance?.options?.joinOrgButtonContent || "Join Organization"}
