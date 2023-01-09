@@ -11,6 +11,7 @@ import { LabelProps } from "../elements/Label"
 import { Modal, ModalProps } from "../elements/Modal"
 import { ParagraphProps } from "../elements/Paragraph"
 import { PopoverProps } from "../elements/Popover"
+import { Progress, ProgressProps } from "../elements/Progress"
 import { SelectProps } from "../elements/Select"
 import { Table, TableProps } from "../elements/Table"
 import { useApi } from "../useApi"
@@ -48,12 +49,15 @@ export type OrgAppearance = {
         deleteInvitationButtonContent?: ReactNode
     }
     elements?: {
+        Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         Header?: ElementAppearance<H3Props>
         CreateOrgButton?: ElementAppearance<ButtonProps>
         CreateOrgModal?: ElementAppearance<ModalProps>
         JoinOrgButton?: ElementAppearance<ButtonProps>
         JoinOrgModal?: ElementAppearance<ModalProps>
+        OrgName?: ElementAppearance<ParagraphProps>
+        OrgSelect?: ElementAppearance<SelectProps>
         SearchInput?: ElementAppearance<InputProps>
         FilterButton?: ElementAppearance<ButtonProps>
         FilterPopover?: ElementAppearance<PopoverProps>
@@ -79,37 +83,11 @@ export type OrgAppearance = {
 }
 
 export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) => {
-    const activeOrg = useActiveOrg()
-    if (!activeOrg) {
-        return null // TODO: Handle this case better
-    }
-    const { activeOrgId } = activeOrg
     const { config } = useConfig()
-    const [query, setQuery] = useState<string>("")
-    const [filters, setFilters] = useState<string[]>([])
-    const { users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg()
-    const { results } = useOrgSearch({ users, invitations, query, filters })
-    const itemsPerPage = getItemsPerPage(appearance?.options?.rowsPerPage)
-    const { items, controls } = usePagination<UserOrInvitation>({ items: results, itemsPerPage })
-    const { rows, editRowModal } = useRowEditor({ rows: items, orgId: activeOrgId, methods, appearance })
-    const columns = [null, "Email", "Role", "Status", null]
+    const { loading, orgId, setOrgId } = useActiveOrg()
     const [showCreateOrgModal, setShowCreateOrgModal] = useState(false)
     const [showJoinOrgModal, setShowJoinOrgModal] = useState(false)
     const orgMetaname = config?.orgsMetaname || "Organization"
-
-    function getItemsPerPage(num: number | undefined) {
-        if (!num) {
-            return 10
-        } else if (num < 5) {
-            console.error("rowsPerPage must be at least 5")
-            return 5
-        } else if (num > 100) {
-            console.error("rowsPerPage must be less than 100")
-            return 100
-        } else {
-            return num
-        }
-    }
 
     return (
         <div data-contain="component" data-width="full">
@@ -144,48 +122,78 @@ export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) 
                 </div>
             </div>
             <Container appearance={appearance?.elements?.Container}>
-                <div data-contain="search_action">
-                    <OrgControls
-                        query={query}
-                        setQuery={setQuery}
-                        filters={filters}
-                        setFilters={setFilters}
-                        roles={roles}
-                        inviteePossibleRoles={inviteePossibleRoles}
-                        addInvitation={methods.addInvitation}
+                {!loading && orgId ? (
+                    <ManageOrgInner
                         appearance={appearance}
                         inviteUserAppearance={inviteUserAppearance}
+                        orgId={orgId}
+                        setOrgId={setOrgId}
                     />
-                </div>
-                <div data-contain="table">
-                    <Table columns={columns} rows={rows} appearance={appearance?.elements?.Table} />
-                    {editRowModal}
-                </div>
-                <div data-contain="pagination">
-                    <OrgPagination controls={controls} appearance={appearance} />
-                </div>
+                ) : (
+                    <Progress appearance={appearance?.elements?.Progress} />
+                )}
             </Container>
         </div>
     )
 }
 
-export const useActiveOrg = () => {
-    const { orgHelper } = useOrgHelper()
+export type ManageOrgInnerProps = {
+    appearance?: OrgAppearance
+    inviteUserAppearance?: InviteUserAppearance
+    orgId: string
+    setOrgId: (id: string) => void
+}
 
-    if (!orgHelper) {
-        return undefined
+export const ManageOrgInner = ({ appearance, inviteUserAppearance, orgId, setOrgId }: ManageOrgInnerProps) => {
+    const [query, setQuery] = useState<string>("")
+    const [filters, setFilters] = useState<string[]>([])
+    const { users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg({ orgId })
+    const { results } = useOrgSearch({ users, invitations, query, filters })
+    const itemsPerPage = getItemsPerPage(appearance?.options?.rowsPerPage)
+    const { items, controls } = usePagination<UserOrInvitation>({ items: results, itemsPerPage })
+    const { rows, editRowModal } = useRowEditor({ rows: items, orgId, methods, appearance })
+    const columns = [null, "Email", "Role", "Status", null]
+
+    function getItemsPerPage(num: number | undefined) {
+        if (!num) {
+            return 10
+        } else if (num < 5) {
+            console.error("rowsPerPage must be at least 5")
+            return 5
+        } else if (num > 100) {
+            console.error("rowsPerPage must be less than 100")
+            return 100
+        } else {
+            return num
+        }
     }
 
-    // TODO: use query params and/or prop
-    const orgIds = orgHelper.getOrgIds()
-    const allOrgs = orgHelper.getOrgs()
-
-    if (orgIds.length <= 0) {
-        return undefined
-    }
-
-    const [activeOrgId, setActiveOrgId] = useState(orgIds[0])
-    return { activeOrgId, setActiveOrgId, allOrgs }
+    return (
+        <>
+            <div data-contain="search_action">
+                <OrgControls
+                    orgId={orgId}
+                    setOrgId={setOrgId}
+                    query={query}
+                    setQuery={setQuery}
+                    filters={filters}
+                    setFilters={setFilters}
+                    roles={roles}
+                    inviteePossibleRoles={inviteePossibleRoles}
+                    addInvitation={methods.addInvitation}
+                    appearance={appearance}
+                    inviteUserAppearance={inviteUserAppearance}
+                />
+            </div>
+            <div data-contain="table">
+                <Table columns={columns} rows={rows} appearance={appearance?.elements?.Table} />
+                {editRowModal}
+            </div>
+            <div data-contain="pagination">
+                <OrgPagination controls={controls} appearance={appearance} />
+            </div>
+        </>
+    )
 }
 
 export type User = {
@@ -211,38 +219,74 @@ export type UserOrInvitation = {
     canBeDeleted?: boolean
 }
 
-export const useSelectedOrg = () => {
-    const activeOrg = useActiveOrg()
+export const useActiveOrg = () => {
+    const { loading, orgHelper } = useOrgHelper()
+    const [activeOrgId, setActiveOrgId] = useState<string | undefined>(undefined)
+
+    useEffect(() => {
+        if (orgHelper && !activeOrgId) {
+            const orgIds = orgHelper.getOrgIds()
+            if (orgIds.length > 0) {
+                setActiveOrgId(orgIds[0])
+            }
+        }
+    }, [orgHelper, activeOrgId])
+
+    function setOrgId(id: string) {
+        setActiveOrgId(id)
+    }
+
+    return { loading, orgId: activeOrgId, setOrgId }
+}
+
+export type UseSelectedOrgProps = {
+    orgId: string
+}
+
+export const useSelectedOrg = ({ orgId }: UseSelectedOrgProps) => {
     const { orgApi } = useApi()
     const { config } = useConfig()
+    const [loading, setLoading] = useState(false)
     const [users, setUsers] = useState<User[]>([])
     const [invitations, setInvitations] = useState<Invitation[]>([])
     const [inviteePossibleRoles, setInviteePossibleRoles] = useState<string[]>([])
     const [roles, setRoles] = useState<string[]>([])
-    const [error, setError] = useState<string | undefined>()
+    const [error, setError] = useState<string | undefined>(undefined)
 
     useEffect(() => {
         let mounted = true
-        orgApi.selectedOrgStatus({ id: activeOrg?.activeOrgId }).then((response) => {
-            if (mounted) {
-                if (response.ok) {
-                    setUsers(response.body.users)
-                    setInvitations(response.body.pendingInvites)
-                    setRoles(config?.roles || [])
-                    setInviteePossibleRoles(response.body.inviteePossibleRoles)
-                } else {
-                    response.error._visit({
-                        notFoundSelectedOrgStatus: () => setError(NOT_FOUND_SELECTED_ORG_STATUS),
-                        unauthorizedOrgSelectedOrgStatus: () => setError(UNAUTHORIZED_SELECTED_ORG_STATUS),
-                        _other: () => setError(UNEXPECTED_ERROR),
-                    })
-                }
-            }
-        })
+        if (orgId) {
+            setLoading(true)
+            orgApi
+                .selectedOrgStatus({ id: orgId })
+                .then((response) => {
+                    if (mounted) {
+                        if (response.ok) {
+                            setUsers(response.body.users)
+                            setInvitations(response.body.pendingInvites)
+                            setRoles(config?.roles || [])
+                            setInviteePossibleRoles(response.body.inviteePossibleRoles)
+                        } else {
+                            response.error._visit({
+                                notFoundSelectedOrgStatus: () => setError(NOT_FOUND_SELECTED_ORG_STATUS),
+                                unauthorizedOrgSelectedOrgStatus: () => setError(UNAUTHORIZED_SELECTED_ORG_STATUS),
+                                _other: () => setError(UNEXPECTED_ERROR),
+                            })
+                        }
+                    }
+                })
+                .then(() => setLoading(false))
+                .catch((e) => {
+                    setError(UNEXPECTED_ERROR)
+                    console.error(e)
+                })
+        }
+
         return () => {
             mounted = false
+            setLoading(false)
         }
-    }, [activeOrg, orgApi, config?.roles])
+    }, [orgApi, orgId, config?.roles])
 
     function setUserRole(userId: string, role: string) {
         setUsers((users) => {
@@ -269,6 +313,7 @@ export const useSelectedOrg = () => {
     }
 
     return {
+        loading,
         users,
         invitations,
         inviteePossibleRoles,
