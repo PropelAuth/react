@@ -141,7 +141,7 @@ export type OrgTextOrSelectProps = {
 
 export const OrgTextOrSelect = ({ appearance, orgId, setOrgId }: OrgTextOrSelectProps) => {
     const { orgHelper } = useOrgHelper()
-    const allOrgs = orgHelper?.getOrgs() || []
+    const allOrgs = orgHelper?.getOrgs().sort() || []
     const activeOrgName = allOrgs.find((org) => org.orgId === orgId)?.orgName
     const options = allOrgs.map((org) => {
         return {

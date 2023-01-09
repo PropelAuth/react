@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react"
 import { useOrgHelper } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
-import { AlertProps } from "../elements/Alert"
+import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
 import { CheckboxProps } from "../elements/Checkbox"
 import { Container, ContainerProps } from "../elements/Container"
@@ -94,6 +94,29 @@ export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) 
         setOrgId(id)
     }
 
+    function getManageOrgInner() {
+        if (loading) {
+            return <Progress appearance={appearance?.elements?.Progress} />
+        }
+
+        if (orgId) {
+            return (
+                <ManageOrgInner
+                    appearance={appearance}
+                    inviteUserAppearance={inviteUserAppearance}
+                    orgId={orgId}
+                    setOrgId={setOrgId}
+                />
+            )
+        }
+
+        return (
+            <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                {UNEXPECTED_ERROR}
+            </Alert>
+        )
+    }
+
     return (
         <div data-contain="component" data-width="full">
             <div data-contain="org_header" data-width="full">
@@ -126,18 +149,7 @@ export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) 
                     </Modal>
                 </div>
             </div>
-            <Container appearance={appearance?.elements?.Container}>
-                {!loading && orgId ? (
-                    <ManageOrgInner
-                        appearance={appearance}
-                        inviteUserAppearance={inviteUserAppearance}
-                        orgId={orgId}
-                        setOrgId={setOrgId}
-                    />
-                ) : (
-                    <Progress appearance={appearance?.elements?.Progress} />
-                )}
-            </Container>
+            <Container appearance={appearance?.elements?.Container}>{getManageOrgInner()}</Container>
         </div>
     )
 }
