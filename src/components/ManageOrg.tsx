@@ -57,8 +57,10 @@ export type OrgAppearance = {
         Header?: ElementAppearance<H3Props>
         CreateOrgButton?: ElementAppearance<ButtonProps>
         CreateOrgModal?: ElementAppearance<ModalProps>
+        CreateOrgModalCancelButton?: ElementAppearance<ButtonProps>
         JoinOrgButton?: ElementAppearance<ButtonProps>
         JoinOrgModal?: ElementAppearance<ModalProps>
+        JoinOrgModalCancelButton?: ElementAppearance<ButtonProps>
         OrgName?: ElementAppearance<ParagraphProps>
         OrgSelect?: ElementAppearance<SelectProps>
         SearchInput?: ElementAppearance<InputProps>
@@ -128,6 +130,12 @@ export const ManageOrg = ({
                             appearance={createOrgAppearance}
                             onOrgCreated={(res) => orgCreatedCallback(res.orgId)}
                         />
+                        <Button
+                            onClick={() => setShowCreateOrgModal(false)}
+                            appearance={appearance?.elements?.CreateOrgModalCancelButton}
+                        >
+                            Cancel
+                        </Button>
                     </Modal>
                     <Button onClick={() => setShowJoinOrgModal(true)} appearance={appearance?.elements?.JoinOrgButton}>
                         {appearance?.options?.joinOrgButtonContent || "Join Organization"}
@@ -139,6 +147,12 @@ export const ManageOrg = ({
                         onClose={() => setShowJoinOrgModal(false)}
                     >
                         <JoinOrg appearance={joinOrgAppearance} onOrgJoined={(id) => orgJoinedCallback(id)} />
+                        <Button
+                            onClick={() => setShowJoinOrgModal(false)}
+                            appearance={appearance?.elements?.JoinOrgModalCancelButton}
+                        >
+                            Cancel
+                        </Button>
                     </Modal>
                 </div>
             </div>
