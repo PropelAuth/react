@@ -1,7 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react"
 import { useOrgHelper } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
-import { Alert, AlertProps } from "../elements/Alert"
+import { AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
 import { CheckboxProps } from "../elements/Checkbox"
 import { Container, ContainerProps } from "../elements/Container"
@@ -17,16 +17,19 @@ import { Table, TableProps } from "../elements/Table"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
 import { NOT_FOUND_SELECTED_ORG_STATUS, UNAUTHORIZED_SELECTED_ORG_STATUS, UNEXPECTED_ERROR } from "./constants"
-import { CreateOrg } from "./CreateOrg"
+import { CreateOrg, CreateOrgAppearance } from "./CreateOrg"
 import { EditExpiredInvitation } from "./EditExpiredInvitation"
 import { EditOrgUser } from "./EditOrgUser"
 import { EditPendingInvitation } from "./EditPendingInvitation"
 import { InviteUserAppearance } from "./InviteUser"
+import { JoinOrg, JoinOrgAppearance } from "./JoinOrg"
 import { OrgControls } from "./OrgControls"
 import { OrgPagination, usePagination } from "./OrgPagination"
 
 export type ManageOrgProps = {
     appearance?: OrgAppearance
+    createOrgAppearance?: CreateOrgAppearance
+    joinOrgAppearance?: JoinOrgAppearance
     inviteUserAppearance?: InviteUserAppearance
 }
 
@@ -82,7 +85,12 @@ export type OrgAppearance = {
     }
 }
 
-export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) => {
+export const ManageOrg = ({
+    appearance,
+    createOrgAppearance,
+    joinOrgAppearance,
+    inviteUserAppearance,
+}: ManageOrgProps) => {
     const { config } = useConfig()
     const { loading, orgId, setOrgId } = useActiveOrg()
     const [showCreateOrgModal, setShowCreateOrgModal] = useState(false)
@@ -94,27 +102,9 @@ export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) 
         setOrgId(id)
     }
 
-    function getManageOrgInner() {
-        if (loading) {
-            return <Progress appearance={appearance?.elements?.Progress} />
-        }
-
-        if (orgId) {
-            return (
-                <ManageOrgInner
-                    appearance={appearance}
-                    inviteUserAppearance={inviteUserAppearance}
-                    orgId={orgId}
-                    setOrgId={setOrgId}
-                />
-            )
-        }
-
-        return (
-            <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
-                {UNEXPECTED_ERROR}
-            </Alert>
-        )
+    function orgJoinedCallback(id: string) {
+        setShowCreateOrgModal(false)
+        setOrgId(id)
     }
 
     return (
@@ -134,7 +124,10 @@ export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) 
                         appearance={appearance?.elements?.CreateOrgModal}
                         onClose={() => setShowCreateOrgModal(false)}
                     >
-                        <CreateOrg onOrgCreated={(res) => orgCreatedCallback(res.orgId)} />
+                        <CreateOrg
+                            appearance={createOrgAppearance}
+                            onOrgCreated={(res) => orgCreatedCallback(res.orgId)}
+                        />
                     </Modal>
                     <Button onClick={() => setShowJoinOrgModal(true)} appearance={appearance?.elements?.JoinOrgButton}>
                         {appearance?.options?.joinOrgButtonContent || "Join Organization"}
@@ -145,11 +138,24 @@ export const ManageOrg = ({ appearance, inviteUserAppearance }: ManageOrgProps) 
                         appearance={appearance?.elements?.JoinOrgModal}
                         onClose={() => setShowJoinOrgModal(false)}
                     >
-                        <p>TODO</p>
+                        <JoinOrg appearance={joinOrgAppearance} onOrgJoined={(id) => orgJoinedCallback(id)} />
                     </Modal>
                 </div>
             </div>
-            <Container appearance={appearance?.elements?.Container}>{getManageOrgInner()}</Container>
+            <Container appearance={appearance?.elements?.Container}>
+                {loading ? (
+                    <Progress appearance={appearance?.elements?.Progress} />
+                ) : (
+                    orgId && (
+                        <ManageOrgInner
+                            appearance={appearance}
+                            inviteUserAppearance={inviteUserAppearance}
+                            orgId={orgId}
+                            setOrgId={setOrgId}
+                        />
+                    )
+                )}
+            </Container>
         </div>
     )
 }

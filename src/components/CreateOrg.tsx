@@ -6,7 +6,6 @@ import { Button, ButtonProps } from "../elements/Button"
 import { Checkbox, CheckboxProps } from "../elements/Checkbox"
 import { Container, ContainerProps } from "../elements/Container"
 import { H3, H3Props } from "../elements/H3"
-import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { Progress, ProgressProps } from "../elements/Progress"
@@ -28,7 +27,6 @@ export type CreateOrgProps = {
 export type CreateOrgAppearance = {
     options?: {
         headerContent?: ReactNode
-        displayLogo?: boolean
         orgNameLabel?: ReactNode
         autojoinByDomainLabel?: ReactNode
         restrictToDomainLabel?: ReactNode
@@ -38,7 +36,6 @@ export type CreateOrgAppearance = {
         Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         Header?: ElementAppearance<H3Props>
-        Logo?: ElementAppearance<ImageProps>
         OrgNameInput?: ElementAppearance<InputProps>
         AutojoinByDomainCheckbox?: ElementAppearance<CheckboxProps>
         RestrictToDomainCheckbox?: ElementAppearance<CheckboxProps>
@@ -107,15 +104,6 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                {appearance?.options?.displayLogo && config && (
-                    <div data-contain="logo">
-                        <Image
-                            src={config.logoUrl}
-                            alt={config.siteDisplayName}
-                            appearance={appearance?.elements?.Logo}
-                        />
-                    </div>
-                )}
                 <div data-contain="header">
                     <H3 appearance={appearance?.elements?.Header}>
                         {appearance?.options?.headerContent || `Create your ${orgMetaname}`}
