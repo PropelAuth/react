@@ -23,14 +23,22 @@ export type JoinOrgProps = {
 
 export type JoinOrgAppearance = {
     options: {
-        joinableOrgsHeaderContent: ReactNode
+        joinableOrgsHeaderContent?: ReactNode
+        pendingInvitesHeaderContent?: ReactNode
+        joinOrgButtonContent?: ReactNode
+        acceptInviteButtonContent?: ReactNode
+        declineInviteButtonContent?: ReactNode
     }
     elements: {
         Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         JoinableOrgsHeader?: ElementAppearance<H3Props>
         JoinableOrgName?: ElementAppearance<ParagraphProps>
-        JoinableOrgButton?: ElementAppearance<ButtonProps>
+        JoinOrgButton?: ElementAppearance<ButtonProps>
+        PendingInvitesHeader?: ElementAppearance<H3Props>
+        PendingInviteOrgName?: ElementAppearance<ParagraphProps>
+        AcceptInviteButton?: ElementAppearance<ButtonProps>
+        DeclineInviteButton?: ElementAppearance<ButtonProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
@@ -40,7 +48,7 @@ export const JoinOrg = ({ appearance, onOrgJoined }: JoinOrgProps) => {
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
                 <JoinableOrgs appearance={appearance} onOrgJoined={onOrgJoined} />
-                <PendingInvites />
+                <PendingInvites appearance={appearance} />
             </Container>
         </div>
     )
@@ -112,6 +120,7 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
                     console.error(e)
                 })
         } catch (e) {
+            setLoading(false)
             setError(UNEXPECTED_ERROR)
             console.error(e)
         }
@@ -137,11 +146,8 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
                     return (
                         <div data-contain="row" key={org.id}>
                             <Paragraph appearance={appearance?.elements?.JoinableOrgName}>{org.name}</Paragraph>
-                            <Button
-                                appearance={appearance?.elements?.JoinableOrgButton}
-                                onClick={() => joinOrg(org.id)}
-                            >
-                                Join
+                            <Button appearance={appearance?.elements?.JoinOrgButton} onClick={() => joinOrg(org.id)}>
+                                {appearance?.options?.joinOrgButtonContent || "Join"}
                             </Button>
                         </div>
                     )
@@ -160,6 +166,85 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
     )
 }
 
-export const PendingInvites = () => {
-    return <div data-contain="section">PendingInvites</div>
+export type PendingInvite = {
+    orgName: string
+    orgId: string
+}
+
+export const PendingInvites = ({ appearance }: JoinOrgProps) => {
+    const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([])
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | undefined>(undefined)
+
+    useEffect(() => {
+        let mounted = true
+        // ..
+
+        return () => {
+            mounted = false
+        }
+    }, [])
+
+    function respondToInvite(orgId: string, accept: boolean) {
+        try {
+            setLoading(true)
+            setError(undefined)
+            // ..
+        } catch (e) {
+            setLoading(false)
+            setError(UNEXPECTED_ERROR)
+            console.error(e)
+        }
+    }
+
+    if (loading) {
+        return (
+            <div data-contain="section">
+                <Progress appearance={appearance?.elements?.Progress} />
+            </div>
+        )
+    }
+    return (
+        <div data-contain="section">
+            <div data-contain="header">
+                <H3 appearance={appearance?.elements?.PendingInvitesHeader}>
+                    {appearance?.options?.pendingInvitesHeaderContent || "Pending Invites"}
+                </H3>
+            </div>
+            {pendingInvites.length > 0 ? (
+                pendingInvites.map((invite, i) => {
+                    return (
+                        <div data-contain="row" key={i}>
+                            <Paragraph appearance={appearance?.elements?.PendingInviteOrgName}>
+                                {invite.orgName}
+                            </Paragraph>
+                            <div data-contain="row_buttons">
+                                <Button
+                                    appearance={appearance?.elements?.AcceptInviteButton}
+                                    onClick={() => respondToInvite(invite.orgId, true)}
+                                >
+                                    {appearance?.options?.acceptInviteButtonContent || "Accept"}
+                                </Button>
+                                <Button
+                                    appearance={appearance?.elements?.DeclineInviteButton}
+                                    onClick={() => respondToInvite(invite.orgId, false)}
+                                >
+                                    {appearance?.options?.declineInviteButtonContent || "Decline"}
+                                </Button>
+                            </div>
+                        </div>
+                    )
+                })
+            ) : (
+                <div data-contain="row">
+                    <Paragraph appearance={appearance?.elements?.PendingInviteOrgName}>None</Paragraph>
+                </div>
+            )}
+            {error && (
+                <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                    {error}
+                </Alert>
+            )}
+        </div>
+    )
 }
