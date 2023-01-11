@@ -116,10 +116,12 @@ export const Mfa = ({ appearance }: MfaProps) => {
                     }
                 }
             })
-            .catch(() => {
+            .then(() => setStatusLoading(false))
+            .catch((e) => {
                 setStatusError(UNEXPECTED_ERROR)
+                console.error(e)
             })
-        setStatusLoading(false)
+
         return () => {
             setStatusLoading(false)
             mounted = false
@@ -198,6 +200,16 @@ export const Mfa = ({ appearance }: MfaProps) => {
             <div data-contain="component">
                 <Container appearance={appearance?.elements?.Container}>
                     <Progress appearance={appearance?.elements?.Progress} />
+                </Container>
+            </div>
+        )
+    } else if (statusError) {
+        return (
+            <div data-contain="component">
+                <Container appearance={appearance?.elements?.Container}>
+                    <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                        {statusError}
+                    </Alert>
                 </Container>
             </div>
         )
@@ -293,94 +305,82 @@ export const Mfa = ({ appearance }: MfaProps) => {
         )
     }
 
-    if (mfaStatus === "Disabled") {
-        return (
-            <div data-contain="component">
-                <Container appearance={appearance?.elements?.Container}>
-                    <Button onClick={() => setShowEnableModal(true)} appearance={appearance?.elements?.EnableMfaButton}>
-                        {appearance?.options?.enableMfaButtonContent || "Enable 2FA"}
-                    </Button>
-                    <Modal
-                        show={showEnableModal}
-                        setShow={setShowEnableModal}
-                        appearance={appearance?.elements?.EnableMfaModal}
-                        onClose={() => setError(undefined)}
-                    >
-                        <H3 appearance={appearance?.elements?.EnableMfaModalHeader}>
-                            {appearance?.options?.enableMfaModalHeaderContent || "Enable 2FA"}
-                        </H3>
-                        <Paragraph appearance={appearance?.elements?.EnableMfaModalText}>
-                            Two-Factor Authentication makes your account more secure by requiring a code in addition to
-                            your normal login. You&#39;ll need an Authenticator app like Google Authenticator or Authy.
-                        </Paragraph>
-                        <div data-contain="qr_code">
-                            {showQr ? (
-                                <>
-                                    <Image
-                                        src={`data:image/png;base64,${newQr}`}
-                                        alt={"qr code"}
-                                        appearance={appearance?.elements?.QrCodeImage}
-                                    />
-                                    <div onClick={() => setShowQr(false)}>
-                                        {appearance?.options?.toggleQrSecretInputContent || (
-                                            <small>Not working? Enter a code instead</small>
-                                        )}
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <Input
-                                        onChange={() => null}
-                                        type="text"
-                                        value={newSecret}
-                                        readOnly
-                                        appearance={appearance?.elements?.QrSecretInput}
-                                    />
-                                    <div onClick={() => setShowQr(true)}>
-                                        {appearance?.options?.toggleQrCodeImageContent || (
-                                            <small>Prefer an image? Scan a QR code instead</small>
-                                        )}
-                                    </div>
-                                </>
-                            )}
-                        </div>
-                        <div>
-                            <Label htmlFor={"code"} appearance={appearance?.elements?.EnableMfaCodeLabel}>
-                                {appearance?.options?.enableMfaCodeLabel || "Enter the 6-digit code from the app"}
-                            </Label>
-                            <Input
-                                id={"code"}
-                                value={code}
-                                onChange={(e) => setCode(e.target.value)}
-                                appearance={appearance?.elements?.EnableMfaCodeInput}
-                            />
-                        </div>
-                        <Button
-                            onClick={() => setShowEnableModal(false)}
-                            appearance={appearance?.elements?.CloseEnableMfaModalButton}
-                        >
-                            {appearance?.options?.closeEnableMfaModalButtonContent || "Cancel"}
-                        </Button>
-                        <Button onClick={enableMfa} appearance={appearance?.elements?.EnableMfaModalButton}>
-                            {appearance?.options?.enableMfaModalButtonContent || "Enable 2FA"}
-                        </Button>
-                        {error && (
-                            <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
-                                {error}
-                            </Alert>
-                        )}
-                    </Modal>
-                </Container>
-            </div>
-        )
-    }
-
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
-                    {statusError}
-                </Alert>
+                <Button onClick={() => setShowEnableModal(true)} appearance={appearance?.elements?.EnableMfaButton}>
+                    {appearance?.options?.enableMfaButtonContent || "Enable 2FA"}
+                </Button>
+                <Modal
+                    show={showEnableModal}
+                    setShow={setShowEnableModal}
+                    appearance={appearance?.elements?.EnableMfaModal}
+                    onClose={() => setError(undefined)}
+                >
+                    <H3 appearance={appearance?.elements?.EnableMfaModalHeader}>
+                        {appearance?.options?.enableMfaModalHeaderContent || "Enable 2FA"}
+                    </H3>
+                    <Paragraph appearance={appearance?.elements?.EnableMfaModalText}>
+                        Two-Factor Authentication makes your account more secure by requiring a code in addition to your
+                        normal login. You&#39;ll need an Authenticator app like Google Authenticator or Authy.
+                    </Paragraph>
+                    <div data-contain="qr_code">
+                        {showQr ? (
+                            <>
+                                <Image
+                                    src={`data:image/png;base64,${newQr}`}
+                                    alt={"qr code"}
+                                    appearance={appearance?.elements?.QrCodeImage}
+                                />
+                                <div onClick={() => setShowQr(false)}>
+                                    {appearance?.options?.toggleQrSecretInputContent || (
+                                        <small>Not working? Enter a code instead</small>
+                                    )}
+                                </div>
+                            </>
+                        ) : (
+                            <>
+                                <Input
+                                    onChange={() => null}
+                                    type="text"
+                                    value={newSecret}
+                                    readOnly
+                                    appearance={appearance?.elements?.QrSecretInput}
+                                />
+                                <div onClick={() => setShowQr(true)}>
+                                    {appearance?.options?.toggleQrCodeImageContent || (
+                                        <small>Prefer an image? Scan a QR code instead</small>
+                                    )}
+                                </div>
+                            </>
+                        )}
+                    </div>
+                    <div>
+                        <Label htmlFor={"code"} appearance={appearance?.elements?.EnableMfaCodeLabel}>
+                            {appearance?.options?.enableMfaCodeLabel || "Enter the 6-digit code from the app"}
+                        </Label>
+                        <Input
+                            id={"code"}
+                            value={code}
+                            onChange={(e) => setCode(e.target.value)}
+                            appearance={appearance?.elements?.EnableMfaCodeInput}
+                        />
+                    </div>
+                    <Button
+                        onClick={() => setShowEnableModal(false)}
+                        appearance={appearance?.elements?.CloseEnableMfaModalButton}
+                    >
+                        {appearance?.options?.closeEnableMfaModalButtonContent || "Cancel"}
+                    </Button>
+                    <Button onClick={enableMfa} appearance={appearance?.elements?.EnableMfaModalButton}>
+                        {appearance?.options?.enableMfaModalButtonContent || "Enable 2FA"}
+                    </Button>
+                    {error && (
+                        <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                            {error}
+                        </Alert>
+                    )}
+                </Modal>
             </Container>
         </div>
     )
