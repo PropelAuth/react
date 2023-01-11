@@ -1,11 +1,11 @@
 {
-    "name": "@propelauth/react",
+    "name": "@propelauth/react-test",
     "description": "A React library for managing authentication, backed by PropelAuth",
     "repository": {
         "type": "git",
         "url": "https://github.com/PropelAuth/react"
     },
-    "version": "2.0.2",
+    "version": "2.1.0-beta.28",
     "license": "MIT",
     "keywords": [
         "auth",

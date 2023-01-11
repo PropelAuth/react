@@ -213,9 +213,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
                 </Container>
             </div>
         )
-    }
-
-    if (mfaStatus === "Enabled") {
+    } else if (mfaStatus === "Enabled") {
         return (
             <div data-contain="component">
                 <Container appearance={appearance?.elements?.Container}>
@@ -366,14 +364,14 @@ export const Mfa = ({ appearance }: MfaProps) => {
                             appearance={appearance?.elements?.EnableMfaCodeInput}
                         />
                     </div>
+                    <Button onClick={enableMfa} appearance={appearance?.elements?.EnableMfaModalButton}>
+                        {appearance?.options?.enableMfaModalButtonContent || "Enable 2FA"}
+                    </Button>
                     <Button
                         onClick={() => setShowEnableModal(false)}
                         appearance={appearance?.elements?.CloseEnableMfaModalButton}
                     >
                         {appearance?.options?.closeEnableMfaModalButtonContent || "Cancel"}
-                    </Button>
-                    <Button onClick={enableMfa} appearance={appearance?.elements?.EnableMfaModalButton}>
-                        {appearance?.options?.enableMfaModalButtonContent || "Enable 2FA"}
                     </Button>
                     {error && (
                         <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
