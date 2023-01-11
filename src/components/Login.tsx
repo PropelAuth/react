@@ -1,4 +1,4 @@
-import { LoginStateEnum } from "@propel-auth-fern/fe_v2-client/types/resources"
+import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { ReactNode, SyntheticEvent, useEffect, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -117,7 +117,7 @@ export const Login = ({
     }
 
     useEffect(() => {
-        if (loginState === LoginStateEnum.Finished) {
+        if (loginState === PropelAuthFeV2.LoginStateEnum.Finished) {
             onSuccess()
         }
     }, [loginState, onSuccess])
@@ -133,7 +133,7 @@ export const Login = ({
     }
 
     switch (loginState) {
-        case LoginStateEnum.LoginRequired:
+        case PropelAuthFeV2.LoginStateEnum.LoginRequired:
             return (
                 <div data-contain="component">
                     <Container appearance={appearance?.elements?.Container}>
@@ -236,19 +236,19 @@ export const Login = ({
                 </div>
             )
 
-        case LoginStateEnum.ConfirmEmailRequired:
+        case PropelAuthFeV2.LoginStateEnum.ConfirmEmailRequired:
             return <ConfirmEmail appearance={appearance} />
 
-        case LoginStateEnum.TwoFactorRequired:
+        case PropelAuthFeV2.LoginStateEnum.TwoFactorRequired:
             return <Verify getLoginState={getLoginState} appearance={appearance} />
 
-        case LoginStateEnum.UserMetadataRequired:
+        case PropelAuthFeV2.LoginStateEnum.UserMetadataRequired:
             return <UserMetadata getLoginState={getLoginState} config={config} appearance={appearance} />
 
-        case LoginStateEnum.UpdatePasswordRequired:
+        case PropelAuthFeV2.LoginStateEnum.UpdatePasswordRequired:
             return <UpdatePassword getLoginState={getLoginState} config={config} appearance={appearance} />
 
-        case LoginStateEnum.OrgCreationRequired:
+        case PropelAuthFeV2.LoginStateEnum.OrgCreationRequired:
             return <CreateOrg onOrgCreated={getLoginState} appearance={appearance} />
 
         default:
@@ -267,7 +267,7 @@ export const Login = ({
 export const useLoginState = () => {
     const { loginApi } = useApi()
     const [loading, setLoading] = useState<boolean>(false)
-    const [state, setState] = useState<LoginStateEnum | undefined>(undefined)
+    const [state, setState] = useState<PropelAuthFeV2.LoginStateEnum | undefined>(undefined)
     const [refreshCounter, setRefreshCounter] = useState(0)
 
     useEffect(() => {

@@ -1,4 +1,4 @@
-import { UpdatePasswordRequest } from "@propel-auth-fern/fe_v2-client/types/resources"
+import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { FormEvent, ReactNode, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -48,7 +48,7 @@ export const UpdatePassword = ({ config, getLoginState, appearance }: UpdatePass
         try {
             event.preventDefault()
             setLoading(true)
-            let options: UpdatePasswordRequest = { password, xCsrfToken: X_CSRF_TOKEN }
+            let options: PropelAuthFeV2.UpdatePasswordRequest = { password, xCsrfToken: X_CSRF_TOKEN }
             const res = await userApi.updatePassword(options)
             if (res.ok) {
                 const status = await loginApi.fetchLoginState()

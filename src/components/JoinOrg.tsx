@@ -1,4 +1,4 @@
-import { Invitation } from "@propel-auth-fern/fe_v2-client/types/resources"
+import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { ReactNode, useEffect, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -173,7 +173,7 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
 
 export const PendingInvites = ({ appearance }: JoinOrgProps) => {
     const { orgApi } = useApi()
-    const [pendingInvites, setPendingInvites] = useState<Invitation[]>([])
+    const [pendingInvites, setPendingInvites] = useState<PropelAuthFeV2.Invitation[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
     const { redirectToLoginPage } = useRedirectFunctions()

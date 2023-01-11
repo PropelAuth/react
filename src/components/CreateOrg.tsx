@@ -1,4 +1,4 @@
-import { OrgResponse } from "@propel-auth-fern/fe_v2-client/types/resources"
+import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -15,7 +15,7 @@ import { useRedirectFunctions } from "../useRedirectFunctions"
 import { BAD_REQUEST, ORG_CREATION_NOT_ENABLED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
 export type CreateOrgProps = {
-    onOrgCreated: (response: OrgResponse) => void
+    onOrgCreated: (response: PropelAuthFeV2.OrgResponse) => void
     appearance?: CreateOrgAppearance
 }
 

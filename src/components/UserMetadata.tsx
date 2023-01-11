@@ -1,4 +1,4 @@
-import { UpdateUserFacingMetadataRequest } from "@propel-auth-fern/fe_v2-client/types/resources"
+import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -57,7 +57,7 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
             e.preventDefault()
             setLoading(true)
             setError(undefined)
-            const options: UpdateUserFacingMetadataRequest = { xCsrfToken: X_CSRF_TOKEN }
+            const options: PropelAuthFeV2.UpdateUserFacingMetadataRequest = { xCsrfToken: X_CSRF_TOKEN }
             if (config && config.requireUsersToSetName) {
                 options.firstName = firstName
                 options.lastName = lastName

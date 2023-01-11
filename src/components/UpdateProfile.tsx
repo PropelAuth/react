@@ -1,4 +1,4 @@
-import { UpdatePasswordRequest } from "@propel-auth-fern/fe_v2-client/types/resources"
+import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { FormEvent, ReactNode, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -373,7 +373,7 @@ export const EditPassword = ({ appearance }: EditPasswordProps) => {
         try {
             event.preventDefault()
             setLoading(true)
-            let options: UpdatePasswordRequest = { password: newPassword, xCsrfToken: X_CSRF_TOKEN }
+            let options: PropelAuthFeV2.UpdatePasswordRequest = { password: newPassword, xCsrfToken: X_CSRF_TOKEN }
             if (hasPassword) {
                 options.currentPassword = oldPassword
             }

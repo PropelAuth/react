@@ -1,9 +1,9 @@
-import { AuthConfigurationResponse } from "@propel-auth-fern/fe_v2-client/types/resources"
+import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "./AuthContext"
 import { useApi } from "./useApi"
 
-export type Config = AuthConfigurationResponse
+export type Config = PropelAuthFeV2.AuthConfigurationResponse
 
 export const useConfig = () => {
     const context = useContext(AuthContext)
