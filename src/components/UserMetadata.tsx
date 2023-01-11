@@ -1,4 +1,4 @@
-import { UpdateUserFacingMetadataRequest } from "@propel-auth-fern/fe_v2-client/resources/user/client/requests/UpdateUserFacingMetadataRequest"
+import { UpdateUserFacingMetadataRequest } from "@propel-auth-fern/fe_v2-sdk/resources/user/client/requests/UpdateUserFacingMetadataRequest"
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -11,7 +11,7 @@ import { Label } from "../elements/Label"
 import { useApi } from "../useApi"
 import { Config } from "../useConfig"
 import { useRedirectFunctions } from "../useRedirectFunctions"
-import { BAD_REQUEST, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { BAD_REQUEST, NOT_FOUND_UPDATE_METADATA, UNEXPECTED_ERROR } from "./constants"
 
 export type UserMetadataProps = {
     config: Config | null
@@ -57,7 +57,7 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
             e.preventDefault()
             setLoading(true)
             setError(undefined)
-            const options: UpdateUserFacingMetadataRequest = { xCsrfToken: X_CSRF_TOKEN }
+            const options: UpdateUserFacingMetadataRequest = {}
             if (config && config.requireUsersToSetName) {
                 options.firstName = firstName
                 options.lastName = lastName
@@ -67,7 +67,7 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
             }
             const response = await userApi.updateMetadata(options)
             if (response.ok) {
-                const status = await loginApi.loginState()
+                const status = await loginApi.fetchLoginState()
                 if (status.ok) {
                     getLoginState()
                 } else {
@@ -75,7 +75,7 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
                 }
             } else {
                 response.error._visit({
-                    unauthorized: redirectToLoginPage,
+                    notFoundUpdateMetadata: () => setError(NOT_FOUND_UPDATE_METADATA),
                     badRequestUpdateMetadata: (err) => {
                         if (err.firstName || err.lastName || err.username) {
                             if (err.firstName) {

@@ -1,4 +1,4 @@
-import { LoginStateEnum } from "@propel-auth-fern/fe_v2-client/resources"
+import { LoginStateEnum } from "@propel-auth-fern/fe_v2-sdk/resources"
 import React, { ReactNode, SyntheticEvent, useEffect, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -273,7 +273,7 @@ export const useLoginState = () => {
     useEffect(() => {
         let mounted = true
         setLoading(true)
-        loginApi.loginState().then((response) => {
+        loginApi.fetchLoginState().then((response) => {
             if (mounted) {
                 if (response.ok) {
                     setState(response.body.loginState)

@@ -1,4 +1,4 @@
-import { OrgResponse } from "@propel-auth-fern/fe_v2-client/resources"
+import { OrgResponse } from "@propel-auth-fern/fe_v2-sdk/resources"
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -11,13 +11,8 @@ import { Label } from "../elements/Label"
 import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
-import {
-    BAD_REQUEST,
-    ORG_CREATION_NOT_ENABLED,
-    UNAUTHORIZED_ORG_USAGE,
-    UNEXPECTED_ERROR,
-    X_CSRF_TOKEN,
-} from "./constants"
+import { useRedirectFunctions } from "../useRedirectFunctions"
+import { BAD_REQUEST, ORG_CREATION_NOT_ENABLED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
 export type CreateOrgProps = {
     onOrgCreated: (response: OrgResponse) => void
@@ -53,6 +48,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
     const [restrictToDomain, setRestrictToDomain] = useState(false)
     const [orgNameError, setOrgNameError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
+    const { redirectToLoginPage } = useRedirectFunctions()
     const orgMetaname = config?.orgsMetaname || "Organization"
 
     async function createOrg(e: SyntheticEvent) {
@@ -79,7 +75,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
                             setError(BAD_REQUEST)
                         }
                     },
-                    unauthorizedOrgUsage: () => setError(UNAUTHORIZED_ORG_USAGE),
+                    unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }

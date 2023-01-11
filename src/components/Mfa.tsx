@@ -16,9 +16,9 @@ import {
     BAD_REQUEST,
     FORBIDDEN,
     MFA_ALREADY_DISABLED,
-    MFA_ALREADY_ENABLED,
+    NOT_FOUND_MFA_ENABLE,
+    NOT_FOUND_MFA_STATUS,
     UNEXPECTED_ERROR,
-    X_CSRF_TOKEN,
 } from "./constants"
 
 export type MfaProps = {
@@ -96,7 +96,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
         let mounted = true
         setStatusLoading(true)
         mfaApi
-            .mfaStatus({ xCsrfToken: X_CSRF_TOKEN })
+            .mfaStatus()
             .then((response) => {
                 if (mounted) {
                     if (response.ok) {
@@ -110,6 +110,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
                         }
                     } else {
                         response.error._visit({
+                            notFoundMfaStatus: () => setStatusError(NOT_FOUND_MFA_STATUS),
                             unauthorized: redirectToLoginPage,
                             _other: () => setStatusError(UNEXPECTED_ERROR),
                         })
@@ -129,7 +130,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
     async function enableMfa() {
         try {
             setLoading(true)
-            const res = await mfaApi.mfaEnable({ code, xCsrfToken: X_CSRF_TOKEN })
+            const res = await mfaApi.mfaEnable({ code })
             if (res.ok) {
                 setShowEnableModal(false)
                 setCode("")
@@ -137,7 +138,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
                 setMfaStatus("Enabled")
             } else {
                 res.error._visit({
-                    mfaAlreadyEnabled: () => setError(MFA_ALREADY_ENABLED),
+                    notFoundMfaEnable: () => setError(NOT_FOUND_MFA_ENABLE),
                     badRequestMfaEnable: (err) => setError(err.code?.join(", ") || BAD_REQUEST),
                     forbiddenMfaEnable: () => setError(FORBIDDEN),
                     unauthorized: redirectToLoginPage,
@@ -155,7 +156,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
     async function disableMfa() {
         try {
             setLoading(true)
-            const res = await mfaApi.mfaDisable({ xCsrfToken: X_CSRF_TOKEN })
+            const res = await mfaApi.mfaDisable()
             if (res.ok) {
                 setShowDisableModal(false)
                 setError(undefined)

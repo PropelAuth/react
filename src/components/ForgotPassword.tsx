@@ -19,7 +19,6 @@ import {
     MAGIC_LINK_SUCCESS,
     PASSWORDLESS_MESSAGE,
     UNEXPECTED_ERROR,
-    X_CSRF_TOKEN,
 } from "./constants"
 
 export type ForgotPasswordProps = {
@@ -66,7 +65,7 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
         try {
             e.preventDefault()
             setPasswordResetLoading(true)
-            const response = await loginApi.forgotPassword({ email, xCsrfToken: X_CSRF_TOKEN })
+            const response = await loginApi.forgotPassword({ email })
             if (response.ok) {
                 setSuccessMessage(FORGOT_PASSWORD_SUCCESS)
             } else {
@@ -90,7 +89,6 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
             const response = await loginApi.sendMagicLinkLogin({
                 email,
                 createIfDoesntExist: false,
-                xCsrfToken: X_CSRF_TOKEN,
             })
             if (response.ok) {
                 setSuccessMessage(MAGIC_LINK_SUCCESS)

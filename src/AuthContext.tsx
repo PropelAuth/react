@@ -1,4 +1,4 @@
-import { PropelAuthFeV2Client } from "@propel-auth-fern/fe_v2-client"
+import { PropelAuthFeV2Client } from "@propel-auth-fern/fe_v2-sdk"
 import {
     AuthenticationInfo,
     createClient,

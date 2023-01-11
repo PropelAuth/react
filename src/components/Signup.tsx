@@ -1,4 +1,4 @@
-import { SignupRequest } from "@propel-auth-fern/fe_v2-client/resources"
+import { SignupRequest } from "@propel-auth-fern/fe_v2-sdk/resources"
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -11,8 +11,7 @@ import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { useApi } from "../useApi"
 import { Config, useConfig } from "../useConfig"
-import { BAD_REQUEST, SIGNUP_NOT_ALLOWED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
-import { getTokenFromURL } from "./helpers"
+import { BAD_REQUEST, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { SignInDivider } from "./SignInDivider"
 import { SignInOptions } from "./SignInOptions"
 
@@ -128,16 +127,11 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
             if (config.requireUsersToSetUsername) {
                 options.username = username
             }
-            const inviteToken = getTokenFromURL()
-            if (inviteToken) {
-                options.t = inviteToken
-            }
             const response = await userApi.signup(options)
             if (response.ok) {
                 onSuccess()
             } else {
                 response.error._visit({
-                    signupNotAllowed: () => setError(SIGNUP_NOT_ALLOWED),
                     badRequestSignup: (err) => {
                         if (err.email || err.firstName || err.lastName || err.password || err.username) {
                             if (err.email) {

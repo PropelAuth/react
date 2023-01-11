@@ -299,7 +299,7 @@ export const useSelectedOrg = ({ orgId }: UseSelectedOrgProps) => {
         if (orgId) {
             setLoading(true)
             orgApi
-                .selectedOrgStatus({ id: orgId })
+                .fetchSelectedOrgStatus({ id: orgId })
                 .then((response) => {
                     if (mounted) {
                         if (response.ok) {

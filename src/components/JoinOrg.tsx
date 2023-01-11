@@ -7,14 +7,8 @@ import { H3, H3Props } from "../elements/H3"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
-import {
-    BAD_REQUEST_JOIN_ORG,
-    NOT_FOUND_JOINABLE_ORG,
-    NOT_FOUND_JOIN_ORG,
-    UNAUTHORIZED_ORG_USAGE,
-    UNEXPECTED_ERROR,
-    X_CSRF_TOKEN,
-} from "./constants"
+import { useRedirectFunctions } from "../useRedirectFunctions"
+import { BAD_REQUEST_JOIN_ORG, NOT_FOUND_JOINABLE_ORG, NOT_FOUND_JOIN_ORG, UNEXPECTED_ERROR } from "./constants"
 
 export type JoinOrgProps = {
     appearance?: JoinOrgAppearance
@@ -64,6 +58,7 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
     const [joinableOrgs, setJoinableOrgs] = useState<JoinableOrg[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
+    const { redirectToLoginPage } = useRedirectFunctions()
 
     useEffect(() => {
         let mounted = true
@@ -75,8 +70,8 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
                         setJoinableOrgs(response.body.orgs)
                     } else {
                         response.error._visit({
+                            unauthorized: redirectToLoginPage,
                             notFoundJoinableOrgs: () => setError(NOT_FOUND_JOINABLE_ORG),
-                            unauthorizedOrgUsage: () => setError(UNAUTHORIZED_ORG_USAGE),
                             _other: () => setError(UNEXPECTED_ERROR),
                         })
                     }
@@ -99,7 +94,7 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
             setLoading(true)
             setError(undefined)
             orgApi
-                .joinOrg({ orgId: id, xCsrfToken: X_CSRF_TOKEN })
+                .joinOrg({ orgId: id })
                 .then((res) => {
                     if (res.ok) {
                         if (onOrgJoined) {
@@ -109,7 +104,7 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
                         res.error._visit({
                             notFoundJoinOrg: () => setError(NOT_FOUND_JOIN_ORG),
                             badRequestJoinOrg: () => setError(BAD_REQUEST_JOIN_ORG),
-                            unauthorizedOrgUsage: () => setError(UNAUTHORIZED_ORG_USAGE),
+                            unauthorized: redirectToLoginPage,
                             _other: () => setError(UNEXPECTED_ERROR),
                         })
                     }

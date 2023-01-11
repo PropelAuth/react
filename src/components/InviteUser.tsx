@@ -9,7 +9,7 @@ import { Label, LabelProps } from "../elements/Label"
 import { Select, SelectProps } from "../elements/Select"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
-import { BAD_REQUEST, NOT_FOUND_INVITE_USER, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { BAD_REQUEST_INVITE_USER, NOT_FOUND_INVITE_USER, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { threeDaysFromNow } from "./helpers"
 import { Invitation, useSelectedOrg } from "./ManageOrg"
 
@@ -62,18 +62,7 @@ export const InviteUser = ({ orgId, onSuccess, appearance }: InviteUserProps) =>
             } else {
                 response.error._visit({
                     notFoundInviteUser: () => setError(NOT_FOUND_INVITE_USER),
-                    badRequestInviteUser: (err) => {
-                        if (err.email || err.role) {
-                            if (err.email) {
-                                setEmailError(err.email.join(", "))
-                            }
-                            if (err.role) {
-                                setRoleError(err.role.join(", "))
-                            }
-                        } else {
-                            setError(BAD_REQUEST)
-                        }
-                    },
+                    badRequestInviteUser: () => setError(BAD_REQUEST_INVITE_USER),
                     unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),
                 })

@@ -1,4 +1,4 @@
-import { UpdatePasswordRequest } from "@propel-auth-fern/fe_v2-client/resources"
+import { UpdatePasswordRequest } from "@propel-auth-fern/fe_v2-sdk/resources"
 import React, { FormEvent, ReactNode, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -17,6 +17,7 @@ import {
     BAD_REQUEST,
     BAD_REQUEST_UPDATE_EMAIL,
     BAD_REQUEST_UPDATE_PASSWORD,
+    NOT_FOUND_UPDATE_EMAIL,
     NOT_FOUND_UPDATE_NAME,
     NOT_FOUND_UPDATE_PASSWORD,
     NOT_FOUND_UPDATE_USERNAME,
@@ -24,7 +25,6 @@ import {
     UNEXPECTED_ERROR,
     UPDATE_NAME_SUCCESS,
     UPDATE_USERNAME_SUCCESS,
-    X_CSRF_TOKEN,
 } from "./constants"
 
 export type UpdateProfileProps = {
@@ -130,12 +130,12 @@ export const EditEmail = ({ appearance, initialEmail }: EditEmailProps) => {
         try {
             event.preventDefault()
             setLoading(true)
-            const res = await userApi.updateEmail({ newEmail: email, xCsrfToken: X_CSRF_TOKEN })
+            const res = await userApi.updateEmail({ newEmail: email })
             if (res.ok) {
                 setShowConfirmationModal(true)
             } else {
                 res.error._visit({
-                    unauthorized: redirectToLoginPage,
+                    notFoundUpdateEmail: () => setError(NOT_FOUND_UPDATE_EMAIL),
                     badRequestUpdateEmail: () => setError(BAD_REQUEST_UPDATE_EMAIL),
                     tooManyRequests: () => setError(TOO_MANY_REQUESTS),
                     _other: () => setError(UNEXPECTED_ERROR),
@@ -220,16 +220,11 @@ export const EditName = ({ appearance, initialFirstName, initialLastName }: Edit
             event.preventDefault()
             setLoading(true)
             clearErrors()
-            const res = await userApi.updateName({ firstName, lastName, xCsrfToken: X_CSRF_TOKEN })
+            const res = await userApi.updateName({ firstName, lastName })
             if (res.ok) {
                 setSuccess(UPDATE_NAME_SUCCESS)
             } else {
                 res.error._visit({
-                    unauthorized: redirectToLoginPage,
-                    badRequestUpdateName: (err) => {
-                        setFirstNameError(err.firstName?.join(", "))
-                        setLastNameError(err.lastName?.join(", "))
-                    },
                     notFoundUpdateName: () => setError(NOT_FOUND_UPDATE_NAME),
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
@@ -314,12 +309,11 @@ export const EditUsername = ({ appearance, initialUsername }: EditUsernameProps)
         try {
             event.preventDefault()
             setLoading(true)
-            const res = await userApi.updateUsername({ username, xCsrfToken: X_CSRF_TOKEN })
+            const res = await userApi.updateUsername({ username })
             if (res.ok) {
                 setSuccess(UPDATE_USERNAME_SUCCESS)
             } else {
                 res.error._visit({
-                    unauthorized: redirectToLoginPage,
                     notFoundUpdateUsername: () => setError(NOT_FOUND_UPDATE_USERNAME),
                     badRequestUpdateUsername: (err) => setError(err.username?.join(", ") || BAD_REQUEST),
                     _other: () => setError(UNEXPECTED_ERROR),
@@ -375,7 +369,7 @@ export const EditPassword = ({ appearance }: EditPasswordProps) => {
         try {
             event.preventDefault()
             setLoading(true)
-            let options: UpdatePasswordRequest = { password: newPassword, xCsrfToken: X_CSRF_TOKEN }
+            let options: UpdatePasswordRequest = { password: newPassword }
             if (hasPassword) {
                 options.currentPassword = oldPassword
             }
@@ -386,7 +380,6 @@ export const EditPassword = ({ appearance }: EditPasswordProps) => {
                 setHasPassword(true)
             } else {
                 res.error._visit({
-                    unauthorized: redirectToLoginPage,
                     notFoundUpdatePassword: () => setError(NOT_FOUND_UPDATE_PASSWORD),
                     badRequestUpdatePassword: () => setError(BAD_REQUEST_UPDATE_PASSWORD),
                     _other: () => setError(UNEXPECTED_ERROR),
