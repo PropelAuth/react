@@ -1,4 +1,4 @@
-import { AuthConfigurationResponse } from "@propel-auth-fern/fe_v2-client/resources"
+import { AuthConfigurationResponse } from "@propel-auth-fern/fe_v2-client/types/resources"
 import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "./AuthContext"
 import { useApi } from "./useApi"
@@ -21,7 +21,7 @@ export const useConfig = () => {
         async function getConfigFromUrl() {
             setLoading(true)
             setError(false)
-            let response = await configApi.config()
+            let response = await configApi.fetchConfig()
             if (response.ok) {
                 setConfig(response.body)
             } else {
