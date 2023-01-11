@@ -267,8 +267,7 @@ export const Login = ({
 export const useLoginState = () => {
     const { loginApi } = useApi()
     const [loading, setLoading] = useState<boolean>(false)
-    const [state, setState] = useState<PropelAuthFeV2.LoginStateEnum | undefined>(undefined)
-    const [refreshCounter, setRefreshCounter] = useState(0)
+    const [loginState, setLoginState] = useState<PropelAuthFeV2.LoginStateEnum | undefined>(undefined)
 
     useEffect(() => {
         let mounted = true
@@ -276,7 +275,7 @@ export const useLoginState = () => {
         loginApi.fetchLoginState().then((response) => {
             if (mounted) {
                 if (response.ok) {
-                    setState(response.body.loginState)
+                    setLoginState(response.body.loginState)
                 }
             }
         })
@@ -285,11 +284,20 @@ export const useLoginState = () => {
             mounted = false
             setLoading(false)
         }
-    }, [refreshCounter])
+    }, [])
+
+    async function getLoginState() {
+        setLoading(true)
+        const response = await loginApi.fetchLoginState()
+        if (response.ok) {
+            setLoginState(response.body.loginState)
+        }
+        setLoading(false)
+    }
 
     return {
         loginStateLoading: loading,
-        loginState: state,
-        getLoginState: () => setRefreshCounter((c) => c++),
+        loginState,
+        getLoginState,
     }
 }
