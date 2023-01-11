@@ -78,7 +78,7 @@ export type MfaStatus = "Enabled" | "Disabled"
 export const Mfa = ({ appearance }: MfaProps) => {
     const { mfaApi } = useApi()
     const { redirectToLoginPage } = useRedirectFunctions()
-    const [mfaStatus, setMfaStatus] = useState<MfaStatus | undefined>(undefined)
+    const [mfaStatus, setMfaStatus] = useState<MfaStatus>("Disabled")
     const [showQr, setShowQr] = useState(true)
     const [showDisableModal, setShowDisableModal] = useState(false)
     const [showEnableModal, setShowEnableModal] = useState(false)
@@ -87,7 +87,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
     const [backupCodes, setBackupCodes] = useState<string[]>([])
     const [newQr, setNewQr] = useState("")
     const [newSecret, setNewSecret] = useState("")
-    const [statusLoading, setStatusLoading] = useState(false)
+    const [statusLoading, setStatusLoading] = useState(true)
     const [statusError, setStatusError] = useState<string | undefined>(undefined)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
@@ -124,7 +124,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
             setStatusLoading(false)
             mounted = false
         }
-    }, [mfaStatus, mfaApi])
+    }, [mfaApi])
 
     async function enableMfa() {
         try {
