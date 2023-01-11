@@ -60,7 +60,7 @@ type AuthInfoStateAction = {
 
 function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction): AuthInfoState {
     if (!action.authInfo) {
-        if (!_state.loading) {
+        if (!_state.loading && !_state.authInfo) {
             return _state
         } else {
             return {
