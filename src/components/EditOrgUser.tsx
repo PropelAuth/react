@@ -6,7 +6,14 @@ import { Label } from "../elements/Label"
 import { Select } from "../elements/Select"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
-import { FORBIDDEN, NOT_FOUND_CHANGE_ROLE, NOT_FOUND_REMOVE_USER, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import {
+    BAD_REQUEST,
+    FORBIDDEN,
+    NOT_FOUND_CHANGE_ROLE,
+    NOT_FOUND_REMOVE_USER,
+    UNEXPECTED_ERROR,
+    X_CSRF_TOKEN,
+} from "./constants"
 import { OrgAppearance, User } from "./ManageOrg"
 
 export type EditOrgUserProps = {
@@ -48,6 +55,8 @@ export const EditOrgUser = ({ orgId, user, onClose, setUserRole, removeUser, app
                 onClose()
             } else {
                 response.error._visit({
+                    unauthorized: redirectToLoginPage,
+                    badChangeRoleRequest: (err) => setError(err.role?.join(", ") || BAD_REQUEST),
                     notFoundChangeRole: () => setError(NOT_FOUND_CHANGE_ROLE),
                     forbiddenErrorChangeRole: () => setError(FORBIDDEN),
                     _other: () => setError(UNEXPECTED_ERROR),

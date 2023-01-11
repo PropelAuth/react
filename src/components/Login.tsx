@@ -1,4 +1,4 @@
-import { LoginStateEnum } from "@propel-auth-fern/fe_v2-sdk/resources"
+import { LoginStateEnum } from "@propel-auth-fern/fe_v2-client/types/resources"
 import React, { ReactNode, SyntheticEvent, useEffect, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"

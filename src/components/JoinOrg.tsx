@@ -1,3 +1,4 @@
+import { Invitation } from "@propel-auth-fern/fe_v2-client/types/resources"
 import React, { ReactNode, useEffect, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -8,7 +9,16 @@ import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
-import { BAD_REQUEST_JOIN_ORG, NOT_FOUND_JOINABLE_ORG, NOT_FOUND_JOIN_ORG, UNEXPECTED_ERROR } from "./constants"
+import {
+    BAD_REQUEST,
+    BAD_REQUEST_JOIN_ORG,
+    NOT_FOUND_JOINABLE_ORG,
+    NOT_FOUND_JOIN_ORG,
+    NOT_FOUND_ORG_INVITATION,
+    ORGS_NOT_ENABLED,
+    UNEXPECTED_ERROR,
+    X_CSRF_TOKEN,
+} from "./constants"
 
 export type JoinOrgProps = {
     appearance?: JoinOrgAppearance
@@ -94,7 +104,7 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
             setLoading(true)
             setError(undefined)
             orgApi
-                .joinOrg({ orgId: id })
+                .joinOrg({ orgId: id, xCsrfToken: X_CSRF_TOKEN })
                 .then((res) => {
                     if (res.ok) {
                         if (onOrgJoined) {
@@ -161,30 +171,80 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
     )
 }
 
-export type PendingInvite = {
-    orgName: string
-    orgId: string
-}
-
 export const PendingInvites = ({ appearance }: JoinOrgProps) => {
-    const [pendingInvites, setPendingInvites] = useState<PendingInvite[]>([])
+    const { orgApi } = useApi()
+    const [pendingInvites, setPendingInvites] = useState<Invitation[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
+    const { redirectToLoginPage } = useRedirectFunctions()
 
     useEffect(() => {
         let mounted = true
-        // ..
+        orgApi
+            .fetchPendingOrgInvites()
+            .then((response) => {
+                if (mounted) {
+                    if (response.ok) {
+                        setPendingInvites(response.body.pendingInvites)
+                    } else {
+                        response.error._visit({
+                            unauthorized: redirectToLoginPage,
+                            orgsNotEnabled: () => setError(ORGS_NOT_ENABLED),
+                            _other: () => setError(UNEXPECTED_ERROR),
+                        })
+                    }
+                }
+            })
+            .then(() => setLoading(false))
+            .catch((e) => {
+                setError(UNEXPECTED_ERROR)
+                console.error(e)
+            })
 
         return () => {
             mounted = false
+            setLoading(false)
         }
     }, [])
+
+    function removePendingInvite(id: string) {
+        setPendingInvites((invites) => invites.filter((i) => i.orgId !== id))
+    }
 
     function respondToInvite(orgId: string, accept: boolean) {
         try {
             setLoading(true)
             setError(undefined)
-            // ..
+            orgApi
+                .respondToOrgInvite({ accept, orgId, xCsrfToken: X_CSRF_TOKEN })
+                .then((res) => {
+                    if (res.ok) {
+                        removePendingInvite(orgId)
+                    } else {
+                        res.error._visit({
+                            notFoundOrgInvitation: () => setError(NOT_FOUND_ORG_INVITATION),
+                            badRequestOrgInvitation: (err) => {
+                                if (err.accept || err.orgId) {
+                                    if (err.accept) {
+                                        setError(err.accept.join(", "))
+                                    }
+                                    if (err.orgId) {
+                                        setError(err.orgId.join(", "))
+                                    }
+                                } else {
+                                    setError(BAD_REQUEST)
+                                }
+                            },
+                            unauthorized: redirectToLoginPage,
+                            _other: () => setError(UNEXPECTED_ERROR),
+                        })
+                    }
+                })
+                .then(() => setLoading(false))
+                .catch((e) => {
+                    setError(UNEXPECTED_ERROR)
+                    console.error(e)
+                })
         } catch (e) {
             setLoading(false)
             setError(UNEXPECTED_ERROR)

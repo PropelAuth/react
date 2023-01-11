@@ -13,7 +13,7 @@
         "user"
     ],
     "dependencies": {
-        "@propel-auth-fern/fe_v2-sdk": "^0.0.87",
+        "@propel-auth-fern/fe_v2-client": "^0.0.88",
         "@propelauth/javascript": "^2.0.0",
         "hoist-non-react-statics": "^3.3.2",
         "utility-types": "^3.10.0"

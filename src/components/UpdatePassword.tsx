@@ -1,4 +1,4 @@
-import { UpdatePasswordRequest } from "@propel-auth-fern/fe_v2-sdk/resources"
+import { UpdatePasswordRequest } from "@propel-auth-fern/fe_v2-client/types/resources"
 import React, { FormEvent, ReactNode, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -11,7 +11,7 @@ import { Label, LabelProps } from "../elements/Label"
 import { useApi } from "../useApi"
 import { Config } from "../useConfig"
 import { useRedirectFunctions } from "../useRedirectFunctions"
-import { BAD_REQUEST, NOT_FOUND_UPDATE_PASSWORD, UNEXPECTED_ERROR } from "./constants"
+import { BAD_REQUEST, NOT_FOUND_UPDATE_PASSWORD, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
 export type UpdatePasswordProps = {
     config: Config | null
@@ -48,7 +48,7 @@ export const UpdatePassword = ({ config, getLoginState, appearance }: UpdatePass
         try {
             event.preventDefault()
             setLoading(true)
-            let options: UpdatePasswordRequest = { password }
+            let options: UpdatePasswordRequest = { password, xCsrfToken: X_CSRF_TOKEN }
             const res = await userApi.updatePassword(options)
             if (res.ok) {
                 const status = await loginApi.fetchLoginState()
@@ -72,6 +72,7 @@ export const UpdatePassword = ({ config, getLoginState, appearance }: UpdatePass
                             setError(BAD_REQUEST)
                         }
                     },
+                    unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }
