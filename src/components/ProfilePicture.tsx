@@ -52,8 +52,7 @@ export const ProfilePicture = ({ appearance }: ProfilePictureProps) => {
             }
             const response = await legacyApi.uploadProfilePicture(formData)
             if (response.success) {
-                // window.location.reload()
-                setImageUrl("") // Should return from API
+                setImageUrl(response.pictureUrl)
                 onClose()
             } else {
                 setError(UNEXPECTED_ERROR)

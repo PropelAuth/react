@@ -100,14 +100,18 @@ export const Mfa = ({ appearance }: MfaProps) => {
             .then((response) => {
                 if (mounted) {
                     if (response.ok) {
-                        if (response.body.type === "Enabled") {
-                            setMfaStatus(response.body.type)
-                            setBackupCodes(response.body.backupCodes)
-                        } else if (response.body.type === "Disabled") {
-                            setMfaStatus(response.body.type)
-                            setNewSecret(response.body.newSecret)
-                            setNewQr(response.body.newQr)
-                        }
+                        response.body._visit({
+                            enabled: (data) => {
+                                setMfaStatus("Enabled")
+                                setBackupCodes(data.backupCodes)
+                            },
+                            disabled: (data) => {
+                                setMfaStatus("Disabled")
+                                setNewSecret(data.newSecret)
+                                setNewQr(data.newQr)
+                            },
+                            _other: () => setStatusError(UNEXPECTED_ERROR),
+                        })
                     } else {
                         response.error._visit({
                             unauthorized: redirectToLoginPage,

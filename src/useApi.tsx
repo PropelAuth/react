@@ -4,6 +4,7 @@ import { AuthContext } from "./AuthContext"
 
 interface SuccessfulResponse {
     success: true
+    pictureUrl: string
 }
 
 interface UnexpectedErrorResponse {
@@ -28,7 +29,7 @@ export const useLegacyApi = () => {
             http.onreadystatechange = function () {
                 if (http.readyState === XMLHttpRequest.DONE) {
                     if (http.status >= 200 && http.status < 300) {
-                        resolve({ success: true })
+                        resolve({ success: true, pictureUrl: http.response.picture_url })
                     } else if (http.status === 400) {
                         const jsonResponse = JSON.parse(http.responseText)
                         resolve({
