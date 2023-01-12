@@ -29,13 +29,14 @@ export const useLegacyApi = () => {
             http.onreadystatechange = function () {
                 if (http.readyState === XMLHttpRequest.DONE) {
                     if (http.status >= 200 && http.status < 300) {
-                        resolve({ success: true, pictureUrl: http.response.picture_url })
+                        const jsonResponse = JSON.parse(http.response)
+                        resolve({ success: true, pictureUrl: jsonResponse.picture_url })
                     } else if (http.status === 400) {
-                        const jsonResponse = JSON.parse(http.responseText)
+                        const jsonResponseText = JSON.parse(http.responseText)
                         resolve({
                             success: false,
                             error_type: "bad_image",
-                            message: jsonResponse["file"],
+                            message: jsonResponseText["file"],
                         })
                     }
                 }
