@@ -130,55 +130,57 @@ export const Mfa = ({ appearance }: MfaProps) => {
             setStatusLoading(false)
             mounted = false
         }
-    }, [mfaApi])
+    }, [mfaStatus, mfaApi])
 
-    async function enableMfa() {
-        try {
-            setLoading(true)
-            const res = await mfaApi.mfaEnable({ code, xCsrfToken: X_CSRF_TOKEN })
-            if (res.ok) {
-                setShowEnableModal(false)
-                setCode("")
-                setError(undefined)
-                setMfaStatus("Enabled")
-            } else {
-                res.error._visit({
-                    mfaAlreadyEnabled: () => setError(MFA_ALREADY_ENABLED),
-                    badRequestMfaEnable: (err) => setError(err.code?.join(", ") || BAD_REQUEST),
-                    forbiddenMfaEnable: () => setError(FORBIDDEN),
-                    unauthorized: redirectToLoginPage,
-                    _other: () => setError(UNEXPECTED_ERROR),
-                })
-            }
-        } catch (e) {
-            setError(UNEXPECTED_ERROR)
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
+    function enableMfa() {
+        setLoading(true)
+        mfaApi
+            .mfaEnable({ code, xCsrfToken: X_CSRF_TOKEN })
+            .then((response) => {
+                if (response.ok) {
+                    setShowEnableModal(false)
+                    setCode("")
+                    setError(undefined)
+                    setMfaStatus("Enabled")
+                } else {
+                    response.error._visit({
+                        mfaAlreadyEnabled: () => setError(MFA_ALREADY_ENABLED),
+                        badRequestMfaEnable: (err) => setError(err.code?.join(", ") || BAD_REQUEST),
+                        forbiddenMfaEnable: () => setError(FORBIDDEN),
+                        unauthorized: redirectToLoginPage,
+                        _other: () => setError(UNEXPECTED_ERROR),
+                    })
+                }
+            })
+            .catch((e) => {
+                setError(UNEXPECTED_ERROR)
+                console.error(e)
+            })
+            .finally(() => setLoading(false))
     }
 
-    async function disableMfa() {
-        try {
-            setLoading(true)
-            const res = await mfaApi.mfaDisable({ xCsrfToken: X_CSRF_TOKEN })
-            if (res.ok) {
-                setShowDisableModal(false)
-                setError(undefined)
-                setMfaStatus("Disabled")
-            } else {
-                res.error._visit({
-                    mfaAlreadyDisabled: () => setError(MFA_ALREADY_DISABLED),
-                    unauthorized: redirectToLoginPage,
-                    _other: () => setError(UNEXPECTED_ERROR),
-                })
-            }
-        } catch (e) {
-            setError(UNEXPECTED_ERROR)
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
+    function disableMfa() {
+        setLoading(true)
+        mfaApi
+            .mfaDisable({ xCsrfToken: X_CSRF_TOKEN })
+            .then((response) => {
+                if (response.ok) {
+                    setShowDisableModal(false)
+                    setError(undefined)
+                    setMfaStatus("Disabled")
+                } else {
+                    response.error._visit({
+                        mfaAlreadyDisabled: () => setError(MFA_ALREADY_DISABLED),
+                        unauthorized: redirectToLoginPage,
+                        _other: () => setError(UNEXPECTED_ERROR),
+                    })
+                }
+            })
+            .catch((e) => {
+                setError(UNEXPECTED_ERROR)
+                console.error(e)
+            })
+            .finally(() => setLoading(false))
     }
 
     function downloadBackupCodes() {
@@ -197,6 +199,11 @@ export const Mfa = ({ appearance }: MfaProps) => {
             setError("Download failed")
             console.error(e)
         }
+    }
+
+    function clearCode() {
+        setCode("")
+        setError(undefined)
     }
 
     if (statusLoading) {
@@ -284,6 +291,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
                                     value={code}
                                     readOnly
                                     appearance={appearance?.elements?.BackupCodeInput}
+                                    onChange={() => null}
                                 />
                             )
                         })}
@@ -317,7 +325,7 @@ export const Mfa = ({ appearance }: MfaProps) => {
                     show={showEnableModal}
                     setShow={setShowEnableModal}
                     appearance={appearance?.elements?.EnableMfaModal}
-                    onClose={() => setError(undefined)}
+                    onClose={clearCode}
                 >
                     <H3 appearance={appearance?.elements?.EnableMfaModalHeader}>
                         {appearance?.options?.enableMfaModalHeaderContent || "Enable 2FA"}
