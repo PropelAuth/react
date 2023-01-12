@@ -9,9 +9,11 @@ import { Popover } from "../elements/Popover"
 import { Select } from "../elements/Select"
 import { InviteUser, InviteUserAppearance } from "./InviteUser"
 import { Invitation, OrgAppearance } from "./ManageOrg"
+import { OrgSettings, OrgSettingsAppearance } from "./OrgSettings"
 
 export type OrgControlsProps = {
     orgId: string
+    orgMetaname: string
     setOrgId: (id: string) => void
     query: string
     setQuery: Dispatch<SetStateAction<string>>
@@ -22,10 +24,12 @@ export type OrgControlsProps = {
     addInvitation: (invitation: Invitation) => void
     appearance?: OrgAppearance
     inviteUserAppearance?: InviteUserAppearance
+    orgSettingsAppearance?: OrgSettingsAppearance
 }
 
 export const OrgControls = ({
     orgId,
+    orgMetaname,
     setOrgId,
     query,
     setQuery,
@@ -36,10 +40,12 @@ export const OrgControls = ({
     addInvitation,
     appearance,
     inviteUserAppearance,
+    orgSettingsAppearance,
 }: OrgControlsProps) => {
     const [filterPopover, setFilterPopover] = useState<HTMLButtonElement | null>(null)
     const [showFilterPopover, setShowFilterPopover] = useState(false)
     const [showInviteModal, setShowInviteModal] = useState(false)
+    const [showOrgSettingsModal, setShowOrgSettingsModal] = useState(false)
     const canInviteUsers = !!inviteePossibleRoles && inviteePossibleRoles.length > 0
 
     function handleChange(e: ChangeEvent<HTMLInputElement>) {
@@ -70,6 +76,12 @@ export const OrgControls = ({
                 appearance={appearance?.elements?.SearchInput}
             />
             <Button
+                onClick={() => setShowOrgSettingsModal(!showOrgSettingsModal)}
+                appearance={appearance?.elements?.OrgSettingsButton}
+            >
+                {appearance?.options?.orgSettingsButtonContent || "Settings"}
+            </Button>
+            <Button
                 ref={setFilterPopover}
                 onClick={() => setShowFilterPopover(!showFilterPopover)}
                 appearance={appearance?.elements?.FilterButton}
@@ -81,6 +93,14 @@ export const OrgControls = ({
                     {appearance?.options?.inviteUserButtonContent || "Invite User"}
                 </Button>
             )}
+            <Modal
+                show={showOrgSettingsModal}
+                setShow={setShowOrgSettingsModal}
+                onClose={() => setShowOrgSettingsModal(false)}
+                appearance={appearance?.elements?.OrgSettingsModal}
+            >
+                <OrgSettings orgId={orgId} orgMetaname={orgMetaname} appearance={orgSettingsAppearance} />
+            </Modal>
             <Popover
                 referenceElement={filterPopover}
                 show={showFilterPopover}

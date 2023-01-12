@@ -87,15 +87,14 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
                     }
                 }
             })
-            .then(() => setLoading(false))
             .catch((e) => {
                 setError(UNEXPECTED_ERROR)
                 console.error(e)
             })
+            .finally(() => setLoading(false))
 
         return () => {
             mounted = false
-            setLoading(false)
         }
     }, [orgApi])
 

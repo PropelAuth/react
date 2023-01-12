@@ -1,13 +1,13 @@
 import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
-import React, { ReactNode, SyntheticEvent, useState } from "react"
+import React, { ReactNode, SyntheticEvent, useEffect, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
 import { Checkbox, CheckboxProps } from "../elements/Checkbox"
 import { Container, ContainerProps } from "../elements/Container"
-import { H3, H3Props } from "../elements/H3"
+import { H3 } from "../elements/H3"
 import { Input, InputProps } from "../elements/Input"
-import { Label } from "../elements/Label"
+import { Label, LabelProps } from "../elements/Label"
 import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
@@ -30,7 +30,8 @@ export type CreateOrgAppearance = {
     elements?: {
         Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
-        Header?: ElementAppearance<H3Props>
+        Header?: ElementAppearance<LabelProps>
+        OrgNameLabel?: ElementAppearance<LabelProps>
         OrgNameInput?: ElementAppearance<InputProps>
         AutojoinByDomainCheckbox?: ElementAppearance<CheckboxProps>
         RestrictToDomainCheckbox?: ElementAppearance<CheckboxProps>
@@ -42,14 +43,46 @@ export type CreateOrgAppearance = {
 export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
     const { orgApi } = useApi()
     const { configLoading, config } = useConfig()
+    const [statusLoading, setStatusLoading] = useState(false)
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState("")
+    const [canUseDomainOptions, setCanUseDomainOptions] = useState(false)
     const [autojoinByDomain, setAutojoinByDomain] = useState(false)
     const [restrictToDomain, setRestrictToDomain] = useState(false)
     const [orgNameError, setOrgNameError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
     const { redirectToLoginPage } = useRedirectFunctions()
     const orgMetaname = config?.orgsMetaname || "Organization"
+
+    useEffect(() => {
+        let mounted = true
+        setError(undefined)
+        setStatusLoading(true)
+        orgApi
+            .fetchCreateOrgOptions()
+            .then((response) => {
+                if (mounted) {
+                    if (response.ok) {
+                        setCanUseDomainOptions(response.body.canUseDomainOptions)
+                    } else {
+                        response.error._visit({
+                            orgCreationNotEnabled: () => setError(ORG_CREATION_NOT_ENABLED),
+                            unauthorized: redirectToLoginPage,
+                            _other: () => setError(UNEXPECTED_ERROR),
+                        })
+                    }
+                }
+            })
+            .catch((e) => {
+                setError(UNEXPECTED_ERROR)
+                console.error(e)
+            })
+            .finally(() => setStatusLoading(false))
+
+        return () => {
+            mounted = false
+        }
+    }, [])
 
     async function createOrg(e: SyntheticEvent) {
         try {
@@ -87,7 +120,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
         }
     }
 
-    if (configLoading) {
+    if (configLoading || statusLoading) {
         return (
             <div data-contain="component">
                 <Container appearance={appearance?.elements?.Container}>
@@ -108,7 +141,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
                 <div data-contain="form">
                     <form onSubmit={createOrg}>
                         <div>
-                            <Label htmlFor="org_name">
+                            <Label appearance={appearance?.elements?.OrgNameLabel} htmlFor="org_name">
                                 {appearance?.options?.orgNameLabel || orgMetaname + " name"}
                             </Label>
                             <Input
@@ -132,7 +165,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
                                 checked={autojoinByDomain}
                                 onChange={(e) => setAutojoinByDomain(e.target.checked)}
                                 appearance={appearance?.elements?.AutojoinByDomainCheckbox}
-                                disabled={true}
+                                disabled={canUseDomainOptions}
                             />
                         </div>
                         <div>
@@ -142,7 +175,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
                                 checked={restrictToDomain}
                                 onChange={(e) => setRestrictToDomain(e.target.checked)}
                                 appearance={appearance?.elements?.RestrictToDomainCheckbox}
-                                disabled={true}
+                                disabled={canUseDomainOptions}
                             />
                         </div>
                         <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>

@@ -42,6 +42,7 @@ export type OrgAppearance = {
         editUserButtonContent?: ReactNode
         filterButtonContent?: ReactNode
         inviteUserButtonContent?: ReactNode
+        orgSettingsButtonContent?: ReactNode
         pageBackButtonContent?: ReactNode
         pageNextButtonContent?: ReactNode
         editUserModalHeaderContent?: ReactNode
@@ -63,6 +64,8 @@ export type OrgAppearance = {
         JoinOrgModalCancelButton?: ElementAppearance<ButtonProps>
         OrgName?: ElementAppearance<ParagraphProps>
         OrgSelect?: ElementAppearance<SelectProps>
+        OrgSettingsButton?: ElementAppearance<ButtonProps>
+        OrgSettingsModal?: ElementAppearance<ModalProps>
         SearchInput?: ElementAppearance<InputProps>
         FilterButton?: ElementAppearance<ButtonProps>
         FilterPopover?: ElementAppearance<PopoverProps>
@@ -165,6 +168,7 @@ export const ManageOrg = ({
                             appearance={appearance}
                             inviteUserAppearance={inviteUserAppearance}
                             orgId={orgId}
+                            orgMetaname={orgMetaname}
                             setOrgId={setOrgId}
                         />
                     )
@@ -178,10 +182,17 @@ export type ManageOrgInnerProps = {
     appearance?: OrgAppearance
     inviteUserAppearance?: InviteUserAppearance
     orgId: string
+    orgMetaname: string
     setOrgId: (id: string) => void
 }
 
-export const ManageOrgInner = ({ appearance, inviteUserAppearance, orgId, setOrgId }: ManageOrgInnerProps) => {
+export const ManageOrgInner = ({
+    appearance,
+    inviteUserAppearance,
+    orgId,
+    orgMetaname,
+    setOrgId,
+}: ManageOrgInnerProps) => {
     const [query, setQuery] = useState<string>("")
     const [filters, setFilters] = useState<string[]>([])
     const { loading, users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg({ orgId })
@@ -214,6 +225,7 @@ export const ManageOrgInner = ({ appearance, inviteUserAppearance, orgId, setOrg
             <div data-contain="search_action">
                 <OrgControls
                     orgId={orgId}
+                    orgMetaname={orgMetaname}
                     setOrgId={setOrgId}
                     query={query}
                     setQuery={setQuery}
@@ -325,7 +337,6 @@ export const useSelectedOrg = ({ orgId }: UseSelectedOrgProps) => {
 
         return () => {
             mounted = false
-            setLoading(false)
         }
     }, [orgApi, orgId, config?.roles])
 
