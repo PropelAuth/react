@@ -1,5 +1,5 @@
-import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { ReactNode, SyntheticEvent, useEffect, useState } from "react"
+import { useOrgHelper } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
@@ -13,9 +13,10 @@ import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { BAD_REQUEST, ORG_CREATION_NOT_ENABLED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { ActiveOrgInfo } from "./ManageOrg"
 
 export type CreateOrgProps = {
-    onOrgCreated: (response: PropelAuthFeV2.OrgResponse) => void
+    onOrgCreated: (org: ActiveOrgInfo) => void
     appearance?: CreateOrgAppearance
 }
 
@@ -42,6 +43,7 @@ export type CreateOrgAppearance = {
 
 export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
     const { orgApi } = useApi()
+    const { orgHelper } = useOrgHelper()
     const { configLoading, config } = useConfig()
     const [statusLoading, setStatusLoading] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -92,7 +94,9 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
             const options = { name, autojoinByDomain, restrictToDomain, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgApi.createOrg(options)
             if (response.ok) {
-                onOrgCreated(response.body)
+                console.log("Org created")
+                console.log({ id: response.body.orgId, name })
+                onOrgCreated({ id: response.body.orgId, name })
             } else {
                 response.error._visit({
                     orgCreationNotEnabled: () => setError(ORG_CREATION_NOT_ENABLED),

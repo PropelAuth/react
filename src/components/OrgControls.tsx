@@ -1,5 +1,4 @@
 import React, { ChangeEvent, Dispatch, SetStateAction, useState } from "react"
-import { useOrgHelper } from "../additionalHooks"
 import { Button } from "../elements/Button"
 import { Checkbox } from "../elements/Checkbox"
 import { Input } from "../elements/Input"
@@ -8,13 +7,13 @@ import { Paragraph } from "../elements/Paragraph"
 import { Popover } from "../elements/Popover"
 import { Select } from "../elements/Select"
 import { InviteUser, InviteUserAppearance } from "./InviteUser"
-import { Invitation, OrgAppearance } from "./ManageOrg"
+import { ActiveOrgInfo, Invitation, OrgAppearance } from "./ManageOrg"
 import { OrgSettings, OrgSettingsAppearance } from "./OrgSettings"
 
 export type OrgControlsProps = {
-    orgId: string
-    orgMetaname: string
-    setOrgId: (id: string) => void
+    activeOrg: ActiveOrgInfo
+    setActiveOrg: Dispatch<SetStateAction<ActiveOrgInfo | undefined>>
+    allOrgs: ActiveOrgInfo[]
     query: string
     setQuery: Dispatch<SetStateAction<string>>
     filters: string[]
@@ -28,9 +27,9 @@ export type OrgControlsProps = {
 }
 
 export const OrgControls = ({
-    orgId,
-    orgMetaname,
-    setOrgId,
+    activeOrg,
+    setActiveOrg,
+    allOrgs,
     query,
     setQuery,
     filters,
@@ -68,7 +67,7 @@ export const OrgControls = ({
 
     return (
         <>
-            <OrgTextOrSelect orgId={orgId} setOrgId={setOrgId} />
+            <OrgTextOrSelect activeOrg={activeOrg} setActiveOrg={setActiveOrg} allOrgs={allOrgs} />
             <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
@@ -99,7 +98,7 @@ export const OrgControls = ({
                 onClose={() => setShowOrgSettingsModal(false)}
                 appearance={appearance?.elements?.OrgSettingsModal}
             >
-                <OrgSettings orgId={orgId} orgMetaname={orgMetaname} appearance={orgSettingsAppearance} />
+                <OrgSettings activeOrg={activeOrg} setActiveOrg={setActiveOrg} appearance={orgSettingsAppearance} />
             </Modal>
             <Popover
                 referenceElement={filterPopover}
@@ -146,7 +145,7 @@ export const OrgControls = ({
                     onClose={() => setShowInviteModal(false)}
                     appearance={appearance?.elements?.InviteModal}
                 >
-                    <InviteUser orgId={orgId} onSuccess={onSuccessfulInvite} appearance={inviteUserAppearance} />
+                    <InviteUser orgId={activeOrg.id} onSuccess={onSuccessfulInvite} appearance={inviteUserAppearance} />
                 </Modal>
             )}
         </>
@@ -154,32 +153,36 @@ export const OrgControls = ({
 }
 
 export type OrgTextOrSelectProps = {
+    activeOrg: ActiveOrgInfo
+    setActiveOrg: Dispatch<SetStateAction<ActiveOrgInfo | undefined>>
+    allOrgs: ActiveOrgInfo[]
     appearance?: OrgAppearance
-    orgId: string
-    setOrgId: (id: string) => void
 }
 
-export const OrgTextOrSelect = ({ appearance, orgId, setOrgId }: OrgTextOrSelectProps) => {
-    const { orgHelper } = useOrgHelper()
-    const allOrgs = orgHelper?.getOrgs() || []
-    const activeOrgName = allOrgs.find((org) => org.orgId === orgId)?.orgName
+export const OrgTextOrSelect = ({ activeOrg, setActiveOrg, allOrgs, appearance }: OrgTextOrSelectProps) => {
     const options = allOrgs.map((org) => {
         return {
-            label: org.orgName,
-            value: org.orgId,
+            label: org.name,
+            value: org.id,
         }
     })
 
-    if (allOrgs.length > 0) {
+    function handleChange(e: ChangeEvent<HTMLSelectElement>) {
+        e.preventDefault()
+        const orgs = allOrgs.find((org) => org.id === e.target.value)
+        setActiveOrg(orgs)
+    }
+
+    if (allOrgs.length > 1) {
         return (
             <Select
-                value={orgId}
-                onChange={(e) => setOrgId(e.target.value)}
+                value={activeOrg.id}
+                onChange={handleChange}
                 options={options}
                 appearance={appearance?.elements?.OrgSelect}
             />
         )
     }
 
-    return <Paragraph appearance={appearance?.elements?.OrgName}>{activeOrgName}</Paragraph>
+    return <Paragraph appearance={appearance?.elements?.OrgName}>{activeOrg.name}</Paragraph>
 }

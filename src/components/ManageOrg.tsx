@@ -1,4 +1,5 @@
-import React, { ReactNode, useEffect, useState } from "react"
+import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
+import React, { Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react"
 import { useOrgHelper } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
 import { AlertProps } from "../elements/Alert"
@@ -97,19 +98,19 @@ export const ManageOrg = ({
     inviteUserAppearance,
 }: ManageOrgProps) => {
     const { config } = useConfig()
-    const { loading, orgId, setOrgId } = useActiveOrg()
+    const { loading, activeOrg, setActiveOrg, allOrgs } = useActiveOrg()
     const [showCreateOrgModal, setShowCreateOrgModal] = useState(false)
     const [showJoinOrgModal, setShowJoinOrgModal] = useState(false)
     const orgMetaname = config?.orgsMetaname || "Organization"
 
-    function orgCreatedCallback(id: string) {
+    function orgCreatedCallback(org: ActiveOrgInfo) {
         setShowCreateOrgModal(false)
-        setOrgId(id)
+        setActiveOrg(org)
     }
 
-    function orgJoinedCallback(id: string) {
+    function orgJoinedCallback(org: ActiveOrgInfo) {
         setShowCreateOrgModal(false)
-        setOrgId(id)
+        setActiveOrg(org)
     }
 
     return (
@@ -129,10 +130,7 @@ export const ManageOrg = ({
                         appearance={appearance?.elements?.CreateOrgModal}
                         onClose={() => setShowCreateOrgModal(false)}
                     >
-                        <CreateOrg
-                            appearance={createOrgAppearance}
-                            onOrgCreated={(res) => orgCreatedCallback(res.orgId)}
-                        />
+                        <CreateOrg appearance={createOrgAppearance} onOrgCreated={(org) => orgCreatedCallback(org)} />
                         <Button
                             onClick={() => setShowCreateOrgModal(false)}
                             appearance={appearance?.elements?.CreateOrgModalCancelButton}
@@ -149,7 +147,7 @@ export const ManageOrg = ({
                         appearance={appearance?.elements?.JoinOrgModal}
                         onClose={() => setShowJoinOrgModal(false)}
                     >
-                        <JoinOrg appearance={joinOrgAppearance} onOrgJoined={(id) => orgJoinedCallback(id)} />
+                        <JoinOrg appearance={joinOrgAppearance} onOrgJoined={(org) => orgJoinedCallback(org)} />
                         <Button
                             onClick={() => setShowJoinOrgModal(false)}
                             appearance={appearance?.elements?.JoinOrgModalCancelButton}
@@ -163,13 +161,14 @@ export const ManageOrg = ({
                 {loading ? (
                     <Progress appearance={appearance?.elements?.Progress} />
                 ) : (
-                    orgId && (
+                    activeOrg &&
+                    allOrgs && (
                         <ManageOrgInner
                             appearance={appearance}
                             inviteUserAppearance={inviteUserAppearance}
-                            orgId={orgId}
-                            orgMetaname={orgMetaname}
-                            setOrgId={setOrgId}
+                            activeOrg={activeOrg}
+                            setActiveOrg={setActiveOrg}
+                            allOrgs={allOrgs}
                         />
                     )
                 )}
@@ -181,25 +180,27 @@ export const ManageOrg = ({
 export type ManageOrgInnerProps = {
     appearance?: OrgAppearance
     inviteUserAppearance?: InviteUserAppearance
-    orgId: string
-    orgMetaname: string
-    setOrgId: (id: string) => void
+    activeOrg: ActiveOrgInfo
+    setActiveOrg: Dispatch<SetStateAction<ActiveOrgInfo | undefined>>
+    allOrgs: ActiveOrgInfo[]
 }
 
 export const ManageOrgInner = ({
+    activeOrg,
+    setActiveOrg,
+    allOrgs,
     appearance,
     inviteUserAppearance,
-    orgId,
-    orgMetaname,
-    setOrgId,
 }: ManageOrgInnerProps) => {
     const [query, setQuery] = useState<string>("")
     const [filters, setFilters] = useState<string[]>([])
-    const { loading, users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg({ orgId })
+    const { loading, users, invitations, inviteePossibleRoles, roles, methods } = useSelectedOrg({
+        orgId: activeOrg.id,
+    })
     const { results } = useOrgSearch({ users, invitations, query, filters })
     const itemsPerPage = getItemsPerPage(appearance?.options?.rowsPerPage)
     const { items, controls } = usePagination<UserOrInvitation>({ items: results, itemsPerPage })
-    const { rows, editRowModal } = useRowEditor({ rows: items, orgId, methods, appearance })
+    const { rows, editRowModal } = useRowEditor({ rows: items, orgId: activeOrg.id, methods, appearance })
     const columns = [null, "Email", "Role", "Status", null]
 
     function getItemsPerPage(num: number | undefined) {
@@ -224,9 +225,9 @@ export const ManageOrgInner = ({
         <>
             <div data-contain="search_action">
                 <OrgControls
-                    orgId={orgId}
-                    orgMetaname={orgMetaname}
-                    setOrgId={setOrgId}
+                    activeOrg={activeOrg}
+                    setActiveOrg={setActiveOrg}
+                    allOrgs={allOrgs}
                     query={query}
                     setQuery={setQuery}
                     filters={filters}
@@ -272,24 +273,36 @@ export type UserOrInvitation = {
     canBeDeleted?: boolean
 }
 
+export interface ActiveOrgInfo {
+    id: PropelAuthFeV2.OrgId
+    name: string
+}
+
 export const useActiveOrg = () => {
     const { loading, orgHelper } = useOrgHelper()
-    const [activeOrgId, setActiveOrgId] = useState<string | undefined>(undefined)
+    const [activeOrg, setActiveOrg] = useState<ActiveOrgInfo | undefined>(undefined)
+    const [allOrgs, setAllOrgs] = useState<ActiveOrgInfo[] | undefined>(undefined)
 
     useEffect(() => {
-        if (orgHelper && !activeOrgId) {
-            const orgIds = orgHelper.getOrgIds()
-            if (orgIds.length > 0) {
-                setActiveOrgId(orgIds[0])
+        if (!loading && orgHelper) {
+            if (!activeOrg || !allOrgs) {
+                const orgs = orgHelper.getOrgs().map((o) => {
+                    return {
+                        id: o.orgId,
+                        name: o.orgName,
+                    }
+                })
+                if (!activeOrg) {
+                    setActiveOrg(orgs[0])
+                }
+                if (!allOrgs) {
+                    setAllOrgs(orgs)
+                }
             }
         }
-    }, [orgHelper, activeOrgId])
+    }, [loading, orgHelper, activeOrg, allOrgs])
 
-    function setOrgId(id: string) {
-        setActiveOrgId(id)
-    }
-
-    return { loading, orgId: activeOrgId, setOrgId }
+    return { loading, activeOrg, allOrgs, setActiveOrg }
 }
 
 export type UseSelectedOrgProps = {

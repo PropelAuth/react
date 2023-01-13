@@ -1,5 +1,6 @@
 import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { ReactNode, useEffect, useState } from "react"
+import { useOrgHelper } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
@@ -19,10 +20,11 @@ import {
     UNEXPECTED_ERROR,
     X_CSRF_TOKEN,
 } from "./constants"
+import { ActiveOrgInfo } from "./ManageOrg"
 
 export type JoinOrgProps = {
     appearance?: JoinOrgAppearance
-    onOrgJoined?: (id: string) => void
+    onOrgJoined?: (org: ActiveOrgInfo) => void
 }
 
 export type JoinOrgAppearance = {
@@ -65,6 +67,7 @@ export type JoinableOrg = {
 
 export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
     const { orgApi } = useApi()
+    const { orgHelper } = useOrgHelper()
     const [joinableOrgs, setJoinableOrgs] = useState<JoinableOrg[]>([])
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
@@ -98,7 +101,7 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
         }
     }, [orgApi])
 
-    function joinOrg(id: string) {
+    function joinOrg(id: string, name: string) {
         try {
             setLoading(true)
             setError(undefined)
@@ -107,7 +110,7 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
                 .then((res) => {
                     if (res.ok) {
                         if (onOrgJoined) {
-                            onOrgJoined(id)
+                            onOrgJoined({ id, name })
                         }
                     } else {
                         res.error._visit({
@@ -150,7 +153,10 @@ export const JoinableOrgs = ({ appearance, onOrgJoined }: JoinOrgProps) => {
                     return (
                         <div data-contain="row" key={org.id}>
                             <Paragraph appearance={appearance?.elements?.JoinableOrgName}>{org.name}</Paragraph>
-                            <Button appearance={appearance?.elements?.JoinOrgButton} onClick={() => joinOrg(org.id)}>
+                            <Button
+                                appearance={appearance?.elements?.JoinOrgButton}
+                                onClick={() => joinOrg(org.id, org.name)}
+                            >
                                 {appearance?.options?.joinOrgButtonContent || "Join"}
                             </Button>
                         </div>

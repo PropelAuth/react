@@ -1,5 +1,5 @@
-import React, { ReactNode, useEffect, useState } from "react"
-import { useAuthUrl, useOrgHelper } from "../additionalHooks"
+import React, { Dispatch, ReactNode, SetStateAction, SyntheticEvent, useEffect, useState } from "react"
+import { useAuthUrl } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
@@ -10,6 +10,7 @@ import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
 import { Progress, ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
+import { useConfig } from "../useConfig"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import {
     BAD_REQUEST,
@@ -23,10 +24,12 @@ import {
     X_CSRF_TOKEN,
 } from "./constants"
 import { withHttp } from "./helpers"
+import { ActiveOrgInfo } from "./ManageOrg"
 
 export type OrgSettingsProps = {
-    orgId: string
-    orgMetaname: string
+    activeOrg: ActiveOrgInfo
+    setActiveOrg: Dispatch<SetStateAction<ActiveOrgInfo | undefined>>
+    onOrgUpdated?: (org: ActiveOrgInfo) => void
     appearance?: OrgSettingsAppearance
 }
 
@@ -58,38 +61,29 @@ export type OrgSettingsAppearance = {
     }
 }
 
-export const OrgSettings = ({ orgId, orgMetaname, appearance }: OrgSettingsProps) => {
+export const OrgSettings = ({ activeOrg, setActiveOrg, onOrgUpdated, appearance }: OrgSettingsProps) => {
     const { authUrl } = useAuthUrl()
     const { orgApi } = useApi()
-    const { loading, orgHelper } = useOrgHelper()
+    const { configLoading, config } = useConfig()
     const [canSetupSaml, setCanSetupSaml] = useState(false)
     const [isSamlEnabled, setIsSamlEnabled] = useState(false)
     const [isSamlInTestMode, setIsSamlInTestMode] = useState(false)
     const [statusLoading, setStatusLoading] = useState(false)
     const [disableLoading, setDisableLoading] = useState(false)
     const [submitLoading, setSubmitLoading] = useState(false)
-    const [orgName, setOrgName] = useState("")
+    const [orgName, setOrgName] = useState(activeOrg.name)
     const [orgNameError, setOrgNameError] = useState<string | undefined>(undefined)
     const [success, setSuccess] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
     const { redirectToLoginPage } = useRedirectFunctions()
-
-    useEffect(() => {
-        if (!orgName) {
-            if (!loading && orgHelper) {
-                const orgs = orgHelper.getOrgs()
-                const name = orgs.find((org) => org.orgId === orgId)?.orgName
-                setOrgName(name || "")
-            }
-        }
-    }, [loading, orgHelper])
+    const orgMetaname = config?.orgsMetaname || "Organization"
 
     useEffect(() => {
         let mounted = true
         setError(undefined)
         setStatusLoading(true)
         orgApi
-            .fetchSelectedOrgStatus({ id: orgId })
+            .fetchSelectedOrgStatus({ id: activeOrg.id })
             .then((response) => {
                 if (mounted) {
                     if (response.ok) {
@@ -118,18 +112,18 @@ export const OrgSettings = ({ orgId, orgMetaname, appearance }: OrgSettingsProps
 
     function enableSaml() {
         const url = withHttp(authUrl)
-        return window.location.replace(url + `/saml?id=${orgId}`)
+        return window.location.replace(url + `/saml?id=${activeOrg.id}`)
     }
 
     function samlInTestMode() {
         const url = withHttp(authUrl)
-        return window.location.replace(url + `/saml_in_test_mode?id=${orgId}`)
+        return window.location.replace(url + `/saml_in_test_mode?id=${activeOrg.id}`)
     }
 
     async function disableSaml() {
         try {
             setDisableLoading(true)
-            const response = await orgApi.disableSaml({ orgId, xCsrfToken: X_CSRF_TOKEN })
+            const response = await orgApi.disableSaml({ orgId: activeOrg.id, xCsrfToken: X_CSRF_TOKEN })
             if (response.ok) {
                 setIsSamlEnabled(true)
             } else {
@@ -147,12 +141,23 @@ export const OrgSettings = ({ orgId, orgMetaname, appearance }: OrgSettingsProps
         }
     }
 
-    async function updateOrgMetadata() {
+    async function updateOrgMetadata(e: SyntheticEvent) {
         try {
+            e.preventDefault()
             setSubmitLoading(true)
-            const response = await orgApi.updateOrgMetadata({ orgId, name: orgName, xCsrfToken: X_CSRF_TOKEN })
+            const response = await orgApi.updateOrgMetadata({
+                orgId: activeOrg.id,
+                name: orgName,
+                xCsrfToken: X_CSRF_TOKEN,
+            })
             if (response.ok) {
                 setSuccess(ORG_UPDATE_SUCCESS)
+                if (onOrgUpdated) {
+                    setActiveOrg({
+                        id: activeOrg.id,
+                        name: orgName,
+                    })
+                }
             } else {
                 response.error._visit({
                     notFoundUpdateOrgMetadata: () => setError(NOT_FOUND_ORG_METADATA),
@@ -197,7 +202,7 @@ export const OrgSettings = ({ orgId, orgMetaname, appearance }: OrgSettingsProps
         )
     }
 
-    if (statusLoading || loading) {
+    if (statusLoading || configLoading) {
         return (
             <div data-contain="component">
                 <Progress appearance={appearance?.elements?.Progress} />
@@ -213,7 +218,7 @@ export const OrgSettings = ({ orgId, orgMetaname, appearance }: OrgSettingsProps
                         {appearance?.options?.headerContent || `${orgMetaname} Settings`}
                     </H3>
                 </div>
-                <form onSubmit={updateOrgMetadata}>
+                <form data-contain="form" onSubmit={updateOrgMetadata}>
                     <div>
                         <Label appearance={appearance?.elements?.OrgNameLabel} htmlFor="org_name">
                             {appearance?.options?.orgNameLabel || orgMetaname + " name"}
