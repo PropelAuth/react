@@ -1,5 +1,4 @@
 import React, { ReactNode, SyntheticEvent, useEffect, useState } from "react"
-import { useOrgHelper } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
@@ -43,7 +42,6 @@ export type CreateOrgAppearance = {
 
 export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
     const { orgApi } = useApi()
-    const { orgHelper } = useOrgHelper()
     const { configLoading, config } = useConfig()
     const [statusLoading, setStatusLoading] = useState(false)
     const [loading, setLoading] = useState(false)
@@ -94,8 +92,6 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
             const options = { name, autojoinByDomain, restrictToDomain, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgApi.createOrg(options)
             if (response.ok) {
-                console.log("Org created")
-                console.log({ id: response.body.orgId, name })
                 onOrgCreated({ id: response.body.orgId, name })
             } else {
                 response.error._visit({

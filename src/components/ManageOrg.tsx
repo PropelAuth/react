@@ -6,7 +6,8 @@ import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
 import { CheckboxProps } from "../elements/Checkbox"
 import { Container, ContainerProps } from "../elements/Container"
-import { H3, H3Props } from "../elements/H3"
+import { H1 } from "../elements/H1"
+import { H3Props } from "../elements/H3"
 import { InputProps } from "../elements/Input"
 import { LabelProps } from "../elements/Label"
 import { Modal, ModalProps } from "../elements/Modal"
@@ -122,7 +123,7 @@ export const ManageOrg = ({
     return (
         <div data-contain="component" data-width="full">
             <div data-contain="org_header" data-width="full">
-                <H3 appearance={appearance?.elements?.Header}>{appearance?.options?.headerContent || orgMetaname}</H3>
+                <H1 appearance={appearance?.elements?.Header}>{appearance?.options?.headerContent || orgMetaname}</H1>
                 <div data-contain="org_header_actions">
                     <Button
                         onClick={() => setShowCreateOrgModal(true)}

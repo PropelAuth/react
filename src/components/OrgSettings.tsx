@@ -61,7 +61,7 @@ export type OrgSettingsAppearance = {
     }
 }
 
-export const OrgSettings = ({ activeOrg, setActiveOrg, onOrgUpdated, appearance }: OrgSettingsProps) => {
+export const OrgSettings = ({ activeOrg, onOrgUpdated, appearance }: OrgSettingsProps) => {
     const { authUrl } = useAuthUrl()
     const { orgApi } = useApi()
     const { configLoading, config } = useConfig()
@@ -153,7 +153,7 @@ export const OrgSettings = ({ activeOrg, setActiveOrg, onOrgUpdated, appearance 
             if (response.ok) {
                 setSuccess(ORG_UPDATE_SUCCESS)
                 if (onOrgUpdated) {
-                    setActiveOrg({
+                    onOrgUpdated({
                         id: activeOrg.id,
                         name: orgName,
                     })

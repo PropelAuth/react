@@ -61,8 +61,14 @@ export const OrgControls = ({
         if (invitation) {
             addInvitation(invitation)
         }
-
         setShowInviteModal(false)
+    }
+
+    function onOrgUpdatedCallback(org: ActiveOrgInfo) {
+        setTimeout(() => {
+            setShowOrgSettingsModal(false)
+            setActiveOrg(org)
+        }, 500)
     }
 
     return (
@@ -98,7 +104,12 @@ export const OrgControls = ({
                 onClose={() => setShowOrgSettingsModal(false)}
                 appearance={appearance?.elements?.OrgSettingsModal}
             >
-                <OrgSettings activeOrg={activeOrg} setActiveOrg={setActiveOrg} appearance={orgSettingsAppearance} />
+                <OrgSettings
+                    activeOrg={activeOrg}
+                    setActiveOrg={setActiveOrg}
+                    onOrgUpdated={(org) => onOrgUpdatedCallback(org)}
+                    appearance={orgSettingsAppearance}
+                />
             </Modal>
             <Popover
                 referenceElement={filterPopover}
