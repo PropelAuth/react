@@ -25,6 +25,7 @@ export type LoginProps = {
     onSuccess: VoidFunction
     onRedirectToSignup?: VoidFunction
     onRedirectToForgotPassword?: VoidFunction
+    onRedirectToLoginPasswordless?: VoidFunction
     presetEmail?: string
     appearance?: LoginAppearance &
         ConfirmEmailAppearance &
@@ -65,6 +66,7 @@ export const Login = ({
     onSuccess,
     onRedirectToSignup,
     onRedirectToForgotPassword,
+    onRedirectToLoginPasswordless,
     presetEmail,
     appearance,
 }: LoginProps) => {
@@ -160,7 +162,11 @@ export const Login = ({
                             </H3>
                         </div>
                         {config && (config.hasPasswordlessLogin || config.hasAnyNonPasswordLogin) && (
-                            <SignInOptions buttonAppearance={appearance?.elements?.SocialButton} config={config} />
+                            <SignInOptions
+                                config={config}
+                                onRedirectToLoginPasswordless={onRedirectToLoginPasswordless}
+                                buttonAppearance={appearance?.elements?.SocialButton}
+                            />
                         )}
                         {config &&
                             config.hasPasswordLogin &&

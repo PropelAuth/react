@@ -7,10 +7,11 @@ import { withHttp } from "./helpers"
 
 export type SignInOptionsProps = {
     config: Config | null
+    onRedirectToLoginPasswordless?: VoidFunction
     buttonAppearance?: ElementAppearance<ButtonProps>
 }
 
-export const SignInOptions = ({ config, buttonAppearance }: SignInOptionsProps) => {
+export const SignInOptions = ({ config, onRedirectToLoginPasswordless, buttonAppearance }: SignInOptionsProps) => {
     const { authUrl } = useAuthUrl()
     const GOOGLE_LOGIN_PATH = "/google/login"
     const GITHUB_LOGIN_PATH = "/github/login"
@@ -18,13 +19,10 @@ export const SignInOptions = ({ config, buttonAppearance }: SignInOptionsProps) 
     const MICROSOFT_LOGIN_PATH = "/microsoft/login"
     const LINKEDIN_LOGIN_PATH = "/linkedin/login"
 
-    function loginPasswordless() {
-        if (config) {
-            const url = withHttp(config.loginPasswordlessUrl)
-            return window.location.replace(url)
-        } else {
-            console.error("No passwordless login URL specified.")
-        }
+    function loginWithPasswordless() {
+        onRedirectToLoginPasswordless
+            ? onRedirectToLoginPasswordless()
+            : console.error("No passwordless login URL specified.")
     }
 
     function loginWithSocial(path: string) {
@@ -65,7 +63,7 @@ export const SignInOptions = ({ config, buttonAppearance }: SignInOptionsProps) 
                 </Button>
             )}
             {config && config.hasPasswordlessLogin && (
-                <Button onClick={() => loginPasswordless()} appearance={buttonAppearance}>
+                <Button onClick={() => loginWithPasswordless()} appearance={buttonAppearance}>
                     <PasswordlessLogo />
                     <span>Sign in with Email</span>
                 </Button>
