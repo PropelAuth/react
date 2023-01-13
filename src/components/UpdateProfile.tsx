@@ -346,8 +346,16 @@ export const EditUsername = ({ appearance, initialUsername }: EditUsernameProps)
                 <Button loading={loading}>
                     {appearance?.options?.updateUsernameButtonContent || "Update Username"}
                 </Button>
-                {success && <Alert type={"success"}>{success}</Alert>}
-                {error && <Alert type={"error"}>{error}</Alert>}
+                {success && (
+                    <Alert type={"success"} appearance={appearance?.elements?.SuccessMessage}>
+                        {success}
+                    </Alert>
+                )}
+                {error && (
+                    <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                        {error}
+                    </Alert>
+                )}
             </form>
         </div>
     )
