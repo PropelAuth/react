@@ -17,9 +17,17 @@ export const SignInOptions = ({ config, buttonAppearance }: SignInOptionsProps) 
     const SLACK_LOGIN_PATH = "/slack/login"
     const MICROSOFT_LOGIN_PATH = "/microsoft/login"
     const LINKEDIN_LOGIN_PATH = "/linkedin/login"
-    const PASSWORDLESS_LOGIN_PATH = "" // TODO
 
-    const loginWithSocial = (path: string) => {
+    function loginPasswordless() {
+        if (config) {
+            const url = withHttp(config.loginPasswordlessUrl)
+            return window.location.replace(url)
+        } else {
+            console.error("No passwordless login URL specified.")
+        }
+    }
+
+    function loginWithSocial(path: string) {
         const url = withHttp(authUrl)
         return window.location.replace(url + path)
     }
@@ -57,7 +65,7 @@ export const SignInOptions = ({ config, buttonAppearance }: SignInOptionsProps) 
                 </Button>
             )}
             {config && config.hasPasswordlessLogin && (
-                <Button onClick={() => loginWithSocial(PASSWORDLESS_LOGIN_PATH)} appearance={buttonAppearance}>
+                <Button onClick={() => loginPasswordless()} appearance={buttonAppearance}>
                     <PasswordlessLogo />
                     <span>Sign in with Email</span>
                 </Button>
