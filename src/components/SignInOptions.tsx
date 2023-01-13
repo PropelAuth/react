@@ -17,7 +17,7 @@ export const SignInOptions = ({ config, buttonAppearance }: SignInOptionsProps) 
     const SLACK_LOGIN_PATH = "/slack/login"
     const MICROSOFT_LOGIN_PATH = "/microsoft/login"
     const LINKEDIN_LOGIN_PATH = "/linkedin/login"
-    const PASSWORDLESS_LOGIN_PATH = "/login_passwordless"
+    const PASSWORDLESS_LOGIN_PATH = "" // TODO
 
     const loginWithSocial = (path: string) => {
         const url = withHttp(authUrl)

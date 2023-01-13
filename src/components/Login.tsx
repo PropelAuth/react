@@ -262,11 +262,9 @@ export const Login = ({
         default:
             return (
                 <div data-contain="component">
-                    <div data-contain="component">
-                        <Container appearance={appearance?.elements?.Container}>
-                            <Progress appearance={appearance?.elements?.Progress} />
-                        </Container>
-                    </div>
+                    <Container appearance={appearance?.elements?.Container}>
+                        <Progress appearance={appearance?.elements?.Progress} />
+                    </Container>
                 </div>
             )
     }
@@ -304,12 +302,21 @@ export const useLoginState = () => {
     }, [])
 
     async function getLoginState() {
-        setLoading(true)
-        const response = await loginApi.fetchLoginState()
-        if (response.ok) {
-            setLoginState(response.body.loginState)
+        try {
+            setLoading(true)
+            const response = await loginApi.fetchLoginState()
+            console.log("LOGGING getLoginState response", response)
+            if (response.ok) {
+                setLoginState(response.body.loginState)
+            } else {
+                setError(UNEXPECTED_ERROR)
+            }
+        } catch (e) {
+            setError(UNEXPECTED_ERROR)
+            console.error(e)
+        } finally {
+            setLoading(false)
         }
-        setLoading(false)
     }
 
     return {
