@@ -70,7 +70,7 @@ export const Login = ({
 }: LoginProps) => {
     const { config } = useConfig()
     const { loginApi } = useApi()
-    const { loginStateLoading, loginState, getLoginState } = useLoginState()
+    const { loginStateLoading, loginStateError, loginState, getLoginState } = useLoginState()
     const [email, setEmail] = useState(presetEmail || "")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
@@ -123,6 +123,14 @@ export const Login = ({
     }, [loginState, onSuccess])
 
     if (loginStateLoading) {
+        return (
+            <div data-contain="component">
+                <Container appearance={appearance?.elements?.Container}>
+                    <Progress appearance={appearance?.elements?.Progress} />
+                </Container>
+            </div>
+        )
+    } else if (loginStateError) {
         return (
             <div data-contain="component">
                 <Container appearance={appearance?.elements?.Container}>
@@ -254,11 +262,11 @@ export const Login = ({
         default:
             return (
                 <div data-contain="component">
-                    <Container appearance={appearance?.elements?.Container}>
-                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                            {UNEXPECTED_ERROR}
-                        </Alert>
-                    </Container>
+                    <div data-contain="component">
+                        <Container appearance={appearance?.elements?.Container}>
+                            <Progress appearance={appearance?.elements?.Progress} />
+                        </Container>
+                    </div>
                 </div>
             )
     }
@@ -267,22 +275,31 @@ export const Login = ({
 export const useLoginState = () => {
     const { loginApi } = useApi()
     const [loading, setLoading] = useState<boolean>(false)
+    const [error, setError] = useState<string | undefined>(undefined)
     const [loginState, setLoginState] = useState<PropelAuthFeV2.LoginStateEnum | undefined>(undefined)
 
     useEffect(() => {
         let mounted = true
         setLoading(true)
-        loginApi.fetchLoginState().then((response) => {
-            if (mounted) {
-                if (response.ok) {
-                    setLoginState(response.body.loginState)
+        loginApi
+            .fetchLoginState()
+            .then((response) => {
+                if (mounted) {
+                    if (response.ok) {
+                        setLoginState(response.body.loginState)
+                    } else {
+                        setError(UNEXPECTED_ERROR)
+                    }
                 }
-            }
-        })
-        setLoading(false)
+            })
+            .catch((e) => {
+                setError(UNEXPECTED_ERROR)
+                console.error(e)
+            })
+            .finally(() => setLoading(false))
+
         return () => {
             mounted = false
-            setLoading(false)
         }
     }, [])
 
@@ -297,6 +314,7 @@ export const useLoginState = () => {
 
     return {
         loginStateLoading: loading,
+        loginStateError: error,
         loginState,
         getLoginState,
     }
