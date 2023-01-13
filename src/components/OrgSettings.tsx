@@ -218,59 +218,61 @@ export const OrgSettings = ({ activeOrg, setActiveOrg, onOrgUpdated, appearance 
                         {appearance?.options?.headerContent || `${orgMetaname} Settings`}
                     </H3>
                 </div>
-                <form data-contain="form" onSubmit={updateOrgMetadata}>
-                    <div>
-                        <Label appearance={appearance?.elements?.OrgNameLabel} htmlFor="org_name">
-                            {appearance?.options?.orgNameLabel || orgMetaname + " name"}
-                        </Label>
-                        <Input
-                            id={"org_name"}
-                            type={"text"}
-                            value={orgName}
-                            onChange={(e) => setOrgName(e.target.value)}
-                            appearance={appearance?.elements?.OrgNameInput}
-                            required
-                        />
-                        {orgNameError && (
-                            <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                {orgNameError}
+                <div data-contain="form">
+                    <form onSubmit={updateOrgMetadata}>
+                        <div>
+                            <Label appearance={appearance?.elements?.OrgNameLabel} htmlFor="org_name">
+                                {appearance?.options?.orgNameLabel || orgMetaname + " name"}
+                            </Label>
+                            <Input
+                                id={"org_name"}
+                                type={"text"}
+                                value={orgName}
+                                onChange={(e) => setOrgName(e.target.value)}
+                                appearance={appearance?.elements?.OrgNameInput}
+                                required
+                            />
+                            {orgNameError && (
+                                <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                    {orgNameError}
+                                </Alert>
+                            )}
+                        </div>
+                        <div>
+                            <Checkbox
+                                id={"autojoin_by_domain"}
+                                label={appearance?.options?.autojoinByDomainLabel || "Auto-join by domain"}
+                                checked={false} // todo
+                                onChange={() => null} // todo
+                                appearance={appearance?.elements?.AutojoinByDomainCheckbox}
+                                disabled={true} // todo
+                            />
+                        </div>
+                        <div>
+                            <Checkbox
+                                id={"restrict_to_domain"}
+                                label={appearance?.options?.restrictToDomainLabel || "Restrict to domain"}
+                                checked={false} // todo
+                                onChange={() => null} // todo
+                                appearance={appearance?.elements?.RestrictToDomainCheckbox}
+                                disabled={true} // todo
+                            />
+                        </div>
+                        <Button loading={submitLoading} appearance={appearance?.elements?.SubmitButton}>
+                            {appearance?.options?.submitButtonContent || `Update ${orgMetaname}`}
+                        </Button>
+                        {success && (
+                            <Alert type={"success"} appearance={appearance?.elements?.SuccessMessage}>
+                                {success}
                             </Alert>
                         )}
-                    </div>
-                    <div>
-                        <Checkbox
-                            id={"autojoin_by_domain"}
-                            label={appearance?.options?.autojoinByDomainLabel || "Auto-join by domain"}
-                            checked={false} // todo
-                            onChange={() => null} // todo
-                            appearance={appearance?.elements?.AutojoinByDomainCheckbox}
-                            disabled={true} // todo
-                        />
-                    </div>
-                    <div>
-                        <Checkbox
-                            id={"restrict_to_domain"}
-                            label={appearance?.options?.restrictToDomainLabel || "Restrict to domain"}
-                            checked={false} // todo
-                            onChange={() => null} // todo
-                            appearance={appearance?.elements?.RestrictToDomainCheckbox}
-                            disabled={true} // todo
-                        />
-                    </div>
-                    <Button loading={submitLoading} appearance={appearance?.elements?.SubmitButton}>
-                        {appearance?.options?.submitButtonContent || `Update ${orgMetaname}`}
-                    </Button>
-                    {success && (
-                        <Alert type={"success"} appearance={appearance?.elements?.SuccessMessage}>
-                            {success}
-                        </Alert>
-                    )}
-                    {error && (
-                        <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
-                            {error}
-                        </Alert>
-                    )}
-                </form>
+                        {error && (
+                            <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                                {error}
+                            </Alert>
+                        )}
+                    </form>
+                </div>
                 {canSetupSaml && <div data-contain="section">{samlButton}</div>}
             </Container>
         </div>

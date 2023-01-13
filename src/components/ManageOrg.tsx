@@ -2,7 +2,7 @@ import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { Dispatch, ReactNode, SetStateAction, useEffect, useState } from "react"
 import { useOrgHelper } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
-import { AlertProps } from "../elements/Alert"
+import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
 import { CheckboxProps } from "../elements/Checkbox"
 import { Container, ContainerProps } from "../elements/Container"
@@ -17,7 +17,12 @@ import { SelectProps } from "../elements/Select"
 import { Table, TableProps } from "../elements/Table"
 import { useApi } from "../useApi"
 import { useConfig } from "../useConfig"
-import { NOT_FOUND_SELECTED_ORG_STATUS, UNAUTHORIZED_SELECTED_ORG_STATUS, UNEXPECTED_ERROR } from "./constants"
+import {
+    NOT_FOUND_ORG,
+    NOT_FOUND_SELECTED_ORG_STATUS,
+    UNAUTHORIZED_SELECTED_ORG_STATUS,
+    UNEXPECTED_ERROR,
+} from "./constants"
 import { CreateOrg, CreateOrgAppearance } from "./CreateOrg"
 import { EditExpiredInvitation } from "./EditExpiredInvitation"
 import { EditOrgUser } from "./EditOrgUser"
@@ -102,6 +107,7 @@ export const ManageOrg = ({
     const [showCreateOrgModal, setShowCreateOrgModal] = useState(false)
     const [showJoinOrgModal, setShowJoinOrgModal] = useState(false)
     const orgMetaname = config?.orgsMetaname || "Organization"
+    const orgNotFound = !activeOrg || !allOrgs || allOrgs.length <= 0
 
     function orgCreatedCallback(org: ActiveOrgInfo) {
         setShowCreateOrgModal(false)
@@ -160,17 +166,18 @@ export const ManageOrg = ({
             <Container appearance={appearance?.elements?.Container}>
                 {loading ? (
                     <Progress appearance={appearance?.elements?.Progress} />
+                ) : orgNotFound ? (
+                    <Alert type={"error"} appearance={appearance?.elements?.ErrorMessage}>
+                        {NOT_FOUND_ORG}
+                    </Alert>
                 ) : (
-                    activeOrg &&
-                    allOrgs && (
-                        <ManageOrgInner
-                            appearance={appearance}
-                            inviteUserAppearance={inviteUserAppearance}
-                            activeOrg={activeOrg}
-                            setActiveOrg={setActiveOrg}
-                            allOrgs={allOrgs}
-                        />
-                    )
+                    <ManageOrgInner
+                        appearance={appearance}
+                        inviteUserAppearance={inviteUserAppearance}
+                        activeOrg={activeOrg}
+                        setActiveOrg={setActiveOrg}
+                        allOrgs={allOrgs}
+                    />
                 )}
             </Container>
         </div>

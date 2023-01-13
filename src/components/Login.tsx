@@ -305,7 +305,6 @@ export const useLoginState = () => {
         try {
             setLoading(true)
             const response = await loginApi.fetchLoginState()
-            console.log("LOGGING getLoginState response", response)
             if (response.ok) {
                 setLoginState(response.body.loginState)
             } else {
