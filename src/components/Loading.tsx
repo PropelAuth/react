@@ -4,10 +4,9 @@ import { Container, ContainerProps } from "../elements/Container"
 import { Progress, ProgressProps } from "../elements/Progress"
 
 export type LoadingAppearance = {
-    options?: {}
     elements?: {
-        Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
+        Progress?: ElementAppearance<ProgressProps>
     }
 }
 
