@@ -12,6 +12,7 @@ import { Label } from "../elements/Label"
 import { useApi } from "../useApi"
 import { Config, useConfig } from "../useConfig"
 import { BAD_REQUEST, SIGNUP_NOT_ALLOWED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { Loading } from "./Loading"
 import { SignInDivider } from "./SignInDivider"
 import { SignInOptions } from "./SignInOptions"
 
@@ -53,7 +54,11 @@ export type SignupAppearance = {
 }
 
 export const Signup = ({ onSuccess, onRedirectToLogin, presetEmail, appearance }: SignupProps) => {
-    const { config } = useConfig()
+    const { config, configLoading } = useConfig()
+
+    if (configLoading) {
+        return <Loading appearance={appearance} />
+    }
 
     return (
         <div data-contain="component">
@@ -68,7 +73,9 @@ export const Signup = ({ onSuccess, onRedirectToLogin, presetEmail, appearance }
                     </div>
                 )}
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>{appearance?.options?.headerContent || "Signup"}</H3>
+                    <H3 appearance={appearance?.elements?.Header}>
+                        {appearance?.options?.headerContent || "Create an account"}
+                    </H3>
                 </div>
                 <SignInOptions config={config} buttonAppearance={appearance?.elements?.SocialButton} />
                 {config &&
@@ -81,7 +88,12 @@ export const Signup = ({ onSuccess, onRedirectToLogin, presetEmail, appearance }
                         />
                     )}
                 {config && config.hasPasswordLogin && (
-                    <SignupForm config={config} onSuccess={onSuccess} presetEmail={presetEmail} />
+                    <SignupForm
+                        config={config}
+                        onSuccess={onSuccess}
+                        presetEmail={presetEmail}
+                        appearance={appearance}
+                    />
                 )}
                 <BottomLinks onRedirectToLogin={onRedirectToLogin} appearance={appearance} />
             </Container>
@@ -111,10 +123,20 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
     const [usernameError, setUsernameError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
 
+    const clearErrors = () => {
+        setEmailError(undefined)
+        setFirstNameError(undefined)
+        setLastNameError(undefined)
+        setPasswordError(undefined)
+        setUsernameError(undefined)
+        setError(undefined)
+    }
+
     const signup = async (e: SyntheticEvent) => {
         try {
             e.preventDefault()
             setLoading(true)
+            clearErrors()
             const options: PropelAuthFeV2.SignupRequest = {
                 email: email,
                 password: password,
@@ -177,6 +199,7 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                                 id="first_name"
                                 type="text"
                                 value={firstName}
+                                placeholder="First Name"
                                 onChange={(e) => setFirstName(e.target.value)}
                                 appearance={appearance?.elements?.FirstNameInput}
                             />
@@ -193,6 +216,7 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                                 type="text"
                                 id="last_name"
                                 value={lastName}
+                                placeholder="Last Name"
                                 onChange={(e) => setLastName(e.target.value)}
                                 appearance={appearance?.elements?.LastNameInput}
                             />
@@ -211,7 +235,7 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                         id="email"
                         type="email"
                         value={email}
-                        readOnly={!!presetEmail}
+                        placeholder="Email"
                         onChange={(e) => setEmail(e.target.value)}
                         appearance={appearance?.elements?.EmailInput}
                     />
@@ -229,6 +253,7 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                             type="text"
                             id="username"
                             value={username}
+                            placeholder="Username"
                             onChange={(e) => setUsername(e.target.value)}
                             appearance={appearance?.elements?.UsernameInput}
                         />
@@ -246,6 +271,7 @@ const SignupForm = ({ config, presetEmail, onSuccess, appearance }: SignupFormPr
                         id="password"
                         type="password"
                         value={password}
+                        placeholder="Password"
                         onChange={(e) => setPassword(e.target.value)}
                         appearance={appearance?.elements?.PasswordInput}
                     />
@@ -278,7 +304,7 @@ const BottomLinks = ({ onRedirectToLogin, appearance }: BottomLinksProps) => {
         <div data-contain="link">
             {onRedirectToLogin && (
                 <Button onClick={onRedirectToLogin} appearance={appearance?.elements?.LoginButton}>
-                    {appearance?.options?.loginButtonContent || "Log In"}
+                    {appearance?.options?.loginButtonContent || "Already have an account? Log in"}
                 </Button>
             )}
         </div>

@@ -148,6 +148,7 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
                                 id={"org_name"}
                                 type={"text"}
                                 value={name}
+                                placeholder="Name"
                                 onChange={(e) => setName(e.target.value)}
                                 appearance={appearance?.elements?.OrgNameInput}
                                 required

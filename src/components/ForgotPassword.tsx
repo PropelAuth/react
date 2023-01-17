@@ -124,7 +124,7 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
         return (
             <div data-contain="component">
                 <Container appearance={appearance?.elements?.Container}>
-                    <Progress appearance={appearance?.elements?.Container} />
+                    <Progress appearance={appearance?.elements?.Progress} />
                 </Container>
             </div>
         )

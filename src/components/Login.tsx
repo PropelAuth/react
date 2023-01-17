@@ -15,6 +15,7 @@ import { useConfig } from "../useConfig"
 import { ConfirmEmail, ConfirmEmailAppearance } from "./ConfirmEmail"
 import { BAD_REQUEST, NO_ACCOUNT_FOUND_WITH_CREDENTIALS, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { CreateOrg, CreateOrgAppearance } from "./CreateOrg"
+import { Loading } from "./Loading"
 import { SignInDivider } from "./SignInDivider"
 import { SignInOptions } from "./SignInOptions"
 import { UpdatePassword, UpdatePasswordAppearance } from "./UpdatePassword"
@@ -70,7 +71,7 @@ export const Login = ({
     presetEmail,
     appearance,
 }: LoginProps) => {
-    const { config } = useConfig()
+    const { config, configLoading } = useConfig()
     const { loginApi } = useApi()
     const { loginStateLoading, loginStateError, loginState, getLoginState } = useLoginState()
     const [email, setEmail] = useState(presetEmail || "")
@@ -80,11 +81,17 @@ export const Login = ({
     const [passwordError, setPasswordError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
 
+    const clearErrors = () => {
+        setEmailError(undefined)
+        setPasswordError(undefined)
+        setError(undefined)
+    }
+
     const login = async (e: SyntheticEvent) => {
         try {
             e.preventDefault()
             setLoading(true)
-            setError(undefined)
+            clearErrors()
             const options = { email, password, xCsrfToken: X_CSRF_TOKEN }
             const response = await loginApi.login(options)
             if (response.ok) {
@@ -124,20 +131,21 @@ export const Login = ({
         }
     }, [loginState, onSuccess])
 
-    if (loginStateLoading) {
+    if (loginStateLoading || configLoading) {
         return (
-            <div data-contain="component">
-                <Container appearance={appearance?.elements?.Container}>
-                    <Progress appearance={appearance?.elements?.Progress} />
-                </Container>
-            </div>
+            <Loading
+                appearance={{
+                    elements: {
+                        Container: appearance?.elements?.Container,
+                        Progress: appearance?.elements?.Progress,
+                    },
+                }}
+            />
         )
     } else if (loginStateError) {
         return (
             <div data-contain="component">
-                <Container appearance={appearance?.elements?.Container}>
-                    <Progress appearance={appearance?.elements?.Progress} />
-                </Container>
+                <Container appearance={appearance?.elements?.Container}>An unexpected error has occurred.</Container>
             </div>
         )
     }
@@ -186,6 +194,7 @@ export const Login = ({
                                             required
                                             id="email"
                                             type="email"
+                                            placeholder="Email"
                                             value={email}
                                             readOnly={!!presetEmail}
                                             onChange={(e) => setEmail(e.target.value)}
@@ -205,6 +214,7 @@ export const Login = ({
                                             required
                                             type="password"
                                             id="password"
+                                            placeholder="Password"
                                             value={password}
                                             onChange={(e) => setPassword(e.target.value)}
                                             appearance={appearance?.elements?.PasswordInput}
@@ -216,7 +226,7 @@ export const Login = ({
                                         )}
                                     </div>
                                     <Button appearance={appearance?.elements?.SubmitButton} loading={loading}>
-                                        {appearance?.options?.submitButtonContent || "Login"}
+                                        {appearance?.options?.submitButtonContent || "Log In"}
                                     </Button>
                                     {error && (
                                         <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>

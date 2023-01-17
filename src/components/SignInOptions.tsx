@@ -65,7 +65,7 @@ export const SignInOptions = ({ config, onRedirectToLoginPasswordless, buttonApp
             {config && config.hasPasswordlessLogin && (
                 <Button onClick={() => loginWithPasswordless()} appearance={buttonAppearance}>
                     <PasswordlessLogo />
-                    <span>Sign in with Email</span>
+                    <span>Sign in with Magic Link</span>
                 </Button>
             )}
         </div>
