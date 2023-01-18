@@ -8,13 +8,8 @@ import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { useApi } from "../useApi"
-import { useConfig } from "../useConfig"
+import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, FORBIDDEN, NOT_FOUND_MFA_VERIFY, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
-
-export type VerifyProps = {
-    getLoginState: VoidFunction
-    appearance?: VerifyAppearance
-}
 
 export type VerifyAppearance = {
     options?: {
@@ -34,8 +29,12 @@ export type VerifyAppearance = {
     }
 }
 
-export const Verify = ({ getLoginState, appearance }: VerifyProps) => {
-    const { config } = useConfig()
+type VerifyProps = {
+    onStepCompleted: VoidFunction
+    appearance?: VerifyAppearance
+} & WithConfigProps
+
+const Verify = ({ onStepCompleted, appearance, config }: VerifyProps) => {
     const { mfaApi } = useApi()
     const [loading, setLoading] = useState(false)
     const [code, setCode] = useState("")
@@ -52,19 +51,19 @@ export const Verify = ({ getLoginState, appearance }: VerifyProps) => {
 
     function toggleCodeType(e: MouseEvent<HTMLButtonElement>) {
         e.preventDefault()
-        setCode("")
         setError(undefined)
+        setCode("")
         setUseBackupCode(!useBackupCode)
     }
 
     async function verifyMfa(e: SyntheticEvent) {
         try {
             e.preventDefault()
-            setLoading(true)
             setError(undefined)
+            setLoading(true)
             const response = await mfaApi.mfaVerify({ code, xCsrfToken: X_CSRF_TOKEN })
             if (response.ok) {
-                getLoginState()
+                onStepCompleted()
             } else {
                 response.error._visit({
                     badRequestMfaVerify: (err) => setError(err.code?.join(", ") || BAD_REQUEST),
@@ -127,3 +126,5 @@ export const Verify = ({ getLoginState, appearance }: VerifyProps) => {
         </div>
     )
 }
+
+export default withConfig(Verify)

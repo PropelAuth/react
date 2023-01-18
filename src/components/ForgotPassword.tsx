@@ -8,9 +8,9 @@ import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
-import { Progress, ProgressProps } from "../elements/Progress"
+import { ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
-import { useConfig } from "../useConfig"
+import { withConfig, WithConfigProps } from "../withConfig"
 import {
     BAD_REQUEST,
     FORGOT_PASSWORD_MESSAGE,
@@ -22,19 +22,16 @@ import {
     X_CSRF_TOKEN,
 } from "./constants"
 
-export type ForgotPasswordProps = {
-    onRedirectToLogin?: VoidFunction
-    appearance?: ForgotPasswordAppearance
-}
-
 export type ForgotPasswordAppearance = {
     options?: {
         headerContent?: ReactNode
         displayLogo?: boolean
+        disableLabels?: boolean
         emailLabel?: ReactNode
         resetPasswordButtonContent?: ReactNode
         magicLinkButtonContent?: ReactNode
         backButtonContent?: ReactNode
+        redirectToLoginFunction?: VoidFunction
     }
     elements?: {
         Progress?: ElementAppearance<ProgressProps>
@@ -52,9 +49,12 @@ export type ForgotPasswordAppearance = {
     }
 }
 
-export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPasswordProps) => {
+export type ForgotPasswordProps = {
+    appearance?: ForgotPasswordAppearance
+} & WithConfigProps
+
+const ForgotPassword = ({ appearance, config }: ForgotPasswordProps) => {
     const { loginApi } = useApi()
-    const { configLoading, config } = useConfig()
     const [email, setEmail] = useState("")
     const [emailError, setEmailError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
@@ -62,9 +62,15 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
     const [magicLinkLoading, setMagicLinkLoading] = useState(false)
     const [successMessage, setSuccessMessage] = useState<string | undefined>(undefined)
 
+    const clearErrors = () => {
+        setEmailError(undefined)
+        setError(undefined)
+    }
+
     async function submitForgotPassword(e: SyntheticEvent) {
         try {
             e.preventDefault()
+            clearErrors()
             setPasswordResetLoading(true)
             const response = await loginApi.forgotPassword({ email, xCsrfToken: X_CSRF_TOKEN })
             if (response.ok) {
@@ -86,6 +92,7 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
     async function submitMagicLink(e: SyntheticEvent) {
         try {
             e.preventDefault()
+            clearErrors()
             setMagicLinkLoading(true)
             const response = await loginApi.sendMagicLinkLogin({
                 email,
@@ -118,16 +125,6 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
         } finally {
             setMagicLinkLoading(false)
         }
-    }
-
-    if (configLoading) {
-        return (
-            <div data-contain="component">
-                <Container appearance={appearance?.elements?.Container}>
-                    <Progress appearance={appearance?.elements?.Progress} />
-                </Container>
-            </div>
-        )
     }
 
     if (successMessage) {
@@ -182,7 +179,9 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
                 <div data-contain="form">
                     <form onSubmit={submitForgotPassword}>
                         <div>
-                            <Label htmlFor="email">{appearance?.options?.emailLabel || "Email"}</Label>
+                            {!appearance?.options?.disableLabels && (
+                                <Label htmlFor="email">{appearance?.options?.emailLabel || "Email"}</Label>
+                            )}
                             <Input
                                 required
                                 id={"email"}
@@ -213,7 +212,10 @@ export const ForgotPassword = ({ onRedirectToLogin, appearance }: ForgotPassword
                         </Button>
                     </div>
                 )}
-                <BottomLinks onRedirectToLogin={onRedirectToLogin} appearance={appearance} />
+                <BottomLinks
+                    redirectToLoginFunction={appearance?.options?.redirectToLoginFunction}
+                    appearance={appearance}
+                />
                 {error && (
                     <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
                         {error}
@@ -238,18 +240,20 @@ const ForgotPasswordDirections = ({ appearance, hasPasswordlessLogin }: ForgotPa
 }
 
 type BottomLinksProps = {
-    onRedirectToLogin?: VoidFunction
+    redirectToLoginFunction?: VoidFunction
     appearance?: ForgotPasswordAppearance
 }
 
-const BottomLinks = ({ onRedirectToLogin, appearance }: BottomLinksProps) => {
+const BottomLinks = ({ redirectToLoginFunction, appearance }: BottomLinksProps) => {
     return (
         <div data-contain="link">
-            {onRedirectToLogin && (
-                <Button onClick={onRedirectToLogin} appearance={appearance?.elements?.LoginButton}>
+            {redirectToLoginFunction && (
+                <Button onClick={redirectToLoginFunction} appearance={appearance?.elements?.LoginButton}>
                     {appearance?.options?.backButtonContent || "Back to login"}
                 </Button>
             )}
         </div>
     )
 }
+
+export default withConfig(ForgotPassword)

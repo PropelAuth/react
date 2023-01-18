@@ -1,5 +1,4 @@
-import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
-import React, { ReactNode, SyntheticEvent, useEffect, useState } from "react"
+import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
@@ -9,43 +8,27 @@ import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
-import { Progress, ProgressProps } from "../elements/Progress"
+import { ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
-import { useConfig } from "../useConfig"
-import { ConfirmEmail, ConfirmEmailAppearance } from "./ConfirmEmail"
+import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, NO_ACCOUNT_FOUND_WITH_CREDENTIALS, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
-import { CreateOrg, CreateOrgAppearance } from "./CreateOrg"
-import { Loading } from "./Loading"
 import { SignInDivider } from "./SignInDivider"
 import { SignInOptions } from "./SignInOptions"
-import { UpdatePassword, UpdatePasswordAppearance } from "./UpdatePassword"
-import { UserMetadata, UserMetadataAppearance } from "./UserMetadata"
-import { Verify, VerifyAppearance } from "./Verify"
-
-export type LoginProps = {
-    onSuccess: VoidFunction
-    onRedirectToSignup?: VoidFunction
-    onRedirectToForgotPassword?: VoidFunction
-    onRedirectToLoginPasswordless?: VoidFunction
-    presetEmail?: string
-    appearance?: LoginAppearance &
-        ConfirmEmailAppearance &
-        VerifyAppearance &
-        UserMetadataAppearance &
-        UpdatePasswordAppearance &
-        CreateOrgAppearance
-}
 
 export type LoginAppearance = {
     options?: {
         headerContent?: ReactNode
         displayLogo?: boolean
         divider?: ReactNode | boolean
+        disableLabels?: boolean
         emailLabel?: ReactNode
         passwordLabel?: ReactNode
         submitButtonContent?: ReactNode
         signupButtonContent?: ReactNode
         forgotPasswordButtonContent?: ReactNode
+        redirectToSignupFunction?: VoidFunction
+        redirectToForgotPasswordFunction?: VoidFunction
+        redirectToLoginPasswordlessFunction?: VoidFunction
     }
     elements?: {
         Progress?: ElementAppearance<ProgressProps>
@@ -63,18 +46,14 @@ export type LoginAppearance = {
     }
 }
 
-export const Login = ({
-    onSuccess,
-    onRedirectToSignup,
-    onRedirectToForgotPassword,
-    onRedirectToLoginPasswordless,
-    presetEmail,
-    appearance,
-}: LoginProps) => {
-    const { config, configLoading } = useConfig()
+type LoginProps = {
+    onStepCompleted: VoidFunction
+    appearance?: LoginAppearance
+} & WithConfigProps
+
+const Login = ({ onStepCompleted, appearance, config }: LoginProps) => {
     const { loginApi } = useApi()
-    const { loginStateLoading, loginStateError, loginState, getLoginState } = useLoginState()
-    const [email, setEmail] = useState(presetEmail || "")
+    const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const [emailError, setEmailError] = useState<string | undefined>(undefined)
@@ -95,7 +74,7 @@ export const Login = ({
             const options = { email, password, xCsrfToken: X_CSRF_TOKEN }
             const response = await loginApi.login(options)
             if (response.ok) {
-                getLoginState()
+                onStepCompleted()
             } else {
                 response.error._visit({
                     noAccountFoundWithCredentials: () => setError(NO_ACCOUNT_FOUND_WITH_CREDENTIALS),
@@ -125,219 +104,113 @@ export const Login = ({
         }
     }
 
-    useEffect(() => {
-        if (loginState === PropelAuthFeV2.LoginStateEnum.Finished) {
-            onSuccess()
-        }
-    }, [loginState, onSuccess])
-
-    if (loginStateLoading || configLoading) {
-        return (
-            <Loading
-                appearance={{
-                    elements: {
-                        Container: appearance?.elements?.Container,
-                        Progress: appearance?.elements?.Progress,
-                    },
-                }}
-            />
-        )
-    } else if (loginStateError) {
-        return (
-            <div data-contain="component">
-                <Container appearance={appearance?.elements?.Container}>An unexpected error has occurred.</Container>
-            </div>
-        )
-    }
-
-    switch (loginState) {
-        case PropelAuthFeV2.LoginStateEnum.LoginRequired:
-            return (
-                <div data-contain="component">
-                    <Container appearance={appearance?.elements?.Container}>
-                        {appearance?.options?.displayLogo !== false && config && (
-                            <div data-contain="logo">
-                                <Image
-                                    src={config.logoUrl}
-                                    alt={config.siteDisplayName}
-                                    appearance={appearance?.elements?.Logo}
+    return (
+        <div data-contain="component">
+            <Container appearance={appearance?.elements?.Container}>
+                {appearance?.options?.displayLogo !== false && config && (
+                    <div data-contain="logo">
+                        <Image
+                            src={config.logoUrl}
+                            alt={config.siteDisplayName}
+                            appearance={appearance?.elements?.Logo}
+                        />
+                    </div>
+                )}
+                <div data-contain="header">
+                    <H3 appearance={appearance?.elements?.Header}>{appearance?.options?.headerContent || "Welcome"}</H3>
+                </div>
+                {config && (config.hasPasswordlessLogin || config.hasAnyNonPasswordLogin) && (
+                    <SignInOptions
+                        config={config}
+                        onRedirectToLoginPasswordless={appearance?.options?.redirectToLoginPasswordlessFunction}
+                        buttonAppearance={appearance?.elements?.SocialButton}
+                    />
+                )}
+                {config &&
+                    config.hasPasswordLogin &&
+                    config.hasAnyNonPasswordLogin &&
+                    appearance?.options?.divider !== false && (
+                        <SignInDivider
+                            appearance={appearance?.elements?.Divider}
+                            options={appearance?.options?.divider}
+                        />
+                    )}
+                {config && config.hasPasswordLogin && (
+                    <div data-contain="form">
+                        <form onSubmit={login}>
+                            <div>
+                                {!appearance?.options?.disableLabels && (
+                                    <Label htmlFor="email">{appearance?.options?.emailLabel || "Email"}</Label>
+                                )}
+                                <Input
+                                    required
+                                    id="email"
+                                    type="email"
+                                    placeholder="Email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    appearance={appearance?.elements?.EmailInput}
                                 />
+                                {emailError && (
+                                    <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                        {emailError}
+                                    </Alert>
+                                )}
                             </div>
-                        )}
-                        <div data-contain="header">
-                            <H3 appearance={appearance?.elements?.Header}>
-                                {appearance?.options?.headerContent || "Welcome"}
-                            </H3>
-                        </div>
-                        {config && (config.hasPasswordlessLogin || config.hasAnyNonPasswordLogin) && (
-                            <SignInOptions
-                                config={config}
-                                onRedirectToLoginPasswordless={onRedirectToLoginPasswordless}
-                                buttonAppearance={appearance?.elements?.SocialButton}
-                            />
-                        )}
-                        {config &&
-                            config.hasPasswordLogin &&
-                            config.hasAnyNonPasswordLogin &&
-                            appearance?.options?.divider !== false && (
-                                <SignInDivider
-                                    appearance={appearance?.elements?.Divider}
-                                    options={appearance?.options?.divider}
+                            <div>
+                                {!appearance?.options?.disableLabels && (
+                                    <Label htmlFor="password">{appearance?.options?.passwordLabel || "Password"}</Label>
+                                )}
+                                <Input
+                                    required
+                                    type="password"
+                                    id="password"
+                                    placeholder="Password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    appearance={appearance?.elements?.PasswordInput}
                                 />
+                                {passwordError && (
+                                    <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                        {passwordError}
+                                    </Alert>
+                                )}
+                            </div>
+                            <Button appearance={appearance?.elements?.SubmitButton} loading={loading}>
+                                {appearance?.options?.submitButtonContent || "Log In"}
+                            </Button>
+                            {error && (
+                                <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                    {error}
+                                </Alert>
                             )}
-                        {config && config.hasPasswordLogin && (
-                            <div data-contain="form">
-                                <form onSubmit={login}>
-                                    <div>
-                                        <Label htmlFor="email">{appearance?.options?.emailLabel || "Email"}</Label>
-                                        <Input
-                                            required
-                                            id="email"
-                                            type="email"
-                                            placeholder="Email"
-                                            value={email}
-                                            readOnly={!!presetEmail}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            appearance={appearance?.elements?.EmailInput}
-                                        />
-                                        {emailError && (
-                                            <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                                {emailError}
-                                            </Alert>
-                                        )}
-                                    </div>
-                                    <div>
-                                        <Label htmlFor="password">
-                                            {appearance?.options?.passwordLabel || "Password"}
-                                        </Label>
-                                        <Input
-                                            required
-                                            type="password"
-                                            id="password"
-                                            placeholder="Password"
-                                            value={password}
-                                            onChange={(e) => setPassword(e.target.value)}
-                                            appearance={appearance?.elements?.PasswordInput}
-                                        />
-                                        {passwordError && (
-                                            <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                                {passwordError}
-                                            </Alert>
-                                        )}
-                                    </div>
-                                    <Button appearance={appearance?.elements?.SubmitButton} loading={loading}>
-                                        {appearance?.options?.submitButtonContent || "Log In"}
-                                    </Button>
-                                    {error && (
-                                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                            {error}
-                                        </Alert>
-                                    )}
-                                </form>
-                            </div>
+                        </form>
+                    </div>
+                )}
+                {(appearance?.options?.redirectToSignupFunction ||
+                    appearance?.options?.redirectToForgotPasswordFunction) && (
+                    <div data-contain="links">
+                        {appearance?.options?.redirectToSignupFunction && (
+                            <Button
+                                onClick={appearance?.options?.redirectToSignupFunction}
+                                appearance={appearance?.elements?.SignupButton}
+                            >
+                                {appearance?.options?.signupButtonContent || "Sign Up"}
+                            </Button>
                         )}
-                        {(onRedirectToSignup || onRedirectToForgotPassword) && (
-                            <div data-contain="links">
-                                {onRedirectToSignup && (
-                                    <Button
-                                        onClick={onRedirectToSignup}
-                                        appearance={appearance?.elements?.SignupButton}
-                                    >
-                                        {appearance?.options?.signupButtonContent || "Sign Up"}
-                                    </Button>
-                                )}
-                                {onRedirectToForgotPassword && (
-                                    <Button
-                                        onClick={onRedirectToForgotPassword}
-                                        appearance={appearance?.elements?.ForgotPasswordButton}
-                                    >
-                                        {appearance?.options?.forgotPasswordButtonContent || "Forgot Password"}
-                                    </Button>
-                                )}
-                            </div>
+                        {appearance?.options?.redirectToForgotPasswordFunction && (
+                            <Button
+                                onClick={appearance?.options?.redirectToForgotPasswordFunction}
+                                appearance={appearance?.elements?.ForgotPasswordButton}
+                            >
+                                {appearance?.options?.forgotPasswordButtonContent || "Forgot Password"}
+                            </Button>
                         )}
-                    </Container>
-                </div>
-            )
-
-        case PropelAuthFeV2.LoginStateEnum.ConfirmEmailRequired:
-            return <ConfirmEmail appearance={appearance} />
-
-        case PropelAuthFeV2.LoginStateEnum.TwoFactorRequired:
-            return <Verify getLoginState={getLoginState} appearance={appearance} />
-
-        case PropelAuthFeV2.LoginStateEnum.UserMetadataRequired:
-            return <UserMetadata getLoginState={getLoginState} config={config} appearance={appearance} />
-
-        case PropelAuthFeV2.LoginStateEnum.UpdatePasswordRequired:
-            return <UpdatePassword getLoginState={getLoginState} config={config} appearance={appearance} />
-
-        case PropelAuthFeV2.LoginStateEnum.OrgCreationRequired:
-            return <CreateOrg onOrgCreated={getLoginState} appearance={appearance} />
-
-        default:
-            return (
-                <div data-contain="component">
-                    <Container appearance={appearance?.elements?.Container}>
-                        <Progress appearance={appearance?.elements?.Progress} />
-                    </Container>
-                </div>
-            )
-    }
+                    </div>
+                )}
+            </Container>
+        </div>
+    )
 }
 
-export const useLoginState = () => {
-    const { loginApi } = useApi()
-    const [loading, setLoading] = useState<boolean>(false)
-    const [error, setError] = useState<string | undefined>(undefined)
-    const [loginState, setLoginState] = useState<PropelAuthFeV2.LoginStateEnum | undefined>(undefined)
-
-    useEffect(() => {
-        let mounted = true
-        setLoading(true)
-        loginApi
-            .fetchLoginState()
-            .then((response) => {
-                if (mounted) {
-                    if (response.ok) {
-                        setLoginState(response.body.loginState)
-                    } else {
-                        setError(UNEXPECTED_ERROR)
-                    }
-                }
-            })
-            .catch((e) => {
-                setError(UNEXPECTED_ERROR)
-                console.error(e)
-            })
-            .finally(() => setLoading(false))
-
-        return () => {
-            mounted = false
-        }
-    }, [])
-
-    async function getLoginState() {
-        try {
-            setLoading(true)
-            const response = await loginApi.fetchLoginState()
-            if (response.ok) {
-                setLoginState(response.body.loginState)
-            } else {
-                setError(UNEXPECTED_ERROR)
-            }
-        } catch (e) {
-            setError(UNEXPECTED_ERROR)
-            console.error(e)
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    return {
-        loginStateLoading: loading,
-        loginStateError: error,
-        loginState,
-        getLoginState,
-    }
-}
+export default withConfig(Login)

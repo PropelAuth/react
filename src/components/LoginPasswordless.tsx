@@ -7,10 +7,10 @@ import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
-import { Paragraph } from "../elements/Paragraph"
-import { Progress, ProgressProps } from "../elements/Progress"
+import { Paragraph, ParagraphProps } from "../elements/Paragraph"
+import { ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
-import { useConfig } from "../useConfig"
+import { withConfig, WithConfigProps } from "../withConfig"
 import {
     BAD_REQUEST,
     LOGIN_PASSWORDLESS_NOT_SUPPORTED,
@@ -20,14 +20,11 @@ import {
     X_CSRF_TOKEN,
 } from "./constants"
 
-export type LoginPasswordlessProps = {
-    appearance?: LoginPasswordlessAppearance
-}
-
 export type LoginPasswordlessAppearance = {
     options?: {
         headerContent?: ReactNode
         displayLogo?: boolean
+        disableLabels?: boolean
         emailLabel?: ReactNode
         submitButtonContent?: ReactNode
         successMessage?: ReactNode
@@ -40,24 +37,33 @@ export type LoginPasswordlessAppearance = {
         EmailLabel?: ElementAppearance<LabelProps>
         EmailInput?: ElementAppearance<InputProps>
         SubmitButton?: ElementAppearance<ButtonProps>
+        SuccessText?: ElementAppearance<ParagraphProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
 
-export const LoginPasswordless = ({ appearance }: LoginPasswordlessProps) => {
+export type LoginPasswordlessProps = {
+    appearance?: LoginPasswordlessAppearance
+} & WithConfigProps
+
+const LoginPasswordless = ({ appearance, config }: LoginPasswordlessProps) => {
     const { loginApi } = useApi()
-    const { configLoading, config } = useConfig()
     const [loading, setLoading] = useState(false)
     const [email, setEmail] = useState("")
     const [emailError, setEmailError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
     const [submitted, setSubmitted] = useState(false)
 
+    const clearErrors = () => {
+        setEmailError(undefined)
+        setError(undefined)
+    }
+
     async function loginPasswordless(e: SyntheticEvent) {
         try {
             e.preventDefault()
+            clearErrors()
             setLoading(true)
-            setError(undefined)
             const response = await loginApi.sendMagicLinkLogin({
                 email,
                 createIfDoesntExist: true,
@@ -91,24 +97,18 @@ export const LoginPasswordless = ({ appearance }: LoginPasswordlessProps) => {
         }
     }
 
-    if (configLoading) {
-        return (
-            <div data-contain="component">
-                <Container appearance={appearance?.elements?.Container}>
-                    <Progress appearance={appearance?.elements?.Progress} />
-                </Container>
-            </div>
-        )
-    } else if (submitted) {
+    if (submitted) {
         return (
             <div data-contain="component">
                 <Container appearance={appearance?.elements?.Container}>
                     {config && config.allowPublicSignups ? (
-                        <Paragraph>
+                        <Paragraph appearance={appearance?.elements?.SuccessText}>
                             {appearance?.options?.successMessage || PASSWORDLESS_LOGIN_SUBMITTED_PUBLIC}
                         </Paragraph>
                     ) : (
-                        <Paragraph>{appearance?.options?.successMessage || PASSWORDLESS_LOGIN_SUBMITTED}</Paragraph>
+                        <Paragraph appearance={appearance?.elements?.SuccessText}>
+                            {appearance?.options?.successMessage || PASSWORDLESS_LOGIN_SUBMITTED}
+                        </Paragraph>
                     )}
                 </Container>
             </div>
@@ -135,7 +135,9 @@ export const LoginPasswordless = ({ appearance }: LoginPasswordlessProps) => {
                 <div data-contain="form">
                     <form onSubmit={loginPasswordless}>
                         <div>
-                            <Label htmlFor="email">{appearance?.options?.emailLabel || "Email"}</Label>
+                            {!appearance?.options?.disableLabels && (
+                                <Label htmlFor="email">{appearance?.options?.emailLabel || "Email"}</Label>
+                            )}
                             <Input
                                 required
                                 id="email"
@@ -164,3 +166,5 @@ export const LoginPasswordless = ({ appearance }: LoginPasswordlessProps) => {
         </div>
     )
 }
+
+export default withConfig(LoginPasswordless)

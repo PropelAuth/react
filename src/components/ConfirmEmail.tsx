@@ -4,12 +4,8 @@ import { Container, ContainerProps } from "../elements/Container"
 import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
-import { useConfig } from "../useConfig"
+import { withConfig, WithConfigProps } from "../withConfig"
 import { CONFIRM_EMAIL_MESSAGE } from "./constants"
-
-export type ConfirmEmailProps = {
-    appearance?: ConfirmEmailAppearance
-}
 
 export type ConfirmEmailAppearance = {
     options?: {
@@ -24,10 +20,11 @@ export type ConfirmEmailAppearance = {
         Text?: ElementAppearance<ParagraphProps>
     }
 }
+type ConfirmEmailProps = {
+    appearance?: ConfirmEmailAppearance
+} & WithConfigProps
 
-export const ConfirmEmail = ({ appearance }: ConfirmEmailProps) => {
-    const { config } = useConfig()
-
+const ConfirmEmail = ({ appearance, config }: ConfirmEmailProps) => {
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
@@ -54,3 +51,5 @@ export const ConfirmEmail = ({ appearance }: ConfirmEmailProps) => {
         </div>
     )
 }
+
+export default withConfig(ConfirmEmail)

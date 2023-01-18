@@ -2,7 +2,7 @@ import React from "react"
 import { useAuthUrl } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Button, ButtonProps } from "../elements/Button"
-import { Config } from "../useConfig"
+import { Config } from "../withConfig"
 import { withHttp } from "./helpers"
 
 export type SignInOptionsProps = {

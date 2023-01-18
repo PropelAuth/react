@@ -9,15 +9,9 @@ import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
 import { useApi } from "../useApi"
-import { Config } from "../useConfig"
 import { useRedirectFunctions } from "../useRedirectFunctions"
+import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, NOT_FOUND_UPDATE_PASSWORD, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
-
-export type UpdatePasswordProps = {
-    config: Config | null
-    getLoginState: VoidFunction
-    appearance?: UpdatePasswordAppearance
-}
 
 export type UpdatePasswordAppearance = {
     options?: {
@@ -37,7 +31,12 @@ export type UpdatePasswordAppearance = {
     }
 }
 
-export const UpdatePassword = ({ config, getLoginState, appearance }: UpdatePasswordProps) => {
+type UpdatePasswordProps = {
+    onStepCompleted: VoidFunction
+    appearance?: UpdatePasswordAppearance
+} & WithConfigProps
+
+const UpdatePassword = ({ onStepCompleted, appearance, config }: UpdatePasswordProps) => {
     const { userApi, loginApi } = useApi()
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
@@ -47,13 +46,14 @@ export const UpdatePassword = ({ config, getLoginState, appearance }: UpdatePass
     async function handleSubmit(event: FormEvent) {
         try {
             event.preventDefault()
+            setError(undefined)
             setLoading(true)
             let options: PropelAuthFeV2.UpdatePasswordRequest = { password, xCsrfToken: X_CSRF_TOKEN }
             const res = await userApi.updatePassword(options)
             if (res.ok) {
                 const status = await loginApi.fetchLoginState()
                 if (status.ok) {
-                    getLoginState()
+                    onStepCompleted()
                 } else {
                     setError(UNEXPECTED_ERROR)
                 }
@@ -128,3 +128,5 @@ export const UpdatePassword = ({ config, getLoginState, appearance }: UpdatePass
         </div>
     )
 }
+
+export default withConfig(UpdatePassword)

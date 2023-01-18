@@ -4,8 +4,8 @@ import React, { useContext, useEffect, useState } from "react"
 import { Subtract } from "utility-types"
 import { AuthContext } from "./AuthContext"
 import { UNEXPECTED_ERROR } from "./components/constants"
+import { ErrorMessage, ErrorMessageAppearance } from "./components/ErrorMessage"
 import { Loading, LoadingAppearance } from "./components/Loading"
-import { UnexpectedError, UnexpectedErrorAppearance } from "./components/UnexpectedError"
 import { useApi } from "./useApi"
 
 export type Config = PropelAuthFeV2.AuthConfigurationResponse
@@ -17,7 +17,7 @@ export type WithConfigProps = {
 }
 
 export interface WithConfigArgs {
-    appearance?: LoadingAppearance & UnexpectedErrorAppearance
+    appearance?: LoadingAppearance & ErrorMessageAppearance
 }
 
 export function withConfig<P extends WithConfigProps>(
@@ -72,7 +72,7 @@ export function withConfig<P extends WithConfigProps>(
         if (loading) {
             return <Loading appearance={args?.appearance} />
         } else if (error) {
-            return <UnexpectedError appearance={args?.appearance} />
+            return <ErrorMessage appearance={args?.appearance} />
         } else {
             return <Component {...withConfigProps} />
         }

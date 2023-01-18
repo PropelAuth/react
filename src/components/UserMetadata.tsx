@@ -9,15 +9,9 @@ import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label } from "../elements/Label"
 import { useApi } from "../useApi"
-import { Config } from "../useConfig"
 import { useRedirectFunctions } from "../useRedirectFunctions"
+import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
-
-export type UserMetadataProps = {
-    config: Config | null
-    getLoginState: VoidFunction
-    appearance?: UserMetadataAppearance
-}
 
 export type UserMetadataAppearance = {
     options?: {
@@ -40,7 +34,12 @@ export type UserMetadataAppearance = {
     }
 }
 
-export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadataProps) => {
+type UserMetadataProps = {
+    onStepCompleted: VoidFunction
+    appearance?: UserMetadataAppearance
+} & WithConfigProps
+
+const UserMetadata = ({ onStepCompleted, appearance, config }: UserMetadataProps) => {
     const { userApi, loginApi } = useApi()
     const [loading, setLoading] = useState(false)
     const [firstName, setFirstName] = useState("")
@@ -52,11 +51,18 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
     const [error, setError] = useState<string | undefined>(undefined)
     const { redirectToLoginPage } = useRedirectFunctions()
 
+    const clearErrors = () => {
+        setFirstNameError(undefined)
+        setLastNameError(undefined)
+        setUsernameError(undefined)
+        setError(undefined)
+    }
+
     async function updateMetadata(e: SyntheticEvent) {
         try {
             e.preventDefault()
+            clearErrors()
             setLoading(true)
-            setError(undefined)
             const options: PropelAuthFeV2.UpdateUserFacingMetadataRequest = { xCsrfToken: X_CSRF_TOKEN }
             if (config && config.requireUsersToSetName) {
                 options.firstName = firstName
@@ -69,7 +75,7 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
             if (response.ok) {
                 const status = await loginApi.fetchLoginState()
                 if (status.ok) {
-                    getLoginState()
+                    onStepCompleted()
                 } else {
                     setError(UNEXPECTED_ERROR)
                 }
@@ -190,3 +196,5 @@ export const UserMetadata = ({ config, getLoginState, appearance }: UserMetadata
         </div>
     )
 }
+
+export default withConfig(UserMetadata)

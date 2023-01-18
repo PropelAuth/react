@@ -1,3 +1,4 @@
+import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { ReactNode, SyntheticEvent, useEffect, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -7,17 +8,13 @@ import { Container, ContainerProps } from "../elements/Container"
 import { H3 } from "../elements/H3"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
-import { Progress, ProgressProps } from "../elements/Progress"
+import { ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
-import { useConfig } from "../useConfig"
 import { useRedirectFunctions } from "../useRedirectFunctions"
+import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, ORG_CREATION_NOT_ENABLED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
-import { ActiveOrgInfo } from "./ManageOrg"
-
-export type CreateOrgProps = {
-    onOrgCreated: (org: ActiveOrgInfo) => void
-    appearance?: CreateOrgAppearance
-}
+import { ErrorMessage } from "./ErrorMessage"
+import { Loading } from "./Loading"
 
 export type CreateOrgAppearance = {
     options?: {
@@ -40,10 +37,20 @@ export type CreateOrgAppearance = {
     }
 }
 
-export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
+type OrgInfo = {
+    id: PropelAuthFeV2.OrgId
+    name: string
+}
+
+type CreateOrgProps = {
+    onOrgCreated: (org: OrgInfo) => void
+    appearance?: CreateOrgAppearance
+} & WithConfigProps
+
+const CreateOrg = ({ onOrgCreated, appearance, config }: CreateOrgProps) => {
     const { orgApi } = useApi()
-    const { configLoading, config } = useConfig()
     const [statusLoading, setStatusLoading] = useState(false)
+    const [statusError, setStatusError] = useState<string | undefined>(undefined)
     const [loading, setLoading] = useState(false)
     const [name, setName] = useState("")
     const [canUseDomainOptions, setCanUseDomainOptions] = useState(false)
@@ -54,9 +61,15 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
     const { redirectToLoginPage } = useRedirectFunctions()
     const orgMetaname = config?.orgsMetaname || "Organization"
 
+    const clearErrors = () => {
+        setStatusError(undefined)
+        setOrgNameError(undefined)
+        setError(undefined)
+    }
+
     useEffect(() => {
         let mounted = true
-        setError(undefined)
+        clearErrors()
         setStatusLoading(true)
         orgApi
             .fetchCreateOrgOptions()
@@ -66,15 +79,15 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
                         setCanUseDomainOptions(response.body.canUseDomainOptions)
                     } else {
                         response.error._visit({
-                            orgCreationNotEnabled: () => setError(ORG_CREATION_NOT_ENABLED),
+                            orgCreationNotEnabled: () => setStatusError(ORG_CREATION_NOT_ENABLED),
                             unauthorized: redirectToLoginPage,
-                            _other: () => setError(UNEXPECTED_ERROR),
+                            _other: () => setStatusError(UNEXPECTED_ERROR),
                         })
                     }
                 }
             })
             .catch((e) => {
-                setError(UNEXPECTED_ERROR)
+                setStatusError(UNEXPECTED_ERROR)
                 console.error(e)
             })
             .finally(() => setStatusLoading(false))
@@ -87,8 +100,8 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
     async function createOrg(e: SyntheticEvent) {
         try {
             e.preventDefault()
+            clearErrors()
             setLoading(true)
-            setError(undefined)
             const options = { name, autojoinByDomain, restrictToDomain, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgApi.createOrg(options)
             if (response.ok) {
@@ -120,14 +133,10 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
         }
     }
 
-    if (configLoading || statusLoading) {
-        return (
-            <div data-contain="component">
-                <Container appearance={appearance?.elements?.Container}>
-                    <Progress appearance={appearance?.elements?.Progress} />
-                </Container>
-            </div>
-        )
+    if (statusLoading) {
+        return <Loading appearance={appearance} />
+    } else if (statusError) {
+        return <ErrorMessage errorMessage={statusError} appearance={appearance} />
     }
 
     return (
@@ -193,3 +202,5 @@ export const CreateOrg = ({ onOrgCreated, appearance }: CreateOrgProps) => {
         </div>
     )
 }
+
+export default withConfig(CreateOrg)
