@@ -12,12 +12,12 @@ import Verify, { VerifyAppearance } from "./Verify"
 
 export type LoginManagerProps = {
     onFinish: VoidFunction
-    loginAppearance: LoginAppearance
-    confirmEmailAppearance: ConfirmEmailAppearance
-    verifyAppearance: VerifyAppearance
-    userMetadataAppearance: UserMetadataAppearance
-    updatePasswordAppearance: UpdatePasswordAppearance
-    createOrgAppearance: CreateOrgAppearance
+    loginAppearance?: LoginAppearance
+    confirmEmailAppearance?: ConfirmEmailAppearance
+    verifyAppearance?: VerifyAppearance
+    userMetadataAppearance?: UserMetadataAppearance
+    updatePasswordAppearance?: UpdatePasswordAppearance
+    createOrgAppearance?: CreateOrgAppearance
     loginStateOverride?: PropelAuthFeV2.LoginStateEnum
 }
 
