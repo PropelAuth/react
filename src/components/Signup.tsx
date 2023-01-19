@@ -12,7 +12,7 @@ import { Label } from "../elements/Label"
 import { useApi } from "../useApi"
 import { Config, withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, SIGNUP_NOT_ALLOWED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
-import { SignInDivider } from "./SignInDivider"
+import { OrDivider } from "./OrDivider"
 import { SignInOptions } from "./SignInOptions"
 
 export type SignupAppearance = {
@@ -75,10 +75,7 @@ const Signup = ({ onSuccess, appearance, config }: SignupProps) => {
                     config.hasPasswordLogin &&
                     config.hasAnyNonPasswordLogin &&
                     appearance?.options?.divider !== false && (
-                        <SignInDivider
-                            appearance={appearance?.elements?.Divider}
-                            options={appearance?.options?.divider}
-                        />
+                        <OrDivider appearance={appearance?.elements?.Divider} options={appearance?.options?.divider} />
                     )}
                 {config && config.hasPasswordLogin && (
                     <SignupForm config={config} onSuccess={onSuccess} appearance={appearance} />

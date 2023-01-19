@@ -2,14 +2,9 @@ import { useContext } from "react"
 import { useAuthUrl } from "./additionalHooks"
 import { AuthContext } from "./AuthContext"
 
-interface SuccessfulResponse {
+interface SuccessfulImageResponse {
     success: true
     pictureUrl: string
-}
-
-interface UnexpectedErrorResponse {
-    success: false
-    error_type: "unexpected_error"
 }
 
 interface BadImageResponse {
@@ -18,7 +13,12 @@ interface BadImageResponse {
     message: string
 }
 
-type UploadProfilePictureResponse = SuccessfulResponse | BadImageResponse | UnexpectedErrorResponse
+interface UnexpectedErrorResponse {
+    success: false
+    error_type: "unexpected_error"
+}
+
+type UploadProfilePictureResponse = SuccessfulImageResponse | BadImageResponse | UnexpectedErrorResponse
 
 export const useLegacyApi = () => {
     const { authUrl } = useAuthUrl()

@@ -5,24 +5,37 @@ import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
 import { Checkbox, CheckboxProps } from "../elements/Checkbox"
 import { Container, ContainerProps } from "../elements/Container"
+import { DividerProps } from "../elements/Divider"
 import { H3 } from "../elements/H3"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
 import { ProgressProps } from "../elements/Progress"
+import { Select, SelectProps } from "../elements/Select"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
-import { BAD_REQUEST, ORG_CREATION_NOT_ENABLED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import {
+    BAD_REQUEST,
+    NOT_FOUND_JOINABLE_ORG,
+    NOT_FOUND_JOIN_ORG,
+    ORG_CREATION_NOT_ENABLED,
+    UNEXPECTED_ERROR,
+    X_CSRF_TOKEN,
+} from "./constants"
 import { ErrorMessage } from "./ErrorMessage"
 import { Loading } from "./Loading"
+import { OrDivider } from "./OrDivider"
 
 export type CreateOrgAppearance = {
     options?: {
         headerContent?: ReactNode
+        divider?: ReactNode | boolean
         orgNameLabel?: ReactNode
         autojoinByDomainLabel?: ReactNode
         restrictToDomainLabel?: ReactNode
-        submitButtonContent?: ReactNode
+        createOrgButtonContent?: ReactNode
+        joinOrgLabel?: ReactNode
+        joinOrgButtonContent?: ReactNode
     }
     elements?: {
         Progress?: ElementAppearance<ProgressProps>
@@ -32,7 +45,11 @@ export type CreateOrgAppearance = {
         OrgNameInput?: ElementAppearance<InputProps>
         AutojoinByDomainCheckbox?: ElementAppearance<CheckboxProps>
         RestrictToDomainCheckbox?: ElementAppearance<CheckboxProps>
-        SubmitButton?: ElementAppearance<ButtonProps>
+        CreateOrgButton?: ElementAppearance<ButtonProps>
+        JoinOrgLabel?: ElementAppearance<LabelProps>
+        JoinOrgSelect?: ElementAppearance<SelectProps>
+        JoinOrgButton?: ElementAppearance<ButtonProps>
+        Divider?: ElementAppearance<DividerProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
@@ -43,11 +60,11 @@ type OrgInfo = {
 }
 
 type CreateOrgProps = {
-    onOrgCreated: (org: OrgInfo) => void
+    onOrgCreatedOrJoined: (org: OrgInfo) => void
     appearance?: CreateOrgAppearance
 } & WithConfigProps
 
-const CreateOrg = ({ onOrgCreated, appearance, config }: CreateOrgProps) => {
+const CreateOrg = ({ onOrgCreatedOrJoined, appearance, config }: CreateOrgProps) => {
     const { orgApi } = useApi()
     const [statusLoading, setStatusLoading] = useState(false)
     const [statusError, setStatusError] = useState<string | undefined>(undefined)
@@ -56,13 +73,13 @@ const CreateOrg = ({ onOrgCreated, appearance, config }: CreateOrgProps) => {
     const [canUseDomainOptions, setCanUseDomainOptions] = useState(false)
     const [autojoinByDomain, setAutojoinByDomain] = useState(false)
     const [restrictToDomain, setRestrictToDomain] = useState(false)
+    const [existingDomain, setExistingDomain] = useState("")
     const [orgNameError, setOrgNameError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
     const { redirectToLoginPage } = useRedirectFunctions()
     const orgMetaname = config?.orgsMetaname || "Organization"
-    const domain = "@todo.com" // TODO
-    const autojoinByDomainText = `Any user with an ${domain} email can join without approval.`
-    const restrictToDomainText = `Users without an ${domain} email cannot be invited.`
+    const autojoinByDomainText = `Any user with an @${existingDomain} email can join without approval.`
+    const restrictToDomainText = `Users without an @${existingDomain} email cannot be invited.`
 
     const clearErrors = () => {
         setStatusError(undefined)
@@ -79,6 +96,7 @@ const CreateOrg = ({ onOrgCreated, appearance, config }: CreateOrgProps) => {
             .then((response) => {
                 if (mounted) {
                     if (response.ok) {
+                        // setExistingDomain(response.body.existingDomain) TODO
                         setCanUseDomainOptions(response.body.canUseDomainOptions)
                     } else {
                         response.error._visit({
@@ -108,7 +126,7 @@ const CreateOrg = ({ onOrgCreated, appearance, config }: CreateOrgProps) => {
             const options = { name, autojoinByDomain, restrictToDomain, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgApi.createOrg(options)
             if (response.ok) {
-                onOrgCreated({ id: response.body.orgId, name })
+                onOrgCreatedOrJoined({ id: response.body.orgId, name })
             } else {
                 response.error._visit({
                     orgCreationNotEnabled: () => setError(ORG_CREATION_NOT_ENABLED),
@@ -191,8 +209,8 @@ const CreateOrg = ({ onOrgCreated, appearance, config }: CreateOrgProps) => {
                                 disabled={canUseDomainOptions}
                             />
                         </div>
-                        <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>
-                            {appearance?.options?.submitButtonContent || `Create ${orgMetaname}`}
+                        <Button loading={loading} appearance={appearance?.elements?.CreateOrgButton}>
+                            {appearance?.options?.createOrgButtonContent || `Create ${orgMetaname}`}
                         </Button>
                         {error && (
                             <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
@@ -201,8 +219,136 @@ const CreateOrg = ({ onOrgCreated, appearance, config }: CreateOrgProps) => {
                         )}
                     </form>
                 </div>
+                <JoinableOrgs
+                    orgMetaname={orgMetaname}
+                    onOrgCreatedOrJoined={onOrgCreatedOrJoined}
+                    appearance={appearance}
+                />
             </Container>
         </div>
+    )
+}
+
+type JoinableOrgsProps = {
+    orgMetaname: string
+    onOrgCreatedOrJoined: (org: OrgInfo) => void
+    appearance?: CreateOrgAppearance
+}
+
+const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: JoinableOrgsProps) => {
+    const { orgApi } = useApi()
+    const [joinableOrgs, setJoinableOrgs] = useState<PropelAuthFeV2.OrgInfoResponse[]>([])
+    const [selectedOrgId, setSelectedOrgId] = useState<string>("")
+    const [fetchLoading, setFetchLoading] = useState(false)
+    const [fetchError, setFetchError] = useState<string | undefined>(undefined)
+    const [joinLoading, setJoinLoading] = useState(false)
+    const [joinError, setJoinError] = useState<string | undefined>(undefined)
+    const { redirectToLoginPage } = useRedirectFunctions()
+    const joinOrgText = `Select the ${orgMetaname.toLowerCase()} you'd like to join. Based on your email address, you can join:`
+
+    const clearErrors = () => {
+        setFetchError(undefined)
+        setJoinError(undefined)
+    }
+
+    useEffect(() => {
+        let mounted = true
+        clearErrors()
+        setFetchLoading(true)
+        orgApi
+            .joinableOrgs()
+            .then((response) => {
+                if (mounted) {
+                    if (response.ok) {
+                        setJoinableOrgs(response.body.orgs)
+                    } else {
+                        response.error._visit({
+                            notFoundJoinableOrgs: () => setFetchError(NOT_FOUND_JOINABLE_ORG),
+                            unauthorized: redirectToLoginPage,
+                            _other: () => setFetchError(UNEXPECTED_ERROR),
+                        })
+                    }
+                }
+            })
+            .catch((e) => {
+                setFetchError(UNEXPECTED_ERROR)
+                console.error(e)
+            })
+            .finally(() => setFetchLoading(false))
+
+        return () => {
+            mounted = false
+        }
+    }, [])
+
+    async function joinOrg(e: SyntheticEvent) {
+        try {
+            e.preventDefault()
+            clearErrors()
+            setJoinLoading(true)
+            if (!selectedOrgId) {
+                setJoinError(`Please select ${orgMetaname} to join.`)
+                return
+            }
+            const response = await orgApi.joinOrg({
+                orgId: selectedOrgId,
+                xCsrfToken: X_CSRF_TOKEN,
+            })
+            if (response.ok) {
+                const selectedOrg = joinableOrgs.find((org) => org.id === selectedOrgId)
+                onOrgCreatedOrJoined(selectedOrg as PropelAuthFeV2.OrgInfoResponse)
+            } else {
+                response.error._visit({
+                    notFoundJoinOrg: () => setJoinError(NOT_FOUND_JOIN_ORG),
+                    badRequestJoinOrg: () => setJoinError(BAD_REQUEST),
+                    unauthorized: redirectToLoginPage,
+                    _other: () => setJoinError(UNEXPECTED_ERROR),
+                })
+            }
+        } catch (e) {
+            setJoinError(UNEXPECTED_ERROR)
+            console.error(e)
+        } finally {
+            setJoinLoading(false)
+        }
+    }
+
+    if (fetchLoading || joinableOrgs.length <= 0) {
+        return null
+    } else if (fetchError) {
+        return <ErrorMessage errorMessage={fetchError} appearance={appearance} />
+    }
+
+    return (
+        <>
+            <OrDivider appearance={appearance?.elements?.Divider} options={appearance?.options?.divider} />
+            <div data-contain="form">
+                <form onSubmit={joinOrg}>
+                    <div>
+                        <Label appearance={appearance?.elements?.JoinOrgLabel} htmlFor="org">
+                            {appearance?.options?.joinOrgLabel || joinOrgText}
+                        </Label>
+                        <Select
+                            id={"org"}
+                            value={selectedOrgId}
+                            onChange={(e) => setSelectedOrgId(e.target.value)}
+                            appearance={appearance?.elements?.JoinOrgSelect}
+                            options={joinableOrgs.map((org) => {
+                                return { label: org.name, value: org.id }
+                            })}
+                        />
+                        <Button loading={joinLoading} appearance={appearance?.elements?.JoinOrgButton}>
+                            {appearance?.options?.joinOrgButtonContent || `Join ${orgMetaname}`}
+                        </Button>
+                        {joinError && (
+                            <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                {joinError}
+                            </Alert>
+                        )}
+                    </div>
+                </form>
+            </div>
+        </>
     )
 }
 

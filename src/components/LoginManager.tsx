@@ -18,6 +18,7 @@ export type LoginManagerProps = {
     userMetadataAppearance: UserMetadataAppearance
     updatePasswordAppearance: UpdatePasswordAppearance
     createOrgAppearance: CreateOrgAppearance
+    loginStateOverride?: PropelAuthFeV2.LoginStateEnum
 }
 
 const LoginManager = ({
@@ -28,6 +29,7 @@ const LoginManager = ({
     userMetadataAppearance,
     updatePasswordAppearance,
     createOrgAppearance,
+    loginStateOverride,
 }: LoginManagerProps) => {
     const { loginStateLoading, loginStateError, loginState, getLoginState } = useLoginState()
 
@@ -43,25 +45,42 @@ const LoginManager = ({
         return <ErrorMessage errorMessage={loginStateError} appearance={loginAppearance} />
     }
 
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+        if (loginStateOverride) {
+            switch (loginState) {
+                case PropelAuthFeV2.LoginStateEnum.LoginRequired:
+                    return <Login onStepCompleted={() => getLoginState()} appearance={loginAppearance} />
+                case PropelAuthFeV2.LoginStateEnum.ConfirmEmailRequired:
+                    return <ConfirmEmail appearance={confirmEmailAppearance} />
+                case PropelAuthFeV2.LoginStateEnum.TwoFactorRequired:
+                    return <Verify onStepCompleted={() => getLoginState()} appearance={verifyAppearance} />
+                case PropelAuthFeV2.LoginStateEnum.UserMetadataRequired:
+                    return <UserMetadata onStepCompleted={() => getLoginState()} appearance={userMetadataAppearance} />
+                case PropelAuthFeV2.LoginStateEnum.UpdatePasswordRequired:
+                    return (
+                        <UpdatePassword onStepCompleted={() => getLoginState()} appearance={updatePasswordAppearance} />
+                    )
+                case PropelAuthFeV2.LoginStateEnum.OrgCreationRequired:
+                    return <CreateOrg onOrgCreatedOrJoined={() => getLoginState()} appearance={createOrgAppearance} />
+                default:
+                    return <Loading appearance={loginAppearance} />
+            }
+        }
+    }
+
     switch (loginState) {
         case PropelAuthFeV2.LoginStateEnum.LoginRequired:
             return <Login onStepCompleted={() => getLoginState()} appearance={loginAppearance} />
-
         case PropelAuthFeV2.LoginStateEnum.ConfirmEmailRequired:
             return <ConfirmEmail appearance={confirmEmailAppearance} />
-
         case PropelAuthFeV2.LoginStateEnum.TwoFactorRequired:
             return <Verify onStepCompleted={() => getLoginState()} appearance={verifyAppearance} />
-
         case PropelAuthFeV2.LoginStateEnum.UserMetadataRequired:
             return <UserMetadata onStepCompleted={() => getLoginState()} appearance={userMetadataAppearance} />
-
         case PropelAuthFeV2.LoginStateEnum.UpdatePasswordRequired:
             return <UpdatePassword onStepCompleted={() => getLoginState()} appearance={updatePasswordAppearance} />
-
         case PropelAuthFeV2.LoginStateEnum.OrgCreationRequired:
-            return <CreateOrg onOrgCreated={() => getLoginState()} appearance={createOrgAppearance} />
-
+            return <CreateOrg onOrgCreatedOrJoined={() => getLoginState()} appearance={createOrgAppearance} />
         default:
             return <Loading appearance={loginAppearance} />
     }

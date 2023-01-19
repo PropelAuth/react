@@ -12,7 +12,7 @@ import { ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, NO_ACCOUNT_FOUND_WITH_CREDENTIALS, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
-import { SignInDivider } from "./SignInDivider"
+import { OrDivider } from "./OrDivider"
 import { SignInOptions } from "./SignInOptions"
 
 export type LoginAppearance = {
@@ -130,10 +130,7 @@ const Login = ({ onStepCompleted, appearance, config }: LoginProps) => {
                     config.hasPasswordLogin &&
                     config.hasAnyNonPasswordLogin &&
                     appearance?.options?.divider !== false && (
-                        <SignInDivider
-                            appearance={appearance?.elements?.Divider}
-                            options={appearance?.options?.divider}
-                        />
+                        <OrDivider appearance={appearance?.elements?.Divider} options={appearance?.options?.divider} />
                     )}
                 {config && config.hasPasswordLogin && (
                     <div data-contain="form">
