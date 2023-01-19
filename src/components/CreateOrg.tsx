@@ -60,6 +60,9 @@ const CreateOrg = ({ onOrgCreated, appearance, config }: CreateOrgProps) => {
     const [error, setError] = useState<string | undefined>(undefined)
     const { redirectToLoginPage } = useRedirectFunctions()
     const orgMetaname = config?.orgsMetaname || "Organization"
+    const domain = "@todo.com" // TODO
+    const autojoinByDomainText = `Any user with an ${domain} email can join without approval.`
+    const restrictToDomainText = `Users without an ${domain} email cannot be invited.`
 
     const clearErrors = () => {
         setStatusError(undefined)
@@ -151,7 +154,7 @@ const CreateOrg = ({ onOrgCreated, appearance, config }: CreateOrgProps) => {
                     <form onSubmit={createOrg}>
                         <div>
                             <Label appearance={appearance?.elements?.OrgNameLabel} htmlFor="org_name">
-                                {appearance?.options?.orgNameLabel || orgMetaname + " name"}
+                                {`What's the name of your ${orgMetaname.toLowerCase()}?`}
                             </Label>
                             <Input
                                 id={"org_name"}
@@ -171,7 +174,7 @@ const CreateOrg = ({ onOrgCreated, appearance, config }: CreateOrgProps) => {
                         <div>
                             <Checkbox
                                 id={"autojoin_by_domain"}
-                                label={appearance?.options?.autojoinByDomainLabel || "Auto-join by domain"}
+                                label={appearance?.options?.autojoinByDomainLabel || autojoinByDomainText}
                                 checked={autojoinByDomain}
                                 onChange={(e) => setAutojoinByDomain(e.target.checked)}
                                 appearance={appearance?.elements?.AutojoinByDomainCheckbox}
@@ -181,7 +184,7 @@ const CreateOrg = ({ onOrgCreated, appearance, config }: CreateOrgProps) => {
                         <div>
                             <Checkbox
                                 id={"restrict_to_domain"}
-                                label={appearance?.options?.restrictToDomainLabel || "Restrict to domain"}
+                                label={appearance?.options?.restrictToDomainLabel || restrictToDomainText}
                                 checked={restrictToDomain}
                                 onChange={(e) => setRestrictToDomain(e.target.checked)}
                                 appearance={appearance?.elements?.RestrictToDomainCheckbox}
