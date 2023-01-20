@@ -25,7 +25,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonPropsWithAppearance>((
         element: appearance.elements?.Button,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override
                 loading={props.loading}

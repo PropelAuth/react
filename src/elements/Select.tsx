@@ -35,7 +35,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectPropsWithAppearance>((
         element: appearance.elements?.Select,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override
                 value={props.value}

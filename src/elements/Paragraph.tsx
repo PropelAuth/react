@@ -21,7 +21,9 @@ export const Paragraph = forwardRef<HTMLParagraphElement, ParagraphPropsWithAppe
         element: appearance.elements?.Paragraph,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override className={classes} style={styles}>
                 {props.children}

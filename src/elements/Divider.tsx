@@ -21,7 +21,9 @@ export const Divider = forwardRef<HTMLDivElement, DividerPropsWithAppearance>((p
         element: appearance.elements?.Divider,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override className={classes} style={styles}>
                 {props.children}

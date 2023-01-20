@@ -21,7 +21,9 @@ export const H5 = forwardRef<HTMLHeadingElement, H5PropsWithAppearance>((props, 
         element: appearance.elements?.H5,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override className={classes} style={styles}>
                 {props.children}

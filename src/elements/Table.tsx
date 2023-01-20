@@ -28,7 +28,9 @@ export const Table = forwardRef<HTMLTableElement, TablePropsWithAppearance>((pro
         element: appearance.elements?.Table,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return <Override columns={props.columns} rows={props.rows} className={classes} style={styles} />
     }
 

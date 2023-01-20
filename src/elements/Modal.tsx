@@ -24,7 +24,9 @@ export const Modal = (props: ModalPropsWithAppearance) => {
         element: appearance.elements?.Modal,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override
                 show={props.show}

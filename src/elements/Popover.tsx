@@ -25,7 +25,9 @@ export const Popover = (props: PopoverPropsWithAppearance) => {
         element: appearance.elements?.Popover,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override
                 referenceElement={props.referenceElement}

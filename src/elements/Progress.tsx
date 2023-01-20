@@ -20,7 +20,9 @@ export const Progress = forwardRef<HTMLSpanElement, ProgressPropsWithAppearance>
         element: appearance.elements?.Progress,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return <Override className={classes} style={styles} />
     }
 

@@ -22,7 +22,9 @@ export const Label = forwardRef<HTMLLabelElement, LabelPropsWithAppearance>((pro
         element: appearance.elements?.Label,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override htmlFor={props.htmlFor} className={classes} style={styles}>
                 {props.children}

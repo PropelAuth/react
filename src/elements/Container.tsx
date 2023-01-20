@@ -21,7 +21,9 @@ export const Container = forwardRef<HTMLDivElement, ContainerPropsWithAppearance
         element: appearance.elements?.Container,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return <>{props.children}</>
+    } else if (Override) {
         return (
             <Override className={classes} style={styles}>
                 {props.children}

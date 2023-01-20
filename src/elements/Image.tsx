@@ -22,7 +22,9 @@ export const Image = forwardRef<HTMLImageElement, ImagePropsWithAppearance>((pro
         element: appearance.elements?.Image,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return <Override src={props.src} alt={props.alt} className={classes} style={styles} />
     }
 

@@ -22,7 +22,9 @@ export const Alert = forwardRef<HTMLDivElement, AlertPropsWithAppearance>((props
         element: appearance.elements?.Alert,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override type={props.type} className={classes} style={styles}>
                 {props.children}

@@ -26,7 +26,9 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxPropsWithAppearance
         element: appearance.elements?.Checkbox,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override
                 id={props.id}

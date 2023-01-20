@@ -22,7 +22,9 @@ export const Link = forwardRef<HTMLAnchorElement, LinkPropsWithAppearance>((prop
         element: appearance.elements?.Link,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override href={props.href} className={classes} style={styles}>
                 {props.children}

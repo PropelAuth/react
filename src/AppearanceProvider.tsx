@@ -18,9 +18,9 @@ import { ProgressProps } from "./elements/Progress"
 import { SelectProps } from "./elements/Select"
 import { TableProps } from "./elements/Table"
 
-export type Element<T> = (props: T) => JSX.Element
+export type Element<T> = ((props: T) => JSX.Element) | null
 
-export type ElementAppearance<T> = string | CSSProperties | Element<T>
+export type ElementAppearance<T> = string | CSSProperties | Element<T> | null
 
 export type Appearance = {
     elements?: {

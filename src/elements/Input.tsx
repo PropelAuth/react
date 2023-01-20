@@ -28,7 +28,9 @@ export const Input = forwardRef<HTMLInputElement, InputPropsWithAppearance>((pro
         element: appearance.elements?.Input,
     })
 
-    if (Override) {
+    if (Override === null) {
+        return null
+    } else if (Override) {
         return (
             <Override
                 id={props.id}
