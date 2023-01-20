@@ -7,27 +7,26 @@ import { Container, ContainerProps } from "../elements/Container"
 import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
-import { Label } from "../elements/Label"
+import { Label, LabelProps } from "../elements/Label"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
-export type UserMetadataAppearance = {
+export type CompleteAccountAppearance = {
     options?: {
-        headerContent?: ReactNode
         displayLogo?: boolean
-        firstNameLabel?: ReactNode
-        lastNameLabel?: ReactNode
-        usernameLabel?: ReactNode
-        SubmitButtonContent?: ReactNode
+        submitButtonText?: ReactNode
     }
     elements?: {
         Container?: ElementAppearance<ContainerProps>
         Header?: ElementAppearance<H3Props>
         Logo?: ElementAppearance<ImageProps>
+        FirstNameLabel?: ElementAppearance<LabelProps>
         FirstNameInput?: ElementAppearance<InputProps>
+        LastNameLabel?: ElementAppearance<LabelProps>
         LastNameInput?: ElementAppearance<InputProps>
+        UsernameLabel?: ElementAppearance<LabelProps>
         UsernameInput?: ElementAppearance<InputProps>
         SubmitButton?: ElementAppearance<ButtonProps>
         ErrorMessage?: ElementAppearance<AlertProps>
@@ -36,10 +35,10 @@ export type UserMetadataAppearance = {
 
 type UserMetadataProps = {
     onStepCompleted: VoidFunction
-    appearance?: UserMetadataAppearance
+    appearance?: CompleteAccountAppearance
 } & WithConfigProps
 
-const UserMetadata = ({ onStepCompleted, appearance, config }: UserMetadataProps) => {
+const CompleteAccount = ({ onStepCompleted, appearance, config }: UserMetadataProps) => {
     const { userApi, loginApi } = useApi()
     const [loading, setLoading] = useState(false)
     const [firstName, setFirstName] = useState("")
@@ -111,7 +110,7 @@ const UserMetadata = ({ onStepCompleted, appearance, config }: UserMetadataProps
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                {appearance?.options?.displayLogo && config && (
+                {appearance?.options?.displayLogo && (
                     <div data-contain="logo">
                         <Image
                             src={config.logoUrl}
@@ -121,17 +120,15 @@ const UserMetadata = ({ onStepCompleted, appearance, config }: UserMetadataProps
                     </div>
                 )}
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>
-                        {appearance?.options?.headerContent || "Complete your account"}
-                    </H3>
+                    <H3 appearance={appearance?.elements?.Header}>Complete your account</H3>
                 </div>
                 <div data-contain="form">
                     <form onSubmit={updateMetadata}>
-                        {config && config.requireUsersToSetName && (
+                        {config.requireUsersToSetName && (
                             <>
                                 <div>
-                                    <Label htmlFor="first_name">
-                                        {appearance?.options?.firstNameLabel || "First name"}
+                                    <Label htmlFor="first_name" appearance={appearance?.elements?.FirstNameLabel}>
+                                        First name
                                     </Label>
                                     <Input
                                         id={"first_name"}
@@ -147,8 +144,8 @@ const UserMetadata = ({ onStepCompleted, appearance, config }: UserMetadataProps
                                     )}
                                 </div>
                                 <div>
-                                    <Label htmlFor="last_name">
-                                        {appearance?.options?.lastNameLabel || "Last name"}
+                                    <Label htmlFor="last_name" appearance={appearance?.elements?.LastNameLabel}>
+                                        Last name
                                     </Label>
                                     <Input
                                         id={"last_name"}
@@ -165,9 +162,11 @@ const UserMetadata = ({ onStepCompleted, appearance, config }: UserMetadataProps
                                 </div>
                             </>
                         )}
-                        {config && config.requireUsersToSetUsername && (
+                        {config.requireUsersToSetUsername && (
                             <div>
-                                <Label htmlFor="username">{appearance?.options?.usernameLabel || "Username"}</Label>
+                                <Label htmlFor="username" appearance={appearance?.elements?.UsernameLabel}>
+                                    Username
+                                </Label>
                                 <Input
                                     id={"username"}
                                     type={"text"}
@@ -183,7 +182,7 @@ const UserMetadata = ({ onStepCompleted, appearance, config }: UserMetadataProps
                             </div>
                         )}
                         <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>
-                            {appearance?.options?.SubmitButtonContent || "Continue"}
+                            {appearance?.options?.submitButtonText || "Continue"}
                         </Button>
                         {error && (
                             <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
@@ -197,4 +196,4 @@ const UserMetadata = ({ onStepCompleted, appearance, config }: UserMetadataProps
     )
 }
 
-export default withConfig(UserMetadata)
+export default withConfig(CompleteAccount)

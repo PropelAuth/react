@@ -1,17 +1,18 @@
 import React from "react"
 import { useAuthUrl } from "../additionalHooks"
-import { ElementAppearance } from "../AppearanceProvider"
-import { Button, ButtonProps } from "../elements/Button"
+import { Button } from "../elements/Button"
 import { Config } from "../withConfig"
 import { withHttp } from "./helpers"
+import { LoginAppearance } from "./Login"
+import { SignupAppearance } from "./Signup"
 
 export type SignInOptionsProps = {
-    config: Config | null
-    onRedirectToLoginPasswordless?: VoidFunction
-    buttonAppearance?: ElementAppearance<ButtonProps>
+    config: Config
+    onRedirectToPasswordlessLogin?: VoidFunction
+    appearance?: LoginAppearance | SignupAppearance
 }
 
-export const SignInOptions = ({ config, onRedirectToLoginPasswordless, buttonAppearance }: SignInOptionsProps) => {
+export const SignInOptions = ({ config, onRedirectToPasswordlessLogin, appearance }: SignInOptionsProps) => {
     const { authUrl } = useAuthUrl()
     const GOOGLE_LOGIN_PATH = "/google/login"
     const GITHUB_LOGIN_PATH = "/github/login"
@@ -20,8 +21,8 @@ export const SignInOptions = ({ config, onRedirectToLoginPasswordless, buttonApp
     const LINKEDIN_LOGIN_PATH = "/linkedin/login"
 
     function loginWithPasswordless() {
-        onRedirectToLoginPasswordless
-            ? onRedirectToLoginPasswordless()
+        onRedirectToPasswordlessLogin
+            ? onRedirectToPasswordlessLogin()
             : console.error("No passwordless login URL specified.")
     }
 
@@ -32,38 +33,56 @@ export const SignInOptions = ({ config, onRedirectToLoginPasswordless, buttonApp
 
     return (
         <div data-contain="social_buttons">
-            {config && config.hasGoogleLogin && (
-                <Button onClick={() => loginWithSocial(GOOGLE_LOGIN_PATH)} appearance={buttonAppearance}>
+            {config.hasGoogleLogin && (
+                <Button
+                    onClick={() => loginWithSocial(GOOGLE_LOGIN_PATH)}
+                    appearance={appearance?.elements?.SocialButton}
+                >
                     <GoogleLogo />
                     <span>Sign in with Google</span>
                 </Button>
             )}
-            {config && config.hasGithubLogin && (
-                <Button onClick={() => loginWithSocial(GITHUB_LOGIN_PATH)} appearance={buttonAppearance}>
+            {config.hasGithubLogin && (
+                <Button
+                    onClick={() => loginWithSocial(GITHUB_LOGIN_PATH)}
+                    appearance={appearance?.elements?.SocialButton}
+                >
                     <GithubLogo />
                     <span>Sign in with Github</span>
                 </Button>
             )}
-            {config && config.hasSlackLogin && (
-                <Button onClick={() => loginWithSocial(SLACK_LOGIN_PATH)} appearance={buttonAppearance}>
+            {config.hasSlackLogin && (
+                <Button
+                    onClick={() => loginWithSocial(SLACK_LOGIN_PATH)}
+                    appearance={appearance?.elements?.SocialButton}
+                >
                     <SlackLogo />
                     <span>Sign in with Slack</span>
                 </Button>
             )}
-            {config && config.hasMicrosoftLogin && (
-                <Button onClick={() => loginWithSocial(MICROSOFT_LOGIN_PATH)} appearance={buttonAppearance}>
+            {config.hasMicrosoftLogin && (
+                <Button
+                    onClick={() => loginWithSocial(MICROSOFT_LOGIN_PATH)}
+                    appearance={appearance?.elements?.SocialButton}
+                >
                     <MicrosoftLogo />
                     <span>Sign in with Microsoft</span>
                 </Button>
             )}
-            {config && config.hasLinkedinLogin && (
-                <Button onClick={() => loginWithSocial(LINKEDIN_LOGIN_PATH)} appearance={buttonAppearance}>
+            {config.hasLinkedinLogin && (
+                <Button
+                    onClick={() => loginWithSocial(LINKEDIN_LOGIN_PATH)}
+                    appearance={appearance?.elements?.SocialButton}
+                >
                     <LinkedinLogo />
                     <span>Sign in with LinkedIn</span>
                 </Button>
             )}
-            {config && config.hasPasswordlessLogin && (
-                <Button onClick={() => loginWithPasswordless()} appearance={buttonAppearance}>
+            {config.hasPasswordlessLogin && (
+                <Button
+                    onClick={() => loginWithPasswordless()}
+                    appearance={appearance?.elements?.RedirectToPasswordlessLoginButton}
+                >
                     <PasswordlessLogo />
                     <span>Sign in with Magic Link</span>
                 </Button>

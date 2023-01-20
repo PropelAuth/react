@@ -6,7 +6,7 @@ import { Container, ContainerProps } from "../elements/Container"
 import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
-import { Label } from "../elements/Label"
+import { Label, LabelProps } from "../elements/Label"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
@@ -26,34 +26,32 @@ export type ForgotPasswordAppearance = {
     options?: {
         headerContent?: ReactNode
         displayLogo?: boolean
-        disableLabels?: boolean
-        emailLabel?: ReactNode
-        resetPasswordButtonContent?: ReactNode
-        magicLinkButtonContent?: ReactNode
-        backButtonContent?: ReactNode
-        redirectToLoginFunction?: VoidFunction
+        resetPasswordButtonText?: ReactNode
+        magicLinkButtonText?: ReactNode
     }
     elements?: {
         Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>
-        SuccessText?: ElementAppearance<ParagraphProps>
+        SuccessMessage?: ElementAppearance<ParagraphProps>
         InstructionsText?: ElementAppearance<ParagraphProps>
+        EmailLabel?: ElementAppearance<LabelProps>
         EmailInput?: ElementAppearance<InputProps>
         PasswordInput?: ElementAppearance<InputProps>
         SubmitButton?: ElementAppearance<ButtonProps>
         MagicLinkButton?: ElementAppearance<ButtonProps>
-        LoginButton?: ElementAppearance<ButtonProps>
+        RedirectToLoginLink?: ElementAppearance<ButtonProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
 
 export type ForgotPasswordProps = {
+    onRedirectToLogin?: VoidFunction
     appearance?: ForgotPasswordAppearance
 } & WithConfigProps
 
-const ForgotPassword = ({ appearance, config }: ForgotPasswordProps) => {
+const ForgotPassword = ({ onRedirectToLogin, appearance, config }: ForgotPasswordProps) => {
     const { loginApi } = useApi()
     const [email, setEmail] = useState("")
     const [emailError, setEmailError] = useState<string | undefined>(undefined)
@@ -131,7 +129,7 @@ const ForgotPassword = ({ appearance, config }: ForgotPasswordProps) => {
         return (
             <div data-contain="component">
                 <Container appearance={appearance?.elements?.Container}>
-                    {appearance?.options?.displayLogo && config && (
+                    {appearance?.options?.displayLogo && (
                         <div data-contain="logo">
                             <Image
                                 src={config.logoUrl}
@@ -141,12 +139,10 @@ const ForgotPassword = ({ appearance, config }: ForgotPasswordProps) => {
                         </div>
                     )}
                     <div data-contain="header">
-                        <H3 appearance={appearance?.elements?.Header}>
-                            {appearance?.options?.headerContent || "Forgot Password"}
-                        </H3>
+                        <H3 appearance={appearance?.elements?.Header}>{`Forgot Password`}</H3>
                     </div>
                     <div data-contain="content">
-                        <Paragraph appearance={appearance?.elements?.SuccessText}>{successMessage}</Paragraph>
+                        <Paragraph appearance={appearance?.elements?.SuccessMessage}>{successMessage}</Paragraph>
                     </div>
                 </Container>
             </div>
@@ -156,7 +152,7 @@ const ForgotPassword = ({ appearance, config }: ForgotPasswordProps) => {
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                {appearance?.options?.displayLogo && config && (
+                {appearance?.options?.displayLogo && (
                     <div data-contain="logo">
                         <Image
                             src={config.logoUrl}
@@ -166,22 +162,20 @@ const ForgotPassword = ({ appearance, config }: ForgotPasswordProps) => {
                     </div>
                 )}
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>
-                        {appearance?.options?.headerContent || "Forgot Password"}
-                    </H3>
+                    <H3 appearance={appearance?.elements?.Header}>{`Forgot Password`}</H3>
                 </div>
                 <div data-contain="content">
                     <ForgotPasswordDirections
                         appearance={appearance}
-                        hasPasswordlessLogin={config?.hasPasswordlessLogin || false}
+                        hasPasswordlessLogin={config.hasPasswordlessLogin}
                     />
                 </div>
                 <div data-contain="form">
                     <form onSubmit={submitForgotPassword}>
                         <div>
-                            {!appearance?.options?.disableLabels && (
-                                <Label htmlFor="email">{appearance?.options?.emailLabel || "Email"}</Label>
-                            )}
+                            <Label htmlFor="email" appearance={appearance?.elements?.EmailLabel}>
+                                {`Email`}
+                            </Label>
                             <Input
                                 required
                                 id={"email"}
@@ -196,26 +190,24 @@ const ForgotPassword = ({ appearance, config }: ForgotPasswordProps) => {
                                 </Alert>
                             )}
                         </div>
+
                         <Button loading={passwordResetLoading} appearance={appearance?.elements?.SubmitButton}>
-                            {appearance?.options?.resetPasswordButtonContent || "Reset Password"}
+                            {appearance?.options?.resetPasswordButtonText || "Reset Password"}
                         </Button>
                     </form>
                 </div>
-                {config && config.hasPasswordlessLogin && (
+                {config.hasPasswordlessLogin && (
                     <div data-contain="form">
                         <Button
                             loading={magicLinkLoading}
                             onClick={submitMagicLink}
                             appearance={appearance?.elements?.MagicLinkButton}
                         >
-                            {appearance?.options?.magicLinkButtonContent || "Send Magic Link"}
+                            {appearance?.options?.magicLinkButtonText || "Send Magic Link"}
                         </Button>
                     </div>
                 )}
-                <BottomLinks
-                    redirectToLoginFunction={appearance?.options?.redirectToLoginFunction}
-                    appearance={appearance}
-                />
+                <BottomLinks onRedirectToLogin={onRedirectToLogin} appearance={appearance} />
                 {error && (
                     <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
                         {error}
@@ -240,16 +232,16 @@ const ForgotPasswordDirections = ({ appearance, hasPasswordlessLogin }: ForgotPa
 }
 
 type BottomLinksProps = {
-    redirectToLoginFunction?: VoidFunction
+    onRedirectToLogin?: VoidFunction
     appearance?: ForgotPasswordAppearance
 }
 
-const BottomLinks = ({ redirectToLoginFunction, appearance }: BottomLinksProps) => {
+const BottomLinks = ({ onRedirectToLogin, appearance }: BottomLinksProps) => {
     return (
         <div data-contain="link">
-            {redirectToLoginFunction && (
-                <Button onClick={redirectToLoginFunction} appearance={appearance?.elements?.LoginButton}>
-                    {appearance?.options?.backButtonContent || "Back to login"}
+            {onRedirectToLogin && (
+                <Button onClick={onRedirectToLogin} appearance={appearance?.elements?.RedirectToLoginLink}>
+                    {`Back to login`}
                 </Button>
             )}
         </div>

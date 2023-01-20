@@ -8,7 +8,7 @@ import { DividerProps } from "../elements/Divider"
 import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
-import { Label } from "../elements/Label"
+import { Label, LabelProps } from "../elements/Label"
 import { useApi } from "../useApi"
 import { Config, withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, SIGNUP_NOT_ALLOWED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
@@ -17,46 +17,51 @@ import { SignInOptions } from "./SignInOptions"
 
 export type SignupAppearance = {
     options?: {
-        headerContent?: ReactNode
         displayLogo?: boolean
-        disableLabels?: boolean
         divider?: ReactNode | boolean
-        firstNameLabel?: ReactNode
-        lastNameLabel?: ReactNode
-        emailLabel?: ReactNode
-        usernameLabel?: ReactNode
-        passwordLabel?: ReactNode
-        submitButtonContent?: ReactNode
-        loginButtonContent?: ReactNode
-        redirectToLoginFunction?: VoidFunction
+        submitButtonText?: ReactNode
     }
     elements?: {
         Container?: ElementAppearance<ContainerProps>
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>
         Divider?: ElementAppearance<DividerProps>
+        FirstNameLabel?: ElementAppearance<LabelProps>
         FirstNameInput?: ElementAppearance<InputProps>
+        LastNameLabel?: ElementAppearance<LabelProps>
         LastNameInput?: ElementAppearance<InputProps>
+        UsernameLabel?: ElementAppearance<LabelProps>
         UsernameInput?: ElementAppearance<InputProps>
+        EmailLabel?: ElementAppearance<LabelProps>
         EmailInput?: ElementAppearance<InputProps>
+        PasswordLabel?: ElementAppearance<LabelProps>
         PasswordInput?: ElementAppearance<InputProps>
         SocialButton?: ElementAppearance<ButtonProps>
         SubmitButton?: ElementAppearance<ButtonProps>
-        LoginButton?: ElementAppearance<ButtonProps>
+        RedirectToLoginLink?: ElementAppearance<ButtonProps>
+        RedirectToPasswordlessLoginButton?: ElementAppearance<ButtonProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
 
 export type SignupProps = {
-    onSuccess: VoidFunction
+    onSignupCompleted: VoidFunction
+    onRedirectToLogin?: VoidFunction
+    onRedirectToPasswordlessLogin?: VoidFunction
     appearance?: SignupAppearance
 } & WithConfigProps
 
-const Signup = ({ onSuccess, appearance, config }: SignupProps) => {
+const Signup = ({
+    onSignupCompleted,
+    onRedirectToLogin,
+    onRedirectToPasswordlessLogin,
+    appearance,
+    config,
+}: SignupProps) => {
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                {appearance?.options?.displayLogo !== false && config && (
+                {appearance?.options?.displayLogo !== false && (
                     <div data-contain="logo">
                         <Image
                             src={config.logoUrl}
@@ -66,36 +71,32 @@ const Signup = ({ onSuccess, appearance, config }: SignupProps) => {
                     </div>
                 )}
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>
-                        {appearance?.options?.headerContent || "Create an account"}
-                    </H3>
+                    <H3 appearance={appearance?.elements?.Header}>{`Create an account`}</H3>
                 </div>
-                <SignInOptions config={config} buttonAppearance={appearance?.elements?.SocialButton} />
-                {config &&
-                    config.hasPasswordLogin &&
-                    config.hasAnyNonPasswordLogin &&
-                    appearance?.options?.divider !== false && (
-                        <OrDivider appearance={appearance?.elements?.Divider} options={appearance?.options?.divider} />
-                    )}
-                {config && config.hasPasswordLogin && (
-                    <SignupForm config={config} onSuccess={onSuccess} appearance={appearance} />
-                )}
-                <BottomLinks
-                    redirectToLoginFunction={appearance?.options?.redirectToLoginFunction}
+                <SignInOptions
+                    config={config}
                     appearance={appearance}
+                    onRedirectToPasswordlessLogin={onRedirectToPasswordlessLogin}
                 />
+                {config.hasPasswordLogin && config.hasAnyNonPasswordLogin && appearance?.options?.divider !== false && (
+                    <OrDivider appearance={appearance?.elements?.Divider} options={appearance?.options?.divider} />
+                )}
+                {config.hasPasswordLogin && (
+                    <SignupForm config={config} onSignupCompleted={onSignupCompleted} appearance={appearance} />
+                )}
+                <BottomLinks onRedirectToLogin={onRedirectToLogin} appearance={appearance} />
             </Container>
         </div>
     )
 }
 
 type SignupFormProps = {
-    onSuccess: VoidFunction
+    onSignupCompleted: VoidFunction
     config: Config
     appearance?: SignupAppearance
 }
 
-const SignupForm = ({ config, onSuccess, appearance }: SignupFormProps) => {
+const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) => {
     const { userApi } = useApi()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -138,7 +139,7 @@ const SignupForm = ({ config, onSuccess, appearance }: SignupFormProps) => {
             }
             const response = await userApi.signup(options)
             if (response.ok) {
-                onSuccess()
+                onSignupCompleted()
             } else {
                 response.error._visit({
                     signupNotAllowed: () => setError(SIGNUP_NOT_ALLOWED),
@@ -180,11 +181,9 @@ const SignupForm = ({ config, onSuccess, appearance }: SignupFormProps) => {
                 {config.requireUsersToSetName && (
                     <>
                         <div>
-                            {!appearance?.options?.disableLabels && (
-                                <Label htmlFor="first_name">
-                                    {appearance?.options?.firstNameLabel || "First name"}
-                                </Label>
-                            )}
+                            <Label htmlFor="first_name" appearance={appearance?.elements?.FirstNameLabel}>
+                                {`First name`}
+                            </Label>
                             <Input
                                 required
                                 id="first_name"
@@ -201,9 +200,11 @@ const SignupForm = ({ config, onSuccess, appearance }: SignupFormProps) => {
                             )}
                         </div>
                         <div>
-                            {!appearance?.options?.disableLabels && (
-                                <Label htmlFor="last_name">{appearance?.options?.lastNameLabel || "Last name"}</Label>
-                            )}
+                            <Label
+                                htmlFor="last_name"
+                                appearance={appearance?.elements?.LastNameLabel}
+                            >{`Last name`}</Label>
+
                             <Input
                                 required
                                 type="text"
@@ -222,9 +223,9 @@ const SignupForm = ({ config, onSuccess, appearance }: SignupFormProps) => {
                     </>
                 )}
                 <div>
-                    {!appearance?.options?.disableLabels && (
-                        <Label htmlFor="email">{appearance?.options?.emailLabel || "Email"}</Label>
-                    )}
+                    <Label htmlFor="email" appearance={appearance?.elements?.EmailLabel}>
+                        {`Email`}
+                    </Label>
                     <Input
                         required
                         id="email"
@@ -242,9 +243,9 @@ const SignupForm = ({ config, onSuccess, appearance }: SignupFormProps) => {
                 </div>
                 {config.requireUsersToSetUsername && (
                     <div>
-                        {!appearance?.options?.disableLabels && (
-                            <Label htmlFor="username">{appearance?.options?.usernameLabel || "Username"}</Label>
-                        )}
+                        <Label htmlFor="username" appearance={appearance?.elements?.UsernameLabel}>
+                            {`Username`}
+                        </Label>
                         <Input
                             required
                             type="text"
@@ -262,9 +263,9 @@ const SignupForm = ({ config, onSuccess, appearance }: SignupFormProps) => {
                     </div>
                 )}
                 <div>
-                    {!appearance?.options?.disableLabels && (
-                        <Label htmlFor="password">{appearance?.options?.passwordLabel || "Password"}</Label>
-                    )}
+                    <Label htmlFor="password" appearance={appearance?.elements?.PasswordLabel}>
+                        {`Password`}
+                    </Label>
                     <Input
                         required
                         id="password"
@@ -280,8 +281,8 @@ const SignupForm = ({ config, onSuccess, appearance }: SignupFormProps) => {
                         </Alert>
                     )}
                 </div>
-                <Button appearance={appearance?.elements?.SubmitButton} loading={loading}>
-                    {appearance?.options?.submitButtonContent || "Sign Up"}
+                <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>
+                    {appearance?.options?.submitButtonText || "Sign Up"}
                 </Button>
                 {error && (
                     <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
@@ -294,16 +295,16 @@ const SignupForm = ({ config, onSuccess, appearance }: SignupFormProps) => {
 }
 
 type BottomLinksProps = {
-    redirectToLoginFunction?: VoidFunction
+    onRedirectToLogin?: VoidFunction
     appearance?: SignupAppearance
 }
 
-const BottomLinks = ({ redirectToLoginFunction, appearance }: BottomLinksProps) => {
+const BottomLinks = ({ onRedirectToLogin, appearance }: BottomLinksProps) => {
     return (
         <div data-contain="link">
-            {redirectToLoginFunction && (
-                <Button onClick={redirectToLoginFunction} appearance={appearance?.elements?.LoginButton}>
-                    {appearance?.options?.loginButtonContent || "Already have an account? Log in"}
+            {onRedirectToLogin && (
+                <Button onClick={onRedirectToLogin} appearance={appearance?.elements?.RedirectToLoginLink}>
+                    {`Already have an account? Log in`}
                 </Button>
             )}
         </div>

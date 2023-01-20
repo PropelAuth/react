@@ -64,3 +64,4 @@ export const BAD_REQUEST_UPDATE_ORG_METADATA = "Failed to update organization."
 export const FORBIDDEN_UPDATE_ORG_METADATA = "You are not authorized to update this organization."
 export const PASSWORDLESS_LOGIN_SUBMITTED_PUBLIC = `We sent you an email with a link that will sign you in. The link will expire in one hour, so be sure to use it soon. You can close this tab.`
 export const PASSWORDLESS_LOGIN_SUBMITTED = `If an account already exists with that email address, we will send you a link to sign you in. The link will expire in one hour, so be sure to use it soon. You can close this tab.`
+export const RESEND_CONFIRM_EMAIL_MESSAGE = "Confirmation email sent successfully."

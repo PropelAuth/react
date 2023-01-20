@@ -6,22 +6,21 @@ import { Container, ContainerProps } from "../elements/Container"
 import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
-import { Paragraph, ParagraphProps } from "../elements/Paragraph"
+import { Label, LabelProps } from "../elements/Label"
 import { useApi } from "../useApi"
 import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, FORBIDDEN, NOT_FOUND_MFA_VERIFY, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
-export type VerifyAppearance = {
+export type VerifyMfaAppearance = {
     options?: {
-        headerContent?: ReactNode
         displayLogo?: boolean
-        submitButtonContent?: ReactNode
+        submitButtonText?: ReactNode
     }
     elements?: {
         Container?: ElementAppearance<ContainerProps>
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>
-        InstructionText?: ElementAppearance<ParagraphProps>
+        CodeLabel?: ElementAppearance<LabelProps>
         CodeInput?: ElementAppearance<InputProps>
         SubmitButton?: ElementAppearance<ButtonProps>
         CodeTypeLink?: ElementAppearance<ButtonProps>
@@ -29,12 +28,12 @@ export type VerifyAppearance = {
     }
 }
 
-type VerifyProps = {
+type VerifyMfaProps = {
     onStepCompleted: VoidFunction
-    appearance?: VerifyAppearance
+    appearance?: VerifyMfaAppearance
 } & WithConfigProps
 
-const Verify = ({ onStepCompleted, appearance, config }: VerifyProps) => {
+const VerifyMfa = ({ onStepCompleted, appearance, config }: VerifyMfaProps) => {
     const { mfaApi } = useApi()
     const [loading, setLoading] = useState(false)
     const [code, setCode] = useState("")
@@ -83,7 +82,7 @@ const Verify = ({ onStepCompleted, appearance, config }: VerifyProps) => {
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                {appearance?.options?.displayLogo && config && (
+                {appearance?.options?.displayLogo && (
                     <div data-contain="logo">
                         <Image
                             src={config.logoUrl}
@@ -93,13 +92,16 @@ const Verify = ({ onStepCompleted, appearance, config }: VerifyProps) => {
                     </div>
                 )}
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>{appearance?.options?.headerContent || "Verify"}</H3>
+                    <H3 appearance={appearance?.elements?.Header}>{`Verify`}</H3>
                 </div>
                 <div data-contain="form">
                     <form onSubmit={verifyMfa}>
-                        <Paragraph appearance={appearance?.elements?.InstructionText}>{inputLabel}</Paragraph>
                         <div>
+                            <Label htmlFor={"code"} appearance={appearance?.elements?.CodeLabel}>
+                                {inputLabel}
+                            </Label>
                             <Input
+                                id={"code"}
                                 type={"text"}
                                 placeholder={"123456"}
                                 value={code}
@@ -108,7 +110,7 @@ const Verify = ({ onStepCompleted, appearance, config }: VerifyProps) => {
                             />
                         </div>
                         <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>
-                            {appearance?.options?.submitButtonContent || "Submit"}
+                            {appearance?.options?.submitButtonText || "Submit"}
                         </Button>
                         {error && (
                             <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
@@ -127,4 +129,4 @@ const Verify = ({ onStepCompleted, appearance, config }: VerifyProps) => {
     )
 }
 
-export default withConfig(Verify)
+export default withConfig(VerifyMfa)

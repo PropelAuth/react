@@ -15,17 +15,15 @@ import { BAD_REQUEST, NOT_FOUND_UPDATE_PASSWORD, UNEXPECTED_ERROR, X_CSRF_TOKEN 
 
 export type UpdatePasswordAppearance = {
     options?: {
-        headerContent?: ReactNode
         displayLogo?: boolean
-        passwordLabel?: ReactNode
-        SubmitButtonContent?: ReactNode
+        SubmitButtonText?: ReactNode
     }
     elements?: {
         Container?: ElementAppearance<ContainerProps>
         Header?: ElementAppearance<H3Props>
         Logo?: ElementAppearance<ImageProps>
-        PasswordInput?: ElementAppearance<InputProps>
         PasswordLabel?: ElementAppearance<LabelProps>
+        PasswordInput?: ElementAppearance<InputProps>
         SubmitButton?: ElementAppearance<ButtonProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
@@ -87,7 +85,7 @@ const UpdatePassword = ({ onStepCompleted, appearance, config }: UpdatePasswordP
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                {appearance?.options?.displayLogo && config && (
+                {appearance?.options?.displayLogo && (
                     <div data-contain="logo">
                         <Image
                             src={config.logoUrl}
@@ -97,15 +95,13 @@ const UpdatePassword = ({ onStepCompleted, appearance, config }: UpdatePasswordP
                     </div>
                 )}
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>
-                        {appearance?.options?.headerContent || "Update your password"}
-                    </H3>
+                    <H3 appearance={appearance?.elements?.Header}>{`Update your password`}</H3>
                 </div>
                 <div data-contain="form">
                     <form onSubmit={handleSubmit}>
                         <div>
                             <Label htmlFor={"new_password"} appearance={appearance?.elements?.PasswordLabel}>
-                                {appearance?.options?.passwordLabel || "Password"}
+                                {`Password`}
                             </Label>
                             <Input
                                 type={"password"}
@@ -115,7 +111,7 @@ const UpdatePassword = ({ onStepCompleted, appearance, config }: UpdatePasswordP
                             />
                         </div>
                         <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>
-                            {appearance?.options?.SubmitButtonContent || "Continue"}
+                            {appearance?.options?.SubmitButtonText || "Continue"}
                         </Button>
                         {error && (
                             <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>

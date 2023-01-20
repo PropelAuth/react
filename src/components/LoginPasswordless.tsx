@@ -22,12 +22,8 @@ import {
 
 export type LoginPasswordlessAppearance = {
     options?: {
-        headerContent?: ReactNode
         displayLogo?: boolean
-        disableLabels?: boolean
-        emailLabel?: ReactNode
-        submitButtonContent?: ReactNode
-        successMessage?: ReactNode
+        submitButtonText?: ReactNode
     }
     elements?: {
         Progress?: ElementAppearance<ProgressProps>
@@ -37,7 +33,7 @@ export type LoginPasswordlessAppearance = {
         EmailLabel?: ElementAppearance<LabelProps>
         EmailInput?: ElementAppearance<InputProps>
         SubmitButton?: ElementAppearance<ButtonProps>
-        SuccessText?: ElementAppearance<ParagraphProps>
+        SuccessMessage?: ElementAppearance<ParagraphProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
@@ -101,13 +97,13 @@ const LoginPasswordless = ({ appearance, config }: LoginPasswordlessProps) => {
         return (
             <div data-contain="component">
                 <Container appearance={appearance?.elements?.Container}>
-                    {config && config.allowPublicSignups ? (
-                        <Paragraph appearance={appearance?.elements?.SuccessText}>
-                            {appearance?.options?.successMessage || PASSWORDLESS_LOGIN_SUBMITTED_PUBLIC}
+                    {config.allowPublicSignups ? (
+                        <Paragraph appearance={appearance?.elements?.SuccessMessage}>
+                            {PASSWORDLESS_LOGIN_SUBMITTED_PUBLIC}
                         </Paragraph>
                     ) : (
-                        <Paragraph appearance={appearance?.elements?.SuccessText}>
-                            {appearance?.options?.successMessage || PASSWORDLESS_LOGIN_SUBMITTED}
+                        <Paragraph appearance={appearance?.elements?.SuccessMessage}>
+                            {PASSWORDLESS_LOGIN_SUBMITTED}
                         </Paragraph>
                     )}
                 </Container>
@@ -118,7 +114,7 @@ const LoginPasswordless = ({ appearance, config }: LoginPasswordlessProps) => {
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                {appearance?.options?.displayLogo && config && (
+                {appearance?.options?.displayLogo && (
                     <div data-contain="logo">
                         <Image
                             src={config.logoUrl}
@@ -128,16 +124,12 @@ const LoginPasswordless = ({ appearance, config }: LoginPasswordlessProps) => {
                     </div>
                 )}
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>
-                        {appearance?.options?.headerContent || "Passwordless Login"}
-                    </H3>
+                    <H3 appearance={appearance?.elements?.Header}>{`Passwordless Login`}</H3>
                 </div>
                 <div data-contain="form">
                     <form onSubmit={loginPasswordless}>
                         <div>
-                            {!appearance?.options?.disableLabels && (
-                                <Label htmlFor="email">{appearance?.options?.emailLabel || "Email"}</Label>
-                            )}
+                            <Label htmlFor="email" appearance={appearance?.elements?.EmailLabel}>{`Email`}</Label>
                             <Input
                                 required
                                 id="email"
@@ -152,8 +144,8 @@ const LoginPasswordless = ({ appearance, config }: LoginPasswordlessProps) => {
                                 </Alert>
                             )}
                         </div>
-                        <Button appearance={appearance?.elements?.SubmitButton} loading={loading}>
-                            {appearance?.options?.submitButtonContent || "Continue"}
+                        <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>
+                            {appearance?.options?.submitButtonText || "Continue"}
                         </Button>
                         {error && (
                             <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>

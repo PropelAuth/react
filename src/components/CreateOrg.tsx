@@ -28,14 +28,9 @@ import { OrDivider } from "./OrDivider"
 
 export type CreateOrgAppearance = {
     options?: {
-        headerContent?: ReactNode
         divider?: ReactNode | boolean
-        orgNameLabel?: ReactNode
-        autojoinByDomainLabel?: ReactNode
-        restrictToDomainLabel?: ReactNode
-        createOrgButtonContent?: ReactNode
-        joinOrgLabel?: ReactNode
-        joinOrgButtonContent?: ReactNode
+        createOrgButtonText?: ReactNode
+        joinOrgButtonText?: ReactNode
     }
     elements?: {
         Progress?: ElementAppearance<ProgressProps>
@@ -46,10 +41,10 @@ export type CreateOrgAppearance = {
         AutojoinByDomainCheckbox?: ElementAppearance<CheckboxProps>
         RestrictToDomainCheckbox?: ElementAppearance<CheckboxProps>
         CreateOrgButton?: ElementAppearance<ButtonProps>
+        Divider?: ElementAppearance<DividerProps>
         JoinOrgLabel?: ElementAppearance<LabelProps>
         JoinOrgSelect?: ElementAppearance<SelectProps>
         JoinOrgButton?: ElementAppearance<ButtonProps>
-        Divider?: ElementAppearance<DividerProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
@@ -164,14 +159,12 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, config }: CreateOrgProps)
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>
-                        {appearance?.options?.headerContent || `Create your ${orgMetaname}`}
-                    </H3>
+                    <H3 appearance={appearance?.elements?.Header}>{`Create your ${orgMetaname}`}</H3>
                 </div>
                 <div data-contain="form">
                     <form onSubmit={createOrg}>
                         <div>
-                            <Label appearance={appearance?.elements?.OrgNameLabel} htmlFor="org_name">
+                            <Label htmlFor="org_name" appearance={appearance?.elements?.OrgNameLabel}>
                                 {`What's the name of your ${orgMetaname.toLowerCase()}?`}
                             </Label>
                             <Input
@@ -192,7 +185,7 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, config }: CreateOrgProps)
                         <div>
                             <Checkbox
                                 id={"autojoin_by_domain"}
-                                label={appearance?.options?.autojoinByDomainLabel || autojoinByDomainText}
+                                label={autojoinByDomainText}
                                 checked={autojoinByDomain}
                                 onChange={(e) => setAutojoinByDomain(e.target.checked)}
                                 appearance={appearance?.elements?.AutojoinByDomainCheckbox}
@@ -202,7 +195,7 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, config }: CreateOrgProps)
                         <div>
                             <Checkbox
                                 id={"restrict_to_domain"}
-                                label={appearance?.options?.restrictToDomainLabel || restrictToDomainText}
+                                label={restrictToDomainText}
                                 checked={restrictToDomain}
                                 onChange={(e) => setRestrictToDomain(e.target.checked)}
                                 appearance={appearance?.elements?.RestrictToDomainCheckbox}
@@ -210,7 +203,7 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, config }: CreateOrgProps)
                             />
                         </div>
                         <Button loading={loading} appearance={appearance?.elements?.CreateOrgButton}>
-                            {appearance?.options?.createOrgButtonContent || `Create ${orgMetaname}`}
+                            {appearance?.options?.createOrgButtonText || `Create ${orgMetaname}`}
                         </Button>
                         {error && (
                             <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
@@ -325,8 +318,8 @@ const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: Joinabl
             <div data-contain="form">
                 <form onSubmit={joinOrg}>
                     <div>
-                        <Label appearance={appearance?.elements?.JoinOrgLabel} htmlFor="org">
-                            {appearance?.options?.joinOrgLabel || joinOrgText}
+                        <Label htmlFor="org" appearance={appearance?.elements?.JoinOrgLabel}>
+                            {joinOrgText}
                         </Label>
                         <Select
                             id={"org"}
@@ -337,15 +330,15 @@ const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: Joinabl
                                 return { label: org.name, value: org.id }
                             })}
                         />
-                        <Button loading={joinLoading} appearance={appearance?.elements?.JoinOrgButton}>
-                            {appearance?.options?.joinOrgButtonContent || `Join ${orgMetaname}`}
-                        </Button>
-                        {joinError && (
-                            <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                {joinError}
-                            </Alert>
-                        )}
                     </div>
+                    <Button loading={joinLoading} appearance={appearance?.elements?.JoinOrgButton}>
+                        {appearance?.options?.joinOrgButtonText || `Join ${orgMetaname}`}
+                    </Button>
+                    {joinError && (
+                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                            {joinError}
+                        </Alert>
+                    )}
                 </form>
             </div>
         </>

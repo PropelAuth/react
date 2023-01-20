@@ -7,7 +7,7 @@ import { DividerProps } from "../elements/Divider"
 import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
-import { Label } from "../elements/Label"
+import { Label, LabelProps } from "../elements/Label"
 import { ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { withConfig, WithConfigProps } from "../withConfig"
@@ -17,18 +17,9 @@ import { SignInOptions } from "./SignInOptions"
 
 export type LoginAppearance = {
     options?: {
-        headerContent?: ReactNode
         displayLogo?: boolean
         divider?: ReactNode | boolean
-        disableLabels?: boolean
-        emailLabel?: ReactNode
-        passwordLabel?: ReactNode
-        submitButtonContent?: ReactNode
-        signupButtonContent?: ReactNode
-        forgotPasswordButtonContent?: ReactNode
-        redirectToSignupFunction?: VoidFunction
-        redirectToForgotPasswordFunction?: VoidFunction
-        redirectToLoginPasswordlessFunction?: VoidFunction
+        submitButtonText?: ReactNode
     }
     elements?: {
         Progress?: ElementAppearance<ProgressProps>
@@ -36,22 +27,35 @@ export type LoginAppearance = {
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>
         Divider?: ElementAppearance<DividerProps>
+        EmailLabel?: ElementAppearance<LabelProps>
         EmailInput?: ElementAppearance<InputProps>
+        PasswordLabel?: ElementAppearance<LabelProps>
         PasswordInput?: ElementAppearance<InputProps>
         SocialButton?: ElementAppearance<ButtonProps>
         SubmitButton?: ElementAppearance<ButtonProps>
-        SignupButton?: ElementAppearance<ButtonProps>
-        ForgotPasswordButton?: ElementAppearance<ButtonProps>
+        RedirectToSignupLink?: ElementAppearance<ButtonProps>
+        RedirectToForgotPasswordLink?: ElementAppearance<ButtonProps>
+        RedirectToPasswordlessLoginButton?: ElementAppearance<ButtonProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
 
 type LoginProps = {
     onStepCompleted: VoidFunction
+    onRedirectToSignup?: VoidFunction
+    onRedirectToForgotPassword?: VoidFunction
+    onRedirectToPasswordlessLogin?: VoidFunction
     appearance?: LoginAppearance
 } & WithConfigProps
 
-const Login = ({ onStepCompleted, appearance, config }: LoginProps) => {
+const Login = ({
+    onStepCompleted,
+    onRedirectToSignup,
+    onRedirectToForgotPassword,
+    onRedirectToPasswordlessLogin,
+    appearance,
+    config,
+}: LoginProps) => {
     const { loginApi } = useApi()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -107,7 +111,7 @@ const Login = ({ onStepCompleted, appearance, config }: LoginProps) => {
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                {appearance?.options?.displayLogo !== false && config && (
+                {appearance?.options?.displayLogo !== false && (
                     <div data-contain="logo">
                         <Image
                             src={config.logoUrl}
@@ -117,28 +121,25 @@ const Login = ({ onStepCompleted, appearance, config }: LoginProps) => {
                     </div>
                 )}
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>{appearance?.options?.headerContent || "Welcome"}</H3>
+                    <H3 appearance={appearance?.elements?.Header}>{`Welcome`}</H3>
                 </div>
-                {config && (config.hasPasswordlessLogin || config.hasAnyNonPasswordLogin) && (
+                {(config.hasPasswordlessLogin || config.hasAnyNonPasswordLogin) && (
                     <SignInOptions
                         config={config}
-                        onRedirectToLoginPasswordless={appearance?.options?.redirectToLoginPasswordlessFunction}
-                        buttonAppearance={appearance?.elements?.SocialButton}
+                        onRedirectToPasswordlessLogin={onRedirectToPasswordlessLogin}
+                        appearance={appearance}
                     />
                 )}
-                {config &&
-                    config.hasPasswordLogin &&
-                    config.hasAnyNonPasswordLogin &&
-                    appearance?.options?.divider !== false && (
-                        <OrDivider appearance={appearance?.elements?.Divider} options={appearance?.options?.divider} />
-                    )}
-                {config && config.hasPasswordLogin && (
+                {config.hasPasswordLogin && config.hasAnyNonPasswordLogin && appearance?.options?.divider !== false && (
+                    <OrDivider appearance={appearance?.elements?.Divider} options={appearance?.options?.divider} />
+                )}
+                {config.hasPasswordLogin && (
                     <div data-contain="form">
                         <form onSubmit={login}>
                             <div>
-                                {!appearance?.options?.disableLabels && (
-                                    <Label htmlFor="email">{appearance?.options?.emailLabel || "Email"}</Label>
-                                )}
+                                <Label htmlFor="email" appearance={appearance?.elements?.EmailLabel}>
+                                    {`Email`}
+                                </Label>
                                 <Input
                                     required
                                     id="email"
@@ -155,9 +156,10 @@ const Login = ({ onStepCompleted, appearance, config }: LoginProps) => {
                                 )}
                             </div>
                             <div>
-                                {!appearance?.options?.disableLabels && (
-                                    <Label htmlFor="password">{appearance?.options?.passwordLabel || "Password"}</Label>
-                                )}
+                                <Label
+                                    htmlFor="password"
+                                    appearance={appearance?.elements?.PasswordLabel}
+                                >{`Password`}</Label>
                                 <Input
                                     required
                                     type="password"
@@ -173,8 +175,8 @@ const Login = ({ onStepCompleted, appearance, config }: LoginProps) => {
                                     </Alert>
                                 )}
                             </div>
-                            <Button appearance={appearance?.elements?.SubmitButton} loading={loading}>
-                                {appearance?.options?.submitButtonContent || "Log In"}
+                            <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>
+                                {appearance?.options?.submitButtonText || "Log In"}
                             </Button>
                             {error && (
                                 <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
@@ -184,23 +186,22 @@ const Login = ({ onStepCompleted, appearance, config }: LoginProps) => {
                         </form>
                     </div>
                 )}
-                {(appearance?.options?.redirectToSignupFunction ||
-                    appearance?.options?.redirectToForgotPasswordFunction) && (
+                {(onRedirectToSignup || onRedirectToForgotPassword) && (
                     <div data-contain="links">
-                        {appearance?.options?.redirectToSignupFunction && (
+                        {onRedirectToSignup && (
                             <Button
-                                onClick={appearance?.options?.redirectToSignupFunction}
-                                appearance={appearance?.elements?.SignupButton}
+                                onClick={onRedirectToSignup}
+                                appearance={appearance?.elements?.RedirectToSignupLink}
                             >
-                                {appearance?.options?.signupButtonContent || "Sign Up"}
+                                {`Sign Up`}
                             </Button>
                         )}
-                        {appearance?.options?.redirectToForgotPasswordFunction && (
+                        {onRedirectToForgotPassword && (
                             <Button
-                                onClick={appearance?.options?.redirectToForgotPasswordFunction}
-                                appearance={appearance?.elements?.ForgotPasswordButton}
+                                onClick={onRedirectToForgotPassword}
+                                appearance={appearance?.elements?.RedirectToForgotPasswordLink}
                             >
-                                {appearance?.options?.forgotPasswordButtonContent || "Forgot Password"}
+                                {`Forgot Password`}
                             </Button>
                         )}
                     </div>
