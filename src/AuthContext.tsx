@@ -6,8 +6,6 @@ import {
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
-import { Appearance, AppearanceProvider } from "./AppearanceProvider"
-import { Elements, ElementsProvider } from "./ElementsProvider"
 import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
@@ -31,8 +29,6 @@ interface InternalAuthState {
 
 export type AuthProviderProps = {
     authUrl: string
-    elements?: Elements
-    appearance?: Appearance
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
 }
@@ -184,28 +180,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
         authUrl: props.authUrl,
     }
 
-    let OurElementsProvider = ({ children }: WithChildren) => <>{children}</>
-    const elements = props.elements
-    if (elements) {
-        OurElementsProvider = ({ children }: WithChildren) => (
-            <ElementsProvider elements={elements}>{children}</ElementsProvider>
-        )
-    }
-
-    let OurAppearanceProvider = ({ children }: WithChildren) => <>{children}</>
-    if (props.appearance) {
-        OurAppearanceProvider = ({ children }: WithChildren) => (
-            <AppearanceProvider appearance={props.appearance}>{children}</AppearanceProvider>
-        )
-    }
-
-    return (
-        <AuthContext.Provider value={value}>
-            <OurElementsProvider>
-                <OurAppearanceProvider>{props.children}</OurAppearanceProvider>
-            </OurElementsProvider>
-        </AuthContext.Provider>
-    )
+    return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
 }
 
 export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
@@ -229,8 +204,4 @@ export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
 function getMillisUntilTokenExpires(expiresAtSeconds: number): number {
     let millisUntilTokenExpires = expiresAtSeconds * 1000 - Date.now()
     return Math.max(0, millisUntilTokenExpires)
-}
-
-type WithChildren = {
-    children?: React.ReactNode
 }

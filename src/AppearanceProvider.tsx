@@ -54,10 +54,7 @@ export type AppearanceState = {
 
 export const DEFAULT_APPEARANCE = {}
 
-export const AppearanceContext = createContext<AppearanceState>({
-    appearance: DEFAULT_APPEARANCE,
-    setAppearance: () => DEFAULT_APPEARANCE,
-})
+export const AppearanceContext = createContext<AppearanceState | undefined>(undefined)
 
 export type AppearanceProviderProps = {
     appearance?: Appearance
@@ -83,7 +80,10 @@ export const useAppearance = () => {
     const context = useContext(AppearanceContext)
 
     if (context === undefined) {
-        throw new Error("You must specify appearance within AuthProvider or RequiredAuthProvider")
+        throw new Error(
+            "The component you are using is part of our component library beta (docs.propelauth.com/component-library/overview). " +
+                "To use it, you must specify the `appearance` prop in ComponentLibraryProvider."
+        )
     }
 
     return { appearance: context.appearance, setAppearance: context.setAppearance }
