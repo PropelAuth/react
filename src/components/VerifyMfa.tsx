@@ -1,6 +1,7 @@
 import React, { MouseEvent, ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
+import { AnchorButton } from "../elements/AnchorButton"
 import { Button, ButtonProps } from "../elements/Button"
 import { Container, ContainerProps } from "../elements/Container"
 import { H3, H3Props } from "../elements/H3"
@@ -136,9 +137,9 @@ const VerifyMfa = ({ onStepCompleted, appearance, config }: VerifyMfaProps) => {
                     </form>
                 </div>
                 <div data-contain="link">
-                    <Button onClick={toggleCodeType} appearance={appearance?.elements?.CodeOrBackupToggle}>
+                    <AnchorButton onClick={toggleCodeType} appearance={appearance?.elements?.CodeOrBackupToggle}>
                         {buttonText}
-                    </Button>
+                    </AnchorButton>
                 </div>
             </Container>
         </div>

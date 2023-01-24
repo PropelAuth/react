@@ -2,6 +2,7 @@ import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
+import { AnchorButton } from "../elements/AnchorButton"
 import { Button, ButtonProps } from "../elements/Button"
 import { Container, ContainerProps } from "../elements/Container"
 import { DividerProps } from "../elements/Divider"
@@ -307,9 +308,9 @@ const BottomLinks = ({ onRedirectToLogin, appearance }: BottomLinksProps) => {
     return (
         <div data-contain="link">
             {onRedirectToLogin && (
-                <Button onClick={onRedirectToLogin} appearance={appearance?.elements?.RedirectToLoginLink}>
+                <AnchorButton onClick={onRedirectToLogin} appearance={appearance?.elements?.RedirectToLoginLink}>
                     {`Already have an account? Log in`}
-                </Button>
+                </AnchorButton>
             )}
         </div>
     )

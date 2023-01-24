@@ -1,6 +1,7 @@
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
+import { AnchorButton } from "../elements/AnchorButton"
 import { Button, ButtonProps } from "../elements/Button"
 import { Container, ContainerProps } from "../elements/Container"
 import { H3, H3Props } from "../elements/H3"
@@ -121,9 +122,12 @@ const LoginSSO = ({ onRedirectToLogin, appearance, config }: LoginPasswordlessPr
                 </div>
                 {onRedirectToLogin && (
                     <div data-contain="link">
-                        <Button onClick={onRedirectToLogin} appearance={appearance?.elements?.RedirectToLoginLink}>
+                        <AnchorButton
+                            onClick={onRedirectToLogin}
+                            appearance={appearance?.elements?.RedirectToLoginLink}
+                        >
                             {`Back to login`}
-                        </Button>
+                        </AnchorButton>
                     </div>
                 )}
             </Container>

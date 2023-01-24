@@ -1,6 +1,7 @@
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
+import { AnchorButton } from "../elements/AnchorButton"
 import { Button, ButtonProps } from "../elements/Button"
 import { Container, ContainerProps } from "../elements/Container"
 import { DividerProps } from "../elements/Divider"
@@ -193,20 +194,20 @@ const Login = ({
                 {(onRedirectToSignup || onRedirectToForgotPassword) && (
                     <div data-contain="links">
                         {onRedirectToSignup && (
-                            <Button
+                            <AnchorButton
                                 onClick={onRedirectToSignup}
                                 appearance={appearance?.elements?.RedirectToSignupLink}
                             >
                                 {`Sign Up`}
-                            </Button>
+                            </AnchorButton>
                         )}
                         {onRedirectToForgotPassword && (
-                            <Button
+                            <AnchorButton
                                 onClick={onRedirectToForgotPassword}
                                 appearance={appearance?.elements?.RedirectToForgotPasswordLink}
                             >
                                 {`Forgot Password`}
-                            </Button>
+                            </AnchorButton>
                         )}
                     </div>
                 )}

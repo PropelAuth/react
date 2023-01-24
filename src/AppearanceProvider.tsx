@@ -1,5 +1,6 @@
 import React, { createContext, CSSProperties, Dispatch, ReactNode, SetStateAction, useContext, useState } from "react"
 import { AlertProps } from "./elements/Alert"
+import { AnchorButtonProps } from "./elements/AnchorButton"
 import { ButtonProps } from "./elements/Button"
 import { CheckboxProps } from "./elements/Checkbox"
 import { ContainerProps } from "./elements/Container"
@@ -25,6 +26,7 @@ export type ElementAppearance<T> = string | CSSProperties | Element<T> | null
 export type Appearance = {
     elements?: {
         Alert?: ElementAppearance<AlertProps>
+        AnchorButton?: ElementAppearance<AnchorButtonProps>
         Button?: ElementAppearance<ButtonProps>
         Checkbox?: ElementAppearance<CheckboxProps>
         Container?: ElementAppearance<ContainerProps>

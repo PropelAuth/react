@@ -1,6 +1,7 @@
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
+import { AnchorButton } from "../elements/AnchorButton"
 import { Button, ButtonProps } from "../elements/Button"
 import { Container, ContainerProps } from "../elements/Container"
 import { H3, H3Props } from "../elements/H3"
@@ -164,10 +165,15 @@ const ForgotPassword = ({ onRedirectToLogin, appearance, config }: ForgotPasswor
                     <H3 appearance={appearance?.elements?.Header}>{`Forgot Password`}</H3>
                 </div>
                 <div data-contain="content">
-                    <ForgotPasswordDirections
-                        appearance={appearance}
-                        hasPasswordlessLogin={config.hasPasswordlessLogin}
-                    />
+                    {config.hasPasswordLogin ? (
+                        <Paragraph appearance={appearance?.elements?.InstructionsText}>
+                            {PASSWORDLESS_MESSAGE}
+                        </Paragraph>
+                    ) : (
+                        <Paragraph appearance={appearance?.elements?.InstructionsText}>
+                            {FORGOT_PASSWORD_MESSAGE}
+                        </Paragraph>
+                    )}
                 </div>
                 <div data-contain="form">
                     <form onSubmit={submitForgotPassword}>
@@ -206,7 +212,16 @@ const ForgotPassword = ({ onRedirectToLogin, appearance, config }: ForgotPasswor
                         </Button>
                     </div>
                 )}
-                <BottomLink onRedirectToLogin={onRedirectToLogin} appearance={appearance} />
+                {onRedirectToLogin && (
+                    <div data-contain="link">
+                        <AnchorButton
+                            onClick={onRedirectToLogin}
+                            appearance={appearance?.elements?.RedirectToLoginLink}
+                        >
+                            {`Back to login`}
+                        </AnchorButton>
+                    </div>
+                )}
                 {error && (
                     <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
                         {error}
@@ -215,38 +230,6 @@ const ForgotPassword = ({ onRedirectToLogin, appearance, config }: ForgotPasswor
             </Container>
         </div>
     )
-}
-
-type ForgotPasswordDirectionsProps = {
-    appearance?: ForgotPasswordAppearance
-    hasPasswordlessLogin: boolean
-}
-
-const ForgotPasswordDirections = ({ appearance, hasPasswordlessLogin }: ForgotPasswordDirectionsProps) => {
-    if (hasPasswordlessLogin) {
-        return <Paragraph appearance={appearance?.elements?.InstructionsText}>{PASSWORDLESS_MESSAGE}</Paragraph>
-    } else {
-        return <Paragraph appearance={appearance?.elements?.InstructionsText}>{FORGOT_PASSWORD_MESSAGE}</Paragraph>
-    }
-}
-
-type BottomLinksProps = {
-    onRedirectToLogin?: VoidFunction
-    appearance?: ForgotPasswordAppearance
-}
-
-const BottomLink = ({ onRedirectToLogin, appearance }: BottomLinksProps) => {
-    if (onRedirectToLogin) {
-        return (
-            <div data-contain="link">
-                <Button onClick={onRedirectToLogin} appearance={appearance?.elements?.RedirectToLoginLink}>
-                    {`Back to login`}
-                </Button>
-            </div>
-        )
-    } else {
-        return null
-    }
 }
 
 export default withConfig(ForgotPassword)

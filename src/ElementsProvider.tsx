@@ -9,6 +9,7 @@ import React, {
     useState,
 } from "react"
 import { AlertProps } from "./elements/Alert"
+import { AnchorButtonProps } from "./elements/AnchorButton"
 import { ButtonProps } from "./elements/Button"
 import { CheckboxProps } from "./elements/Checkbox"
 import { ContainerProps } from "./elements/Container"
@@ -29,6 +30,7 @@ import { TableProps } from "./elements/Table"
 
 export type Elements = {
     Alert: ForwardRefExoticComponent<AlertProps & RefAttributes<HTMLDivElement>>
+    AnchorButton: ForwardRefExoticComponent<AnchorButtonProps & RefAttributes<HTMLButtonElement>>
     Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLButtonElement>>
     Checkbox: ForwardRefExoticComponent<CheckboxProps & RefAttributes<HTMLInputElement>>
     Container: ForwardRefExoticComponent<ContainerProps & RefAttributes<HTMLDivElement>>
