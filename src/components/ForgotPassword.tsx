@@ -24,7 +24,6 @@ import {
 
 export type ForgotPasswordAppearance = {
     options?: {
-        headerContent?: ReactNode
         displayLogo?: boolean
         resetPasswordButtonText?: ReactNode
         magicLinkButtonText?: ReactNode
@@ -207,7 +206,7 @@ const ForgotPassword = ({ onRedirectToLogin, appearance, config }: ForgotPasswor
                         </Button>
                     </div>
                 )}
-                <BottomLinks onRedirectToLogin={onRedirectToLogin} appearance={appearance} />
+                <BottomLink onRedirectToLogin={onRedirectToLogin} appearance={appearance} />
                 {error && (
                     <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
                         {error}
@@ -236,16 +235,18 @@ type BottomLinksProps = {
     appearance?: ForgotPasswordAppearance
 }
 
-const BottomLinks = ({ onRedirectToLogin, appearance }: BottomLinksProps) => {
-    return (
-        <div data-contain="link">
-            {onRedirectToLogin && (
+const BottomLink = ({ onRedirectToLogin, appearance }: BottomLinksProps) => {
+    if (onRedirectToLogin) {
+        return (
+            <div data-contain="link">
                 <Button onClick={onRedirectToLogin} appearance={appearance?.elements?.RedirectToLoginLink}>
                     {`Back to login`}
                 </Button>
-            )}
-        </div>
-    )
+            </div>
+        )
+    } else {
+        return null
+    }
 }
 
 export default withConfig(ForgotPassword)

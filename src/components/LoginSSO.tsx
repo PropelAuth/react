@@ -7,20 +7,12 @@ import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
-import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { withConfig, WithConfigProps } from "../withConfig"
-import {
-    BAD_REQUEST,
-    LOGIN_PASSWORDLESS_NOT_SUPPORTED,
-    PASSWORDLESS_LOGIN_SUBMITTED,
-    PASSWORDLESS_LOGIN_SUBMITTED_PUBLIC,
-    UNEXPECTED_ERROR,
-    X_CSRF_TOKEN,
-} from "./constants"
+import { ORG_NAME_NOT_FOUND, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
-export type LoginPasswordlessAppearance = {
+export type LoginSSOAppearance = {
     options?: {
         displayLogo?: boolean
         submitButtonText?: ReactNode
@@ -30,60 +22,46 @@ export type LoginPasswordlessAppearance = {
         Container?: ElementAppearance<ContainerProps>
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>
-        EmailLabel?: ElementAppearance<LabelProps>
-        EmailInput?: ElementAppearance<InputProps>
+        OrgNameLabel?: ElementAppearance<LabelProps>
+        OrgNameInput?: ElementAppearance<InputProps>
         SubmitButton?: ElementAppearance<ButtonProps>
         RedirectToLoginLink?: ElementAppearance<ButtonProps>
-        SuccessMessage?: ElementAppearance<ParagraphProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
 
 export type LoginPasswordlessProps = {
     onRedirectToLogin?: VoidFunction
-    appearance?: LoginPasswordlessAppearance
+    appearance?: LoginSSOAppearance
 } & WithConfigProps
 
-const LoginPasswordless = ({ onRedirectToLogin, appearance, config }: LoginPasswordlessProps) => {
+const LoginSSO = ({ onRedirectToLogin, appearance, config }: LoginPasswordlessProps) => {
     const { loginApi } = useApi()
     const [loading, setLoading] = useState(false)
-    const [email, setEmail] = useState("")
-    const [emailError, setEmailError] = useState<string | undefined>(undefined)
+    const [orgName, setOrgName] = useState("")
+    const [orgNameError, setOrgNameError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
-    const [submitted, setSubmitted] = useState(false)
+    const orgMetaname = config.orgsMetaname || "Organization"
 
     const clearErrors = () => {
-        setEmailError(undefined)
+        setOrgNameError(undefined)
         setError(undefined)
     }
 
-    async function loginPasswordless(e: SyntheticEvent) {
+    async function loginSSO(e: SyntheticEvent) {
         try {
             e.preventDefault()
             clearErrors()
             setLoading(true)
-            const response = await loginApi.sendMagicLinkLogin({
-                email,
-                createIfDoesntExist: true,
+            const response = await loginApi.checkOrgNameForSamlLogin({
+                name: orgName,
                 xCsrfToken: X_CSRF_TOKEN,
             })
             if (response.ok) {
-                setSubmitted(true)
+                window.location.replace(response.body.loginUrl)
             } else {
                 response.error._visit({
-                    badRequestLoginPasswordless: (err) => {
-                        if (err.email || err.error) {
-                            if (err.email) {
-                                setEmailError(err.email.join(", "))
-                            }
-                            if (err.error) {
-                                setError(err.error.join(", "))
-                            }
-                        } else {
-                            setError(BAD_REQUEST)
-                        }
-                    },
-                    loginPasswordlessNotSupported: () => setError(LOGIN_PASSWORDLESS_NOT_SUPPORTED),
+                    notFoundOrgName: () => setOrgNameError(ORG_NAME_NOT_FOUND),
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
             }
@@ -93,24 +71,6 @@ const LoginPasswordless = ({ onRedirectToLogin, appearance, config }: LoginPassw
         } finally {
             setLoading(false)
         }
-    }
-
-    if (submitted) {
-        return (
-            <div data-contain="component">
-                <Container appearance={appearance?.elements?.Container}>
-                    {config.allowPublicSignups ? (
-                        <Paragraph appearance={appearance?.elements?.SuccessMessage}>
-                            {PASSWORDLESS_LOGIN_SUBMITTED_PUBLIC}
-                        </Paragraph>
-                    ) : (
-                        <Paragraph appearance={appearance?.elements?.SuccessMessage}>
-                            {PASSWORDLESS_LOGIN_SUBMITTED}
-                        </Paragraph>
-                    )}
-                </Container>
-            </div>
-        )
     }
 
     return (
@@ -126,23 +86,26 @@ const LoginPasswordless = ({ onRedirectToLogin, appearance, config }: LoginPassw
                     </div>
                 )}
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>{`Passwordless Login`}</H3>
+                    <H3 appearance={appearance?.elements?.Header}>{`Login with SSO`}</H3>
                 </div>
                 <div data-contain="form">
-                    <form onSubmit={loginPasswordless}>
+                    <form onSubmit={loginSSO}>
                         <div>
-                            <Label htmlFor="email" appearance={appearance?.elements?.EmailLabel}>{`Email`}</Label>
+                            <Label
+                                htmlFor="org_name"
+                                appearance={appearance?.elements?.OrgNameLabel}
+                            >{`Enter the name of your ${orgMetaname.toLowerCase()}:`}</Label>
                             <Input
                                 required
-                                id="email"
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                appearance={appearance?.elements?.EmailInput}
+                                id="org_name"
+                                type="text"
+                                value={orgName}
+                                onChange={(e) => setOrgName(e.target.value)}
+                                appearance={appearance?.elements?.OrgNameInput}
                             />
-                            {emailError && (
+                            {orgNameError && (
                                 <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                    {emailError}
+                                    {orgNameError}
                                 </Alert>
                             )}
                         </div>
@@ -168,4 +131,4 @@ const LoginPasswordless = ({ onRedirectToLogin, appearance, config }: LoginPassw
     )
 }
 
-export default withConfig(LoginPasswordless)
+export default withConfig(LoginSSO)

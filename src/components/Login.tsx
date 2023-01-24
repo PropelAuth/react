@@ -36,6 +36,7 @@ export type LoginAppearance = {
         RedirectToSignupLink?: ElementAppearance<ButtonProps>
         RedirectToForgotPasswordLink?: ElementAppearance<ButtonProps>
         RedirectToPasswordlessLoginButton?: ElementAppearance<ButtonProps>
+        RedirectToSSOLoginButton?: ElementAppearance<ButtonProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
@@ -45,6 +46,7 @@ type LoginProps = {
     onRedirectToSignup?: VoidFunction
     onRedirectToForgotPassword?: VoidFunction
     onRedirectToPasswordlessLogin?: VoidFunction
+    onRedirectToSSOLogin?: VoidFunction
     appearance?: LoginAppearance
 } & WithConfigProps
 
@@ -53,6 +55,7 @@ const Login = ({
     onRedirectToSignup,
     onRedirectToForgotPassword,
     onRedirectToPasswordlessLogin,
+    onRedirectToSSOLogin,
     appearance,
     config,
 }: LoginProps) => {
@@ -127,6 +130,7 @@ const Login = ({
                     <SignInOptions
                         config={config}
                         onRedirectToPasswordlessLogin={onRedirectToPasswordlessLogin}
+                        onRedirectToSSOLogin={onRedirectToSSOLogin}
                         appearance={appearance}
                     />
                 )}

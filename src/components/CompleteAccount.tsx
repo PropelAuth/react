@@ -8,10 +8,11 @@ import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
+import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
-import { BAD_REQUEST, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { BAD_REQUEST, COMPLETE_ACCOUNT_TEXT, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
 export type CompleteAccountAppearance = {
     options?: {
@@ -20,8 +21,9 @@ export type CompleteAccountAppearance = {
     }
     elements?: {
         Container?: ElementAppearance<ContainerProps>
-        Header?: ElementAppearance<H3Props>
         Logo?: ElementAppearance<ImageProps>
+        Header?: ElementAppearance<H3Props>
+        Content?: ElementAppearance<ParagraphProps>
         FirstNameLabel?: ElementAppearance<LabelProps>
         FirstNameInput?: ElementAppearance<InputProps>
         LastNameLabel?: ElementAppearance<LabelProps>
@@ -122,6 +124,9 @@ const CompleteAccount = ({ onStepCompleted, appearance, config }: UserMetadataPr
                 <div data-contain="header">
                     <H3 appearance={appearance?.elements?.Header}>Complete your account</H3>
                 </div>
+                <div data-contain="content">
+                    <Paragraph appearance={appearance?.elements?.Content}>{COMPLETE_ACCOUNT_TEXT}</Paragraph>
+                </div>
                 <div data-contain="form">
                     <form onSubmit={updateMetadata}>
                         {config.requireUsersToSetName && (
@@ -134,6 +139,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, config }: UserMetadataPr
                                         id={"first_name"}
                                         type={"text"}
                                         value={firstName}
+                                        placeholder={"First name"}
                                         onChange={(e) => setFirstName(e.target.value)}
                                         appearance={appearance?.elements?.FirstNameInput}
                                     />
@@ -151,6 +157,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, config }: UserMetadataPr
                                         id={"last_name"}
                                         type={"text"}
                                         value={lastName}
+                                        placeholder={"Last name"}
                                         onChange={(e) => setLastName(e.target.value)}
                                         appearance={appearance?.elements?.LastNameInput}
                                     />
@@ -171,6 +178,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, config }: UserMetadataPr
                                     id={"username"}
                                     type={"text"}
                                     value={username}
+                                    placeholder={"Username"}
                                     onChange={(e) => setUsername(e.target.value)}
                                     appearance={appearance?.elements?.UsernameInput}
                                 />

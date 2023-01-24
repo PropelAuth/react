@@ -23,7 +23,7 @@ export type VerifyMfaAppearance = {
         CodeLabel?: ElementAppearance<LabelProps>
         CodeInput?: ElementAppearance<InputProps>
         SubmitButton?: ElementAppearance<ButtonProps>
-        CodeTypeLink?: ElementAppearance<ButtonProps>
+        CodeOrBackupToggle?: ElementAppearance<ButtonProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
@@ -60,16 +60,30 @@ const VerifyMfa = ({ onStepCompleted, appearance, config }: VerifyMfaProps) => {
             e.preventDefault()
             setError(undefined)
             setLoading(true)
-            const response = await mfaApi.mfaVerify({ code, xCsrfToken: X_CSRF_TOKEN })
-            if (response.ok) {
-                onStepCompleted()
+            if (useBackupCode) {
+                const backupResponse = await mfaApi.mfaVerifyBackup({ code, xCsrfToken: X_CSRF_TOKEN })
+                if (backupResponse.ok) {
+                    onStepCompleted()
+                } else {
+                    backupResponse.error._visit({
+                        badRequestMfaVerify: (err) => setError(err.code?.join(", ") || BAD_REQUEST),
+                        notFoundMfaVerify: () => setError(NOT_FOUND_MFA_VERIFY),
+                        forbiddenMfaVerify: () => setError(FORBIDDEN),
+                        _other: () => setError(UNEXPECTED_ERROR),
+                    })
+                }
             } else {
-                response.error._visit({
-                    badRequestMfaVerify: (err) => setError(err.code?.join(", ") || BAD_REQUEST),
-                    notFoundMfaVerify: () => setError(NOT_FOUND_MFA_VERIFY),
-                    forbiddenMfaVerify: () => setError(FORBIDDEN),
-                    _other: () => setError(UNEXPECTED_ERROR),
-                })
+                const codeResponse = await mfaApi.mfaVerify({ code, xCsrfToken: X_CSRF_TOKEN })
+                if (codeResponse.ok) {
+                    onStepCompleted()
+                } else {
+                    codeResponse.error._visit({
+                        badRequestMfaVerify: (err) => setError(err.code?.join(", ") || BAD_REQUEST),
+                        notFoundMfaVerify: () => setError(NOT_FOUND_MFA_VERIFY),
+                        forbiddenMfaVerify: () => setError(FORBIDDEN),
+                        _other: () => setError(UNEXPECTED_ERROR),
+                    })
+                }
             }
         } catch (e) {
             setError(UNEXPECTED_ERROR)
@@ -92,7 +106,9 @@ const VerifyMfa = ({ onStepCompleted, appearance, config }: VerifyMfaProps) => {
                     </div>
                 )}
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>{`Verify`}</H3>
+                    <H3 appearance={appearance?.elements?.Header}>
+                        {`Verify with ${useBackupCode ? "your backup code" : "2FA"}`}
+                    </H3>
                 </div>
                 <div data-contain="form">
                     <form onSubmit={verifyMfa}>
@@ -102,7 +118,7 @@ const VerifyMfa = ({ onStepCompleted, appearance, config }: VerifyMfaProps) => {
                             </Label>
                             <Input
                                 id={"code"}
-                                type={"text"}
+                                type={useBackupCode ? "text" : "number"}
                                 placeholder={"123456"}
                                 value={code}
                                 onChange={(e) => setCode(e.target.value)}
@@ -120,7 +136,7 @@ const VerifyMfa = ({ onStepCompleted, appearance, config }: VerifyMfaProps) => {
                     </form>
                 </div>
                 <div data-contain="link">
-                    <Button onClick={toggleCodeType} appearance={appearance?.elements?.CodeTypeLink}>
+                    <Button onClick={toggleCodeType} appearance={appearance?.elements?.CodeOrBackupToggle}>
                         {buttonText}
                     </Button>
                 </div>

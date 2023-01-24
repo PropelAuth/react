@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useEffect } from "react"
 import { useAuthUrl } from "../additionalHooks"
 import { Button } from "../elements/Button"
 import { Config } from "../withConfig"
@@ -9,10 +9,16 @@ import { SignupAppearance } from "./Signup"
 export type SignInOptionsProps = {
     config: Config
     onRedirectToPasswordlessLogin?: VoidFunction
+    onRedirectToSSOLogin?: VoidFunction
     appearance?: LoginAppearance | SignupAppearance
 }
 
-export const SignInOptions = ({ config, onRedirectToPasswordlessLogin, appearance }: SignInOptionsProps) => {
+export const SignInOptions = ({
+    config,
+    onRedirectToPasswordlessLogin,
+    onRedirectToSSOLogin,
+    appearance,
+}: SignInOptionsProps) => {
     const { authUrl } = useAuthUrl()
     const GOOGLE_LOGIN_PATH = "/google/login"
     const GITHUB_LOGIN_PATH = "/github/login"
@@ -26,10 +32,23 @@ export const SignInOptions = ({ config, onRedirectToPasswordlessLogin, appearanc
             : console.error("No passwordless login URL specified.")
     }
 
+    function loginWithSSO() {
+        onRedirectToSSOLogin ? onRedirectToSSOLogin() : console.error("No SSO login URL specified.")
+    }
+
     function loginWithSocial(path: string) {
         const url = withHttp(authUrl)
         return window.location.replace(url + path)
     }
+
+    useEffect(() => {
+        if (config.hasPasswordlessLogin && !onRedirectToPasswordlessLogin) {
+            console.error("Please specify an onRedirectToPasswordlessLogin function.")
+        }
+        if (config.hasSsoLogin && !onRedirectToSSOLogin) {
+            console.error("Please specify an onRedirectToSSOLogin function.")
+        }
+    }, [])
 
     return (
         <div data-contain="social_buttons">
@@ -82,9 +101,20 @@ export const SignInOptions = ({ config, onRedirectToPasswordlessLogin, appearanc
                 <Button
                     onClick={() => loginWithPasswordless()}
                     appearance={appearance?.elements?.RedirectToPasswordlessLoginButton}
+                    disabled={!onRedirectToPasswordlessLogin ? true : false}
                 >
                     <PasswordlessLogo />
                     <span>Sign in with Magic Link</span>
+                </Button>
+            )}
+            {config.hasSsoLogin && (
+                <Button
+                    onClick={() => loginWithSSO()}
+                    appearance={appearance?.elements?.RedirectToSSOLoginButton}
+                    disabled={!onRedirectToSSOLogin ? true : false}
+                >
+                    <SSOLogo />
+                    <span>Sign in with SSO</span>
                 </Button>
             )}
         </div>
@@ -199,6 +229,24 @@ export const PasswordlessLogo = () => {
             <path stroke="none" d="M0 0h24v24H0z" fill="none" />
             <rect x="3" y="5" width="18" height="14" rx="2" />
             <polyline points="3 7 12 13 21 7" />
+        </svg>
+    )
+}
+
+export const SSOLogo = () => {
+    return (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <g clip-path="url(#clip0_7_25)">
+                <path
+                    d="M16.5 0C12.36 0 9.00003 3.36 9.00003 7.5C9.00003 9.03 9.46503 10.44 10.245 11.625L0.435034 21.435C0.152578 21.7175 -0.00610352 22.1005 -0.00610352 22.5C-0.00610352 22.8995 0.152578 23.2825 0.435034 23.565C0.717489 23.8475 1.10058 24.0061 1.50003 24.0061C1.89949 24.0061 2.28258 23.8475 2.56503 23.565L4.50003 21.615L6.43503 23.55C6.70503 23.835 7.08003 24 7.50003 24C7.92003 24 8.29503 23.835 8.56503 23.565L11.565 20.565C11.835 20.295 12 19.92 12 19.5C12 19.08 11.835 18.705 11.565 18.435L9.61503 16.5L12.36 13.755C13.56 14.535 14.97 15 16.5 15C20.64 15 24 11.64 24 7.5C24 3.36 20.64 0 16.5 0ZM16.5 12C16.155 12 15.825 11.955 15.51 11.88C15.495 11.88 15.48 11.865 15.465 11.865C15.15 11.79 14.85 11.685 14.565 11.55C13.9636 11.2604 13.4339 10.8411 13.0137 10.3224C12.5936 9.80373 12.2935 9.19843 12.135 8.55C12.135 8.535 12.12 8.52 12.12 8.505C12.045 8.175 12 7.845 12 7.5C12 5.01 14.01 3 16.5 3C18.99 3 21 5.01 21 7.5C21 9.99 18.99 12 16.5 12Z"
+                    fill="black"
+                />
+            </g>
+            <defs>
+                <clipPath id="clip0_7_25">
+                    <rect width="24" height="24" fill="white" />
+                </clipPath>
+            </defs>
         </svg>
     )
 }

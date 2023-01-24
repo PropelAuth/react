@@ -21,7 +21,7 @@ export type LoginManagerProps = {
     completeAccountAppearance?: CompleteAccountAppearance
     updatePasswordAppearance?: UpdatePasswordAppearance
     createOrgAppearance?: CreateOrgAppearance
-    loginStateOverride?: PropelAuthFeV2.LoginStateEnum
+    overrideCurrentScreenForTesting?: PropelAuthFeV2.LoginStateEnum
 }
 
 const LoginManager = ({
@@ -35,7 +35,7 @@ const LoginManager = ({
     completeAccountAppearance,
     updatePasswordAppearance,
     createOrgAppearance,
-    loginStateOverride,
+    overrideCurrentScreenForTesting,
 }: LoginManagerProps) => {
     const { loginStateLoading, loginStateError, loginState, getLoginState } = useLoginState()
 
@@ -46,8 +46,8 @@ const LoginManager = ({
     }, [loginState, onLoginCompleted])
 
     if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
-        if (loginStateOverride) {
-            switch (loginStateOverride) {
+        if (overrideCurrentScreenForTesting) {
+            switch (overrideCurrentScreenForTesting) {
                 case PropelAuthFeV2.LoginStateEnum.LoginRequired:
                     return (
                         <Login

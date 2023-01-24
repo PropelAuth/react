@@ -20,7 +20,7 @@ import {
 export type ConfirmEmailAppearance = {
     options?: {
         displayLogo?: boolean
-        resendConfirmationButtonText: ReactNode
+        resendConfirmationButtonText?: ReactNode
     }
     elements?: {
         Container?: ElementAppearance<ContainerProps>

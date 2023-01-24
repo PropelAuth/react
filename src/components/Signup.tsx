@@ -40,6 +40,7 @@ export type SignupAppearance = {
         SubmitButton?: ElementAppearance<ButtonProps>
         RedirectToLoginLink?: ElementAppearance<ButtonProps>
         RedirectToPasswordlessLoginButton?: ElementAppearance<ButtonProps>
+        RedirectToSSOLoginButton?: ElementAppearance<ButtonProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
@@ -48,6 +49,7 @@ export type SignupProps = {
     onSignupCompleted: VoidFunction
     onRedirectToLogin?: VoidFunction
     onRedirectToPasswordlessLogin?: VoidFunction
+    onRedirectToSSOLogin?: VoidFunction
     appearance?: SignupAppearance
 } & WithConfigProps
 
@@ -55,6 +57,7 @@ const Signup = ({
     onSignupCompleted,
     onRedirectToLogin,
     onRedirectToPasswordlessLogin,
+    onRedirectToSSOLogin,
     appearance,
     config,
 }: SignupProps) => {
@@ -77,6 +80,7 @@ const Signup = ({
                     config={config}
                     appearance={appearance}
                     onRedirectToPasswordlessLogin={onRedirectToPasswordlessLogin}
+                    onRedirectToSSOLogin={onRedirectToSSOLogin}
                 />
                 {config.hasPasswordLogin && config.hasAnyNonPasswordLogin && appearance?.options?.divider !== false && (
                     <OrDivider appearance={appearance?.elements?.Divider} options={appearance?.options?.divider} />
