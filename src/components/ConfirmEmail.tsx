@@ -88,8 +88,10 @@ const ConfirmEmail = ({ appearance, testMode, config }: ConfirmEmailProps) => {
                 <div data-contain="header">
                     <H3 appearance={appearance?.elements?.Header}>Confirm your email</H3>
                 </div>
-                <div data-contain="text">
+                <div data-contain="content">
                     <Paragraph appearance={appearance?.elements?.ConfirmationText}>{CONFIRM_EMAIL_MESSAGE}</Paragraph>
+                </div>
+                <div data-contain="form">
                     {resent ? (
                         <Alert appearance={appearance?.elements?.SuccessMessage} type={"success"}>
                             {RESEND_CONFIRM_EMAIL_MESSAGE}
@@ -103,12 +105,12 @@ const ConfirmEmail = ({ appearance, testMode, config }: ConfirmEmailProps) => {
                             {appearance?.options?.resendConfirmationButtonText || `Resend Confirmation Email`}
                         </Button>
                     )}
-                    {error && (
-                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                            {error}
-                        </Alert>
-                    )}
                 </div>
+                {error && (
+                    <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                        {error}
+                    </Alert>
+                )}
             </Container>
         </div>
     )
