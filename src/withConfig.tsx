@@ -69,12 +69,12 @@ export function withConfig<P extends WithConfigProps>(
             configError: error,
         }
 
-        if (loading) {
-            return <Loading appearance={args?.appearance} />
+        if (config) {
+            return <Component {...withConfigProps} />
         } else if (error) {
             return <ErrorMessage appearance={args?.appearance} />
         } else {
-            return <Component {...withConfigProps} />
+            return <Loading appearance={args?.appearance} />
         }
     }
 
