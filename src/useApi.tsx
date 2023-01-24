@@ -65,7 +65,6 @@ export const useApi = () => {
         mfaApi: context.api.mfa,
         orgApi: context.api.org,
         userApi: context.api.user,
-        orgUserApi: context.api.userInOrg,
         configApi: context.api.config,
         legacyApi: legacyApi,
     }
