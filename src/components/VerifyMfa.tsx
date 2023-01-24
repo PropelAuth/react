@@ -11,7 +11,7 @@ import { Label, LabelProps } from "../elements/Label"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
-import { BAD_REQUEST, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { BAD_REQUEST, INCORRECT_MFA_CODE, MFA_TIMED_OUT, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
 export type VerifyMfaAppearance = {
     options?: {
@@ -76,9 +76,9 @@ const VerifyMfa = ({ onStepCompleted, appearance, testMode, config }: VerifyMfaP
                     onStepCompleted()
                 } else {
                     backupResponse.error._visit({
+                        incorrectMfaCode: () => setError(INCORRECT_MFA_CODE),
+                        mfaTimedOut: () => setError(MFA_TIMED_OUT),
                         badRequestMfaVerify: (err) => setError(err.code?.join(", ") || BAD_REQUEST),
-                        notFoundMfaVerify: redirectToLoginPage,
-                        forbiddenMfaVerify: (err) => setError(err.error || "Invalid code"),
                         _other: () => setError(UNEXPECTED_ERROR),
                     })
                 }
@@ -88,9 +88,9 @@ const VerifyMfa = ({ onStepCompleted, appearance, testMode, config }: VerifyMfaP
                     onStepCompleted()
                 } else {
                     codeResponse.error._visit({
+                        incorrectMfaCode: () => setError(INCORRECT_MFA_CODE),
+                        mfaTimedOut: () => setError(MFA_TIMED_OUT),
                         badRequestMfaVerify: (err) => setError(err.code?.join(", ") || BAD_REQUEST),
-                        notFoundMfaVerify: redirectToLoginPage,
-                        forbiddenMfaVerify: (err) => setError(err.error || "Invalid code"),
                         _other: () => setError(UNEXPECTED_ERROR),
                     })
                 }

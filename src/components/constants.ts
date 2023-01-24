@@ -22,3 +22,6 @@ export const COMPLETE_ACCOUNT_TEXT = "We need a little more information to compl
 export const ORG_NAME_NOT_FOUND = "Name not found."
 export const RATE_LIMIT_EMAIL_CONFIRMATION = "Please wait, it may take a few minutes to receive your confirmation email"
 export const INCORRECT_PASSWORD = "Incorrect password"
+export const ORGS_NOT_ENABLED = "Organizations are not enabled."
+export const INCORRECT_MFA_CODE = "Incorrect code"
+export const MFA_TIMED_OUT = "Code expired"

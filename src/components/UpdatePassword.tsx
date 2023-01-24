@@ -66,7 +66,7 @@ const UpdatePassword = ({ onStepCompleted, appearance, testMode, config }: Updat
                 }
             } else {
                 res.error._visit({
-                    notFoundUpdatePassword: () => setError(INCORRECT_PASSWORD),
+                    incorrectPassword: () => setError(INCORRECT_PASSWORD),
                     badRequestUpdatePassword: (err) => {
                         if (err.currentPassword || err.password) {
                             if (err.currentPassword) {

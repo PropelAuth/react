@@ -1,11 +1,11 @@
 {
-    "name": "@propelauth/react-test",
+    "name": "@propelauth/react",
     "description": "A React library for managing authentication, backed by PropelAuth",
     "repository": {
         "type": "git",
         "url": "https://github.com/PropelAuth/react"
     },
-    "version": "2.1.0-beta.78",
+    "version": "2.0.2",
     "license": "MIT",
     "keywords": [
         "auth",
@@ -13,7 +13,7 @@
         "user"
     ],
     "dependencies": {
-        "@propel-auth-fern/fe_v2-client": "^0.0.95",
+        "@propel-auth-fern/fe_v2-client": "^0.0.97",
         "@propelauth/javascript": "^2.0.0",
         "hoist-non-react-statics": "^3.3.2",
         "utility-types": "^3.10.0"

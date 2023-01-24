@@ -11,7 +11,7 @@ import { Label, LabelProps } from "../elements/Label"
 import { ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { withConfig, WithConfigProps } from "../withConfig"
-import { ORG_NAME_NOT_FOUND, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { ORGS_NOT_ENABLED, ORG_NAME_NOT_FOUND, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
 export type LoginSSOAppearance = {
     options?: {
@@ -62,6 +62,7 @@ const LoginSSO = ({ onRedirectToLogin, appearance, config }: LoginPasswordlessPr
                 window.location.replace(response.body.loginUrl)
             } else {
                 response.error._visit({
+                    orgsNotEnabled: () => setError(ORGS_NOT_ENABLED),
                     notFoundOrgName: () => setOrgNameError(ORG_NAME_NOT_FOUND),
                     _other: () => setError(UNEXPECTED_ERROR),
                 })

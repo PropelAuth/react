@@ -14,14 +14,7 @@ import { Select, SelectProps } from "../elements/Select"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
-import {
-    BAD_REQUEST,
-    NOT_FOUND_JOINABLE_ORG,
-    NOT_FOUND_JOIN_ORG,
-    ORG_CREATION_NOT_ENABLED,
-    UNEXPECTED_ERROR,
-    X_CSRF_TOKEN,
-} from "./constants"
+import { BAD_REQUEST, ORGS_NOT_ENABLED, ORG_CREATION_NOT_ENABLED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { ErrorMessage } from "./ErrorMessage"
 import { Loading } from "./Loading"
 import { OrDivider } from "./OrDivider"
@@ -93,7 +86,7 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: Creat
                 .then((response) => {
                     if (mounted) {
                         if (response.ok) {
-                            // setExistingDomain(response.body.existingDomain) TODO
+                            setExistingDomain(response.body.currentUserDomain)
                             setCanUseDomainOptions(response.body.canUseDomainOptions)
                         } else {
                             response.error._visit({
@@ -268,7 +261,7 @@ const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: Joinabl
                         setJoinableOrgs(response.body.orgs)
                     } else {
                         response.error._visit({
-                            notFoundJoinableOrgs: () => setFetchError(NOT_FOUND_JOINABLE_ORG),
+                            orgsNotEnabled: () => setFetchError(ORGS_NOT_ENABLED),
                             unauthorized: redirectToLoginPage,
                             _other: () => setFetchError(UNEXPECTED_ERROR),
                         })
@@ -304,7 +297,7 @@ const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: Joinabl
                 onOrgCreatedOrJoined(selectedOrg as PropelAuthFeV2.OrgInfoResponse)
             } else {
                 response.error._visit({
-                    notFoundJoinOrg: () => setJoinError(NOT_FOUND_JOIN_ORG),
+                    orgsNotEnabled: () => setJoinError(ORGS_NOT_ENABLED),
                     badRequestJoinOrg: (err) => setJoinError(err.error?.join(", ") || BAD_REQUEST),
                     unauthorized: redirectToLoginPage,
                     _other: () => setJoinError(UNEXPECTED_ERROR),
