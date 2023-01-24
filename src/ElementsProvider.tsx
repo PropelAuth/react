@@ -71,7 +71,10 @@ export const useElements = () => {
     const context = useContext(ElementsContext)
 
     if (context === undefined) {
-        throw new Error("You must specify your elements within AuthProvider or RequiredAuthProvider")
+        throw new Error(
+            "The component you are using is part of our component library beta (TODO: docs). " +
+                "To use it, you must specify the `Elements` prop in your AuthProvider"
+        )
     }
 
     return { elements: context.elements, setElements: context.setElements }

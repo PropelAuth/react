@@ -11,7 +11,7 @@ import { Label, LabelProps } from "../elements/Label"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
-import { BAD_REQUEST, NOT_FOUND_UPDATE_PASSWORD, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { BAD_REQUEST, INCORRECT_PASSWORD, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 
 export type UpdatePasswordAppearance = {
     options?: {
@@ -57,7 +57,7 @@ const UpdatePassword = ({ onStepCompleted, appearance, config }: UpdatePasswordP
                 }
             } else {
                 res.error._visit({
-                    notFoundUpdatePassword: () => setError(NOT_FOUND_UPDATE_PASSWORD),
+                    notFoundUpdatePassword: () => setError(INCORRECT_PASSWORD),
                     badRequestUpdatePassword: (err) => {
                         if (err.currentPassword || err.password) {
                             if (err.currentPassword) {

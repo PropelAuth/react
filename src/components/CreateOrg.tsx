@@ -165,7 +165,7 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, config }: CreateOrgProps)
                     <form onSubmit={createOrg}>
                         <div>
                             <Label htmlFor="org_name" appearance={appearance?.elements?.OrgNameLabel}>
-                                {`What's the name of your ${orgMetaname.toLowerCase()}?`}
+                                {`What's the name of your ${orgMetaname.toLowerCase()}? This will be visible to other members.`}
                             </Label>
                             <Input
                                 id={"org_name"}
@@ -293,7 +293,7 @@ const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: Joinabl
             } else {
                 response.error._visit({
                     notFoundJoinOrg: () => setJoinError(NOT_FOUND_JOIN_ORG),
-                    badRequestJoinOrg: () => setJoinError(BAD_REQUEST),
+                    badRequestJoinOrg: (err) => setJoinError(err.error?.join(", ") || BAD_REQUEST),
                     unauthorized: redirectToLoginPage,
                     _other: () => setJoinError(UNEXPECTED_ERROR),
                 })

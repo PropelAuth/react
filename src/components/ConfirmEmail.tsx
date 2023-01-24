@@ -11,8 +11,8 @@ import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
 import {
     CONFIRM_EMAIL_MESSAGE,
+    RATE_LIMIT_EMAIL_CONFIRMATION,
     RESEND_CONFIRM_EMAIL_MESSAGE,
-    TOO_MANY_REQUESTS,
     UNEXPECTED_ERROR,
     X_CSRF_TOKEN,
 } from "./constants"
@@ -52,7 +52,7 @@ const ConfirmEmail = ({ appearance, config }: ConfirmEmailProps) => {
                 setResent(true)
             } else {
                 response.error._visit({
-                    tooManyRequests: () => setError(TOO_MANY_REQUESTS),
+                    tooManyRequests: () => setError(RATE_LIMIT_EMAIL_CONFIRMATION),
                     unauthorized: redirectToLoginPage,
                     _other: () => setError(UNEXPECTED_ERROR),
                 })
