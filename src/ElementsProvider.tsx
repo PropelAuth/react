@@ -1,7 +1,7 @@
 import React, {
     createContext,
     Dispatch,
-    ForwardRefExoticComponent,
+    FC,
     ReactNode,
     RefAttributes,
     SetStateAction,
@@ -29,25 +29,25 @@ import { SelectProps } from "./elements/Select"
 import { TableProps } from "./elements/Table"
 
 export type Elements = {
-    Alert: ForwardRefExoticComponent<AlertProps & RefAttributes<HTMLDivElement>>
-    AnchorButton: ForwardRefExoticComponent<AnchorButtonProps & RefAttributes<HTMLButtonElement>>
-    Button: ForwardRefExoticComponent<ButtonProps & RefAttributes<HTMLButtonElement>>
-    Checkbox: ForwardRefExoticComponent<CheckboxProps & RefAttributes<HTMLInputElement>>
-    Container: ForwardRefExoticComponent<ContainerProps & RefAttributes<HTMLDivElement>>
-    Divider: ForwardRefExoticComponent<DividerProps & RefAttributes<HTMLDivElement>>
-    H1: ForwardRefExoticComponent<H1Props & RefAttributes<HTMLHeadingElement>>
-    H3: ForwardRefExoticComponent<H3Props & RefAttributes<HTMLHeadingElement>>
-    H5: ForwardRefExoticComponent<H5Props & RefAttributes<HTMLHeadingElement>>
-    Image: ForwardRefExoticComponent<ImageProps & RefAttributes<HTMLImageElement>>
-    Input: ForwardRefExoticComponent<InputProps & RefAttributes<HTMLInputElement>>
-    Label: ForwardRefExoticComponent<LabelProps & RefAttributes<HTMLLabelElement>>
-    Link: ForwardRefExoticComponent<LinkProps & RefAttributes<HTMLAnchorElement>>
+    Alert: FC<AlertProps & RefAttributes<HTMLDivElement>>
+    AnchorButton: FC<AnchorButtonProps & RefAttributes<HTMLButtonElement>>
+    Button: FC<ButtonProps & RefAttributes<HTMLButtonElement>>
+    Checkbox: FC<CheckboxProps & RefAttributes<HTMLInputElement>>
+    Container: FC<ContainerProps & RefAttributes<HTMLDivElement>>
+    Divider: FC<DividerProps & RefAttributes<HTMLDivElement>>
+    H1: FC<H1Props & RefAttributes<HTMLHeadingElement>>
+    H3: FC<H3Props & RefAttributes<HTMLHeadingElement>>
+    H5: FC<H5Props & RefAttributes<HTMLHeadingElement>>
+    Image: FC<ImageProps & RefAttributes<HTMLImageElement>>
+    Input: FC<InputProps & RefAttributes<HTMLInputElement>>
+    Label: FC<LabelProps & RefAttributes<HTMLLabelElement>>
+    Link: FC<LinkProps & RefAttributes<HTMLAnchorElement>>
     Modal: (props: ModalProps) => JSX.Element
-    Paragraph: ForwardRefExoticComponent<ParagraphProps & RefAttributes<HTMLParagraphElement>>
+    Paragraph: FC<ParagraphProps & RefAttributes<HTMLParagraphElement>>
     Popover: (props: PopoverProps) => JSX.Element
-    Progress: ForwardRefExoticComponent<ProgressProps & RefAttributes<HTMLSpanElement>>
-    Select: ForwardRefExoticComponent<SelectProps & RefAttributes<HTMLSelectElement>>
-    Table: ForwardRefExoticComponent<TableProps & RefAttributes<HTMLTableElement>>
+    Progress: FC<ProgressProps & RefAttributes<HTMLSpanElement>>
+    Select: FC<SelectProps & RefAttributes<HTMLSelectElement>>
+    Table: FC<TableProps & RefAttributes<HTMLTableElement>>
 }
 
 export type ElementsState = {
