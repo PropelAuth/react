@@ -32,9 +32,10 @@ export type UpdatePasswordAppearance = {
 type UpdatePasswordProps = {
     onStepCompleted: VoidFunction
     appearance?: UpdatePasswordAppearance
+    testMode?: boolean
 } & WithConfigProps
 
-const UpdatePassword = ({ onStepCompleted, appearance, config }: UpdatePasswordProps) => {
+const UpdatePassword = ({ onStepCompleted, appearance, testMode, config }: UpdatePasswordProps) => {
     const { userApi, loginApi } = useApi()
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
@@ -42,8 +43,16 @@ const UpdatePassword = ({ onStepCompleted, appearance, config }: UpdatePasswordP
     const { redirectToLoginPage } = useRedirectFunctions()
 
     async function handleSubmit(event: FormEvent) {
+        event.preventDefault()
+
+        if (testMode) {
+            alert(
+                "You are currently in test mode. Remove the `overrideCurrentScreenForTesting` prop to update your password."
+            )
+            return
+        }
+
         try {
-            event.preventDefault()
             setError(undefined)
             setLoading(true)
             let options: PropelAuthFeV2.UpdatePasswordRequest = { password, xCsrfToken: X_CSRF_TOKEN }

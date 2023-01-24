@@ -34,9 +34,10 @@ export type ConfirmEmailAppearance = {
 }
 type ConfirmEmailProps = {
     appearance?: ConfirmEmailAppearance
+    testMode?: boolean
 } & WithConfigProps
 
-const ConfirmEmail = ({ appearance, config }: ConfirmEmailProps) => {
+const ConfirmEmail = ({ appearance, testMode, config }: ConfirmEmailProps) => {
     const { userApi } = useApi()
     const [loading, setLoading] = useState(false)
     const [resent, setResent] = useState(false)
@@ -44,6 +45,13 @@ const ConfirmEmail = ({ appearance, config }: ConfirmEmailProps) => {
     const { redirectToLoginPage } = useRedirectFunctions()
 
     async function handleClick() {
+        if (testMode) {
+            alert(
+                "You are currently in test mode. Remove the `overrideCurrentScreenForTesting` prop to resend email confirmaion."
+            )
+            return
+        }
+
         try {
             setError(undefined)
             setLoading(true)

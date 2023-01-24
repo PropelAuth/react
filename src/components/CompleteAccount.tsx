@@ -38,9 +38,10 @@ export type CompleteAccountAppearance = {
 type UserMetadataProps = {
     onStepCompleted: VoidFunction
     appearance?: CompleteAccountAppearance
+    testMode?: boolean
 } & WithConfigProps
 
-const CompleteAccount = ({ onStepCompleted, appearance, config }: UserMetadataProps) => {
+const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: UserMetadataProps) => {
     const { userApi, loginApi } = useApi()
     const [loading, setLoading] = useState(false)
     const [firstName, setFirstName] = useState("")
@@ -60,16 +61,24 @@ const CompleteAccount = ({ onStepCompleted, appearance, config }: UserMetadataPr
     }
 
     async function updateMetadata(e: SyntheticEvent) {
+        e.preventDefault()
+
+        if (testMode) {
+            alert(
+                "You are currently in test mode. Remove the `overrideCurrentScreenForTesting` prop to complete account."
+            )
+            return
+        }
+
         try {
-            e.preventDefault()
             clearErrors()
             setLoading(true)
             const options: PropelAuthFeV2.UpdateUserFacingMetadataRequest = { xCsrfToken: X_CSRF_TOKEN }
-            if (config && config.requireUsersToSetName) {
+            if (config.requireUsersToSetName) {
                 options.firstName = firstName
                 options.lastName = lastName
             }
-            if (config && config.requireUsersToSetUsername) {
+            if (config.requireUsersToSetUsername) {
                 options.username = username
             }
             const response = await userApi.updateMetadata(options)
@@ -109,6 +118,16 @@ const CompleteAccount = ({ onStepCompleted, appearance, config }: UserMetadataPr
         }
     }
 
+    function getCompleteAccountContent() {
+        if (testMode) {
+            if (!config.requireUsersToSetName && !config.requireUsersToSetUsername) {
+                return "You are currently in test mode. No information is needed to complete your account."
+            }
+        }
+
+        return COMPLETE_ACCOUNT_TEXT
+    }
+
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
@@ -125,7 +144,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, config }: UserMetadataPr
                     <H3 appearance={appearance?.elements?.Header}>Complete your account</H3>
                 </div>
                 <div data-contain="content">
-                    <Paragraph appearance={appearance?.elements?.Content}>{COMPLETE_ACCOUNT_TEXT}</Paragraph>
+                    <Paragraph appearance={appearance?.elements?.Content}>{getCompleteAccountContent()}</Paragraph>
                 </div>
                 <div data-contain="form">
                     <form onSubmit={updateMetadata}>

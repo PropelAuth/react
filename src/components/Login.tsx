@@ -49,6 +49,7 @@ type LoginProps = {
     onRedirectToPasswordlessLogin?: VoidFunction
     onRedirectToSSOLogin?: VoidFunction
     appearance?: LoginAppearance
+    testMode?: boolean
 } & WithConfigProps
 
 const Login = ({
@@ -58,6 +59,7 @@ const Login = ({
     onRedirectToPasswordlessLogin,
     onRedirectToSSOLogin,
     appearance,
+    testMode,
     config,
 }: LoginProps) => {
     const { loginApi } = useApi()
@@ -75,8 +77,14 @@ const Login = ({
     }
 
     const login = async (e: SyntheticEvent) => {
+        e.preventDefault()
+
+        if (testMode) {
+            alert("You are currently in test mode. Remove the `overrideCurrentScreenForTesting` prop to log in.")
+            return
+        }
+
         try {
-            e.preventDefault()
             setLoading(true)
             clearErrors()
             const options = { email, password, xCsrfToken: X_CSRF_TOKEN }

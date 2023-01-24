@@ -57,9 +57,10 @@ type OrgInfo = {
 type CreateOrgProps = {
     onOrgCreatedOrJoined: (org: OrgInfo) => void
     appearance?: CreateOrgAppearance
+    testMode?: boolean
 } & WithConfigProps
 
-const CreateOrg = ({ onOrgCreatedOrJoined, appearance, config }: CreateOrgProps) => {
+const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: CreateOrgProps) => {
     const { orgApi } = useApi()
     const [statusLoading, setStatusLoading] = useState(false)
     const [statusError, setStatusError] = useState<string | undefined>(undefined)
@@ -84,38 +85,47 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, config }: CreateOrgProps)
 
     useEffect(() => {
         let mounted = true
-        clearErrors()
-        setStatusLoading(true)
-        orgApi
-            .fetchCreateOrgOptions()
-            .then((response) => {
-                if (mounted) {
-                    if (response.ok) {
-                        // setExistingDomain(response.body.existingDomain) TODO
-                        setCanUseDomainOptions(response.body.canUseDomainOptions)
-                    } else {
-                        response.error._visit({
-                            orgCreationNotEnabled: () => setStatusError(ORG_CREATION_NOT_ENABLED),
-                            unauthorized: redirectToLoginPage,
-                            _other: () => setStatusError(UNEXPECTED_ERROR),
-                        })
+        if (!testMode) {
+            clearErrors()
+            setStatusLoading(true)
+            orgApi
+                .fetchCreateOrgOptions()
+                .then((response) => {
+                    if (mounted) {
+                        if (response.ok) {
+                            // setExistingDomain(response.body.existingDomain) TODO
+                            setCanUseDomainOptions(response.body.canUseDomainOptions)
+                        } else {
+                            response.error._visit({
+                                orgCreationNotEnabled: () => setStatusError(ORG_CREATION_NOT_ENABLED),
+                                unauthorized: redirectToLoginPage,
+                                _other: () => setStatusError(UNEXPECTED_ERROR),
+                            })
+                        }
                     }
-                }
-            })
-            .catch((e) => {
-                setStatusError(UNEXPECTED_ERROR)
-                console.error(e)
-            })
-            .finally(() => setStatusLoading(false))
-
+                })
+                .catch((e) => {
+                    setStatusError(UNEXPECTED_ERROR)
+                    console.error(e)
+                })
+                .finally(() => setStatusLoading(false))
+        }
         return () => {
             mounted = false
         }
     }, [])
 
     async function createOrg(e: SyntheticEvent) {
+        e.preventDefault()
+
+        if (testMode) {
+            alert(
+                "You are currently in test mode. Remove the `overrideCurrentScreenForTesting` prop to create an organization."
+            )
+            return
+        }
+
         try {
-            e.preventDefault()
             clearErrors()
             setLoading(true)
             const options = { name, autojoinByDomain, restrictToDomain, xCsrfToken: X_CSRF_TOKEN }
@@ -189,7 +199,7 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, config }: CreateOrgProps)
                                 checked={autojoinByDomain}
                                 onChange={(e) => setAutojoinByDomain(e.target.checked)}
                                 appearance={appearance?.elements?.AutojoinByDomainCheckbox}
-                                disabled={canUseDomainOptions}
+                                disabled={!canUseDomainOptions}
                             />
                         </div>
                         <div>
@@ -199,7 +209,7 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, config }: CreateOrgProps)
                                 checked={restrictToDomain}
                                 onChange={(e) => setRestrictToDomain(e.target.checked)}
                                 appearance={appearance?.elements?.RestrictToDomainCheckbox}
-                                disabled={canUseDomainOptions}
+                                disabled={!canUseDomainOptions}
                             />
                         </div>
                         <Button loading={loading} appearance={appearance?.elements?.CreateOrgButton}>
@@ -212,11 +222,13 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, config }: CreateOrgProps)
                         )}
                     </form>
                 </div>
-                <JoinableOrgs
-                    orgMetaname={orgMetaname}
-                    onOrgCreatedOrJoined={onOrgCreatedOrJoined}
-                    appearance={appearance}
-                />
+                {!testMode && (
+                    <JoinableOrgs
+                        orgMetaname={orgMetaname}
+                        onOrgCreatedOrJoined={onOrgCreatedOrJoined}
+                        appearance={appearance}
+                    />
+                )}
             </Container>
         </div>
     )

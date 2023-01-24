@@ -3,7 +3,11 @@ import { useEffect, useState } from "react"
 import { UNEXPECTED_ERROR } from "./components/constants"
 import { useApi } from "./useApi"
 
-export const useLoginState = () => {
+export type UseLoginStateProps = {
+    overrideCurrentScreenForTesting?: PropelAuthFeV2.LoginStateEnum
+}
+
+export const useLoginState = ({ overrideCurrentScreenForTesting }: UseLoginStateProps) => {
     const { loginApi } = useApi()
     const [loading, setLoading] = useState<boolean>(false)
     const [error, setError] = useState<string | undefined>(undefined)
@@ -33,7 +37,7 @@ export const useLoginState = () => {
         return () => {
             mounted = false
         }
-    }, [])
+    }, [loginApi])
 
     async function getLoginState() {
         try {
@@ -53,10 +57,19 @@ export const useLoginState = () => {
         }
     }
 
+    if (overrideCurrentScreenForTesting) {
+        return {
+            loginStateLoading: false,
+            loginStateError: undefined,
+            loginState: overrideCurrentScreenForTesting,
+            getLoginState: () => setLoginState(overrideCurrentScreenForTesting),
+        }
+    }
+
     return {
         loginStateLoading: loading,
         loginStateError: error,
-        loginState,
+        loginState: loginState,
         getLoginState,
     }
 }

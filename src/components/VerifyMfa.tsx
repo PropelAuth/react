@@ -33,9 +33,10 @@ export type VerifyMfaAppearance = {
 type VerifyMfaProps = {
     onStepCompleted: VoidFunction
     appearance?: VerifyMfaAppearance
+    testMode?: boolean
 } & WithConfigProps
 
-const VerifyMfa = ({ onStepCompleted, appearance, config }: VerifyMfaProps) => {
+const VerifyMfa = ({ onStepCompleted, appearance, testMode, config }: VerifyMfaProps) => {
     const { mfaApi } = useApi()
     const { redirectToLoginPage } = useRedirectFunctions()
     const [loading, setLoading] = useState(false)
@@ -59,8 +60,14 @@ const VerifyMfa = ({ onStepCompleted, appearance, config }: VerifyMfaProps) => {
     }
 
     async function verifyMfa(e: SyntheticEvent) {
+        e.preventDefault()
+
+        if (testMode) {
+            alert("You are currently in test mode. Remove the `overrideCurrentScreenForTesting` prop to verify.")
+            return
+        }
+
         try {
-            e.preventDefault()
             setError(undefined)
             setLoading(true)
             if (useBackupCode) {
