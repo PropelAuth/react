@@ -1,6 +1,5 @@
 import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { useEffect } from "react"
-import { useAuthRefresh } from "../additionalHooks"
 import { useLoginState } from "../useLoginState"
 import CompleteAccount, { CompleteAccountAppearance } from "./CompleteAccount"
 import ConfirmEmail, { ConfirmEmailAppearance } from "./ConfirmEmail"
@@ -40,7 +39,6 @@ const LoginManager = ({
     createOrgAppearance,
     overrideCurrentScreenForTesting,
 }: LoginManagerProps) => {
-    const { refreshAuth } = useAuthRefresh()
     const testMode = !!overrideCurrentScreenForTesting
     const { loginStateLoading, loginStateError, loginState, getLoginState } = useLoginState({
         overrideCurrentScreenForTesting,
@@ -48,7 +46,6 @@ const LoginManager = ({
 
     useEffect(() => {
         if (loginState === PropelAuthFeV2.LoginStateEnum.Finished) {
-            refreshAuth()
             onLoginCompleted()
         }
     }, [loginState, onLoginCompleted])
