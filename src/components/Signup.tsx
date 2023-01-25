@@ -1,6 +1,5 @@
 import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
 import React, { ReactNode, SyntheticEvent, useState } from "react"
-import { useAuthRefresh } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { AnchorButton } from "../elements/AnchorButton"
@@ -103,7 +102,6 @@ type SignupFormProps = {
 }
 
 const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) => {
-    const { refreshAuth } = useAuthRefresh()
     const { userApi } = useApi()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -146,7 +144,6 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
             }
             const response = await userApi.signup(options)
             if (response.ok) {
-                refreshAuth()
                 onSignupCompleted()
             } else {
                 response.error._visit({

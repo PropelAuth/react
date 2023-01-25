@@ -1,5 +1,4 @@
 import React, { ReactNode, SyntheticEvent, useState } from "react"
-import { useAuthRefresh } from "../additionalHooks"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { AnchorButton } from "../elements/AnchorButton"
@@ -63,7 +62,6 @@ const Login = ({
     testMode,
     config,
 }: LoginProps) => {
-    const { refreshAuth } = useAuthRefresh()
     const { loginApi } = useApi()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
@@ -92,7 +90,6 @@ const Login = ({
             const options = { email, password, xCsrfToken: X_CSRF_TOKEN }
             const response = await loginApi.login(options)
             if (response.ok) {
-                refreshAuth()
                 onStepCompleted()
             } else {
                 response.error._visit({
