@@ -119,7 +119,7 @@ const UpdatePassword = ({ onStepCompleted, appearance, testMode, config }: Updat
                                 appearance={appearance?.elements?.PasswordInput}
                             />
                         </div>
-                        <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>
+                        <Button loading={loading} appearance={appearance?.elements?.SubmitButton} type="submit">
                             {appearance?.options?.SubmitButtonText || "Continue"}
                         </Button>
                         {error && (

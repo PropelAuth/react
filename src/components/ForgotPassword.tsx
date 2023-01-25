@@ -196,7 +196,11 @@ const ForgotPassword = ({ onRedirectToLogin, appearance, config }: ForgotPasswor
                             )}
                         </div>
 
-                        <Button loading={passwordResetLoading} appearance={appearance?.elements?.SubmitButton}>
+                        <Button
+                            loading={passwordResetLoading}
+                            appearance={appearance?.elements?.SubmitButton}
+                            type="submit"
+                        >
                             {appearance?.options?.resetPasswordButtonText || "Reset Password"}
                         </Button>
                     </form>

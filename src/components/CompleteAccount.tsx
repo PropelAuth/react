@@ -208,7 +208,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
                                 )}
                             </div>
                         )}
-                        <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>
+                        <Button loading={loading} appearance={appearance?.elements?.SubmitButton} type="submit">
                             {appearance?.options?.submitButtonText || "Continue"}
                         </Button>
                         {error && (

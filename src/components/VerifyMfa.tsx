@@ -135,7 +135,7 @@ const VerifyMfa = ({ onStepCompleted, appearance, testMode, config }: VerifyMfaP
                                 appearance={appearance?.elements?.CodeInput}
                             />
                         </div>
-                        <Button loading={loading} appearance={appearance?.elements?.SubmitButton}>
+                        <Button loading={loading} appearance={appearance?.elements?.SubmitButton} type="submit">
                             {appearance?.options?.submitButtonText || "Submit"}
                         </Button>
                         {error && (

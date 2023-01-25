@@ -205,7 +205,7 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: Creat
                                 disabled={!canUseDomainOptions}
                             />
                         </div>
-                        <Button loading={loading} appearance={appearance?.elements?.CreateOrgButton}>
+                        <Button loading={loading} appearance={appearance?.elements?.CreateOrgButton} type="submit">
                             {appearance?.options?.createOrgButtonText || `Create ${orgMetaname}`}
                         </Button>
                         {error && (
@@ -336,7 +336,7 @@ const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: Joinabl
                             })}
                         />
                     </div>
-                    <Button loading={joinLoading} appearance={appearance?.elements?.JoinOrgButton}>
+                    <Button loading={joinLoading} appearance={appearance?.elements?.JoinOrgButton} type="submit">
                         {appearance?.options?.joinOrgButtonText || `Join ${orgMetaname}`}
                     </Button>
                     {joinError && (

@@ -11,6 +11,7 @@ export type ButtonProps = {
     className?: string
     style?: CSSProperties
     children?: ReactNode
+    type?: "submit" | "reset" | "button"
 }
 
 export type ButtonPropsWithAppearance = {

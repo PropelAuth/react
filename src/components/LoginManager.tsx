@@ -15,6 +15,7 @@ export type LoginManagerProps = {
     onRedirectToSignup?: VoidFunction
     onRedirectToForgotPassword?: VoidFunction
     onRedirectToPasswordlessLogin?: VoidFunction
+    onRedirectToSSOLogin?: VoidFunction
     loginAppearance?: LoginAppearance
     confirmEmailAppearance?: ConfirmEmailAppearance
     verifyMfaAppearance?: VerifyMfaAppearance
@@ -29,6 +30,7 @@ const LoginManager = ({
     onRedirectToSignup,
     onRedirectToForgotPassword,
     onRedirectToPasswordlessLogin,
+    onRedirectToSSOLogin,
     loginAppearance,
     confirmEmailAppearance,
     verifyMfaAppearance,
@@ -62,6 +64,7 @@ const LoginManager = ({
                     onRedirectToSignup={onRedirectToSignup}
                     onRedirectToForgotPassword={onRedirectToForgotPassword}
                     onRedirectToPasswordlessLogin={onRedirectToPasswordlessLogin}
+                    onRedirectToSSOLogin={onRedirectToSSOLogin}
                     appearance={loginAppearance}
                     testMode={testMode}
                 />
