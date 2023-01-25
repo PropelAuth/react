@@ -31,6 +31,7 @@ export type LoginPasswordlessAppearance = {
         Container?: ElementAppearance<ContainerProps>
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>
+        Content?: ElementAppearance<ParagraphProps>
         EmailLabel?: ElementAppearance<LabelProps>
         EmailInput?: ElementAppearance<InputProps>
         SubmitButton?: ElementAppearance<ButtonProps>
@@ -127,8 +128,14 @@ const LoginPasswordless = ({ onRedirectToLogin, appearance, config }: LoginPassw
                     </div>
                 )}
                 <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>{`Passwordless Login`}</H3>
+                    <H3 appearance={appearance?.elements?.Header}>{`Sign in with Magic Link`}</H3>
                 </div>
+                <div data-contain="content">
+                    <Paragraph appearance={appearance?.elements?.Content}>
+                        Enter your email address below. You'll receive a link that will log you in.
+                    </Paragraph>
+                </div>
+
                 <div data-contain="form">
                     <form onSubmit={loginPasswordless}>
                         <div>

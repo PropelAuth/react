@@ -206,7 +206,7 @@ const Login = ({
                                 onClick={onRedirectToSignup}
                                 appearance={appearance?.elements?.RedirectToSignupLink}
                             >
-                                {`Sign Up`}
+                                {`No account? Sign up`}
                             </AnchorButton>
                         )}
                         {onRedirectToForgotPassword && (
@@ -214,7 +214,7 @@ const Login = ({
                                 onClick={onRedirectToForgotPassword}
                                 appearance={appearance?.elements?.RedirectToForgotPasswordLink}
                             >
-                                {`Forgot Password`}
+                                {`Forgot Password?`}
                             </AnchorButton>
                         )}
                     </div>

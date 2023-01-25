@@ -101,7 +101,7 @@ export const SignInOptions = ({
                 <Button
                     onClick={() => loginWithPasswordless()}
                     appearance={appearance?.elements?.RedirectToPasswordlessLoginButton}
-                    disabled={!onRedirectToPasswordlessLogin ? true : false}
+                    disabled={!onRedirectToPasswordlessLogin}
                 >
                     <PasswordlessLogo />
                     <span>Sign in with Magic Link</span>
@@ -111,7 +111,7 @@ export const SignInOptions = ({
                 <Button
                     onClick={() => loginWithSSO()}
                     appearance={appearance?.elements?.RedirectToSSOLoginButton}
-                    disabled={!onRedirectToSSOLogin ? true : false}
+                    disabled={!onRedirectToSSOLogin}
                 >
                     <SSOLogo />
                     <span>Sign in with SSO</span>
