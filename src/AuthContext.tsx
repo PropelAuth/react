@@ -5,7 +5,7 @@ import {
     RedirectToLoginOptions,
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useReducer, useState } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
@@ -22,6 +22,8 @@ interface InternalAuthState {
     redirectToCreateOrgPage: () => void
 
     activeOrgFn: () => string | null
+
+    setLoggedInChangeCounter: Dispatch<SetStateAction<number>>
 
     api: PropelAuthFeV2Client
     authUrl: string
@@ -176,6 +178,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
         redirectToOrgPage,
         redirectToCreateOrgPage,
         activeOrgFn,
+        setLoggedInChangeCounter,
         api,
         authUrl: props.authUrl,
     }

@@ -48,6 +48,7 @@ export const AuthProviderForTesting = ({
         redirectToOrgPage: () => {},
         redirectToCreateOrgPage: () => {},
         activeOrgFn: activeOrgFnWithDefault,
+        setLoggedInChangeCounter: () => {},
         api,
         authUrl: "",
     }

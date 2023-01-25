@@ -78,3 +78,13 @@ export function useAuthUrl() {
 
     return { authUrl: context.authUrl }
 }
+
+export function useAuthRefresh() {
+    const context = useContext(AuthContext)
+
+    if (context === undefined) {
+        throw new Error("useAuthRefresh must be used within an AuthProvider or RequiredAuthProvider")
+    }
+
+    return { refreshAuth: () => context.setLoggedInChangeCounter((x) => x + 1) }
+}
