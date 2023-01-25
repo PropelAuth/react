@@ -31,12 +31,12 @@ export type LoginSSOAppearance = {
     }
 }
 
-export type LoginPasswordlessProps = {
+export type LoginSSOProps = {
     onRedirectToLogin?: VoidFunction
     appearance?: LoginSSOAppearance
 } & WithConfigProps
 
-const LoginSSO = ({ onRedirectToLogin, appearance, config }: LoginPasswordlessProps) => {
+const LoginSSO = ({ onRedirectToLogin, appearance, config }: LoginSSOProps) => {
     const { loginApi } = useApi()
     const [loading, setLoading] = useState(false)
     const [orgName, setOrgName] = useState("")
