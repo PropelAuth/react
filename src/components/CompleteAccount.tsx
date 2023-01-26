@@ -149,7 +149,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
                 <div data-contain="form">
                     <form onSubmit={updateMetadata}>
                         {config.requireUsersToSetName && (
-                            <>
+                            <div data-contain="name_fields">
                                 <div>
                                     <Label htmlFor="first_name" appearance={appearance?.elements?.FirstNameLabel}>
                                         First name
@@ -186,7 +186,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
                                         </Alert>
                                     )}
                                 </div>
-                            </>
+                            </div>
                         )}
                         {config.requireUsersToSetUsername && (
                             <div>
