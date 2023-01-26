@@ -1,4 +1,4 @@
-import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
+import { PropelAuthFeV2 } from "@propelauth/js-apis"
 import React, { ReactNode, SyntheticEvent, useEffect, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"

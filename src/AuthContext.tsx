@@ -1,10 +1,10 @@
-import { PropelAuthFeV2Client } from "@propel-auth-fern/fe_v2-client"
 import {
     AuthenticationInfo,
     createClient,
     RedirectToLoginOptions,
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
+import { PropelAuthFeV2Client } from "@propelauth/js-apis"
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useReducer, useState } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"

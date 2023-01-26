@@ -1,4 +1,4 @@
-import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
+import { PropelAuthFeV2 } from "@propelauth/js-apis"
 import React, { useEffect } from "react"
 import { useAuthRefresh } from "../additionalHooks"
 import { useLoginState } from "../useLoginState"

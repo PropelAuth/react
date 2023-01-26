@@ -1,4 +1,4 @@
-import { PropelAuthFeV2 } from "@propel-auth-fern/fe_v2-client"
+import { PropelAuthFeV2 } from "@propelauth/js-apis"
 import hoistNonReactStatics from "hoist-non-react-statics"
 import React, { useContext, useEffect, useState } from "react"
 import { Subtract } from "utility-types"
