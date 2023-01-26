@@ -184,7 +184,7 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
         <div data-contain="form">
             <form onSubmit={signup}>
                 {config.requireUsersToSetName && (
-                    <>
+                    <div data-contain="name_fields">
                         <div>
                             <Label htmlFor="first_name" appearance={appearance?.elements?.FirstNameLabel}>
                                 {`First name`}
@@ -225,7 +225,7 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
                                 </Alert>
                             )}
                         </div>
-                    </>
+                    </div>
                 )}
                 <div>
                     <Label htmlFor="email" appearance={appearance?.elements?.EmailLabel}>

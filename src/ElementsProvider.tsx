@@ -21,12 +21,10 @@ import { ImageProps } from "./elements/Image"
 import { InputProps } from "./elements/Input"
 import { LabelProps } from "./elements/Label"
 import { LinkProps } from "./elements/Link"
+import { LoaderProps } from "./elements/Loader"
 import { ModalProps } from "./elements/Modal"
 import { ParagraphProps } from "./elements/Paragraph"
-import { PopoverProps } from "./elements/Popover"
-import { ProgressProps } from "./elements/Progress"
 import { SelectProps } from "./elements/Select"
-import { TableProps } from "./elements/Table"
 
 export type Elements = {
     Alert: FC<AlertProps & RefAttributes<HTMLDivElement>>
@@ -44,10 +42,8 @@ export type Elements = {
     Link: FC<LinkProps & RefAttributes<HTMLAnchorElement>>
     Modal: (props: ModalProps) => JSX.Element
     Paragraph: FC<ParagraphProps & RefAttributes<HTMLParagraphElement>>
-    Popover: (props: PopoverProps) => JSX.Element
-    Progress: FC<ProgressProps & RefAttributes<HTMLSpanElement>>
+    Loader: FC<LoaderProps & RefAttributes<HTMLSpanElement>>
     Select: FC<SelectProps & RefAttributes<HTMLSelectElement>>
-    Table: FC<TableProps & RefAttributes<HTMLTableElement>>
 }
 
 export type ElementsState = {

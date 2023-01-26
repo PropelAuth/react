@@ -9,7 +9,6 @@ import { DividerProps } from "../elements/Divider"
 import { H3 } from "../elements/H3"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
-import { ProgressProps } from "../elements/Progress"
 import { Select, SelectProps } from "../elements/Select"
 import { useApi } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
@@ -26,7 +25,6 @@ export type CreateOrgAppearance = {
         joinOrgButtonText?: ReactNode
     }
     elements?: {
-        Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         Header?: ElementAppearance<LabelProps>
         OrgNameLabel?: ElementAppearance<LabelProps>

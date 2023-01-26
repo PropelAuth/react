@@ -9,7 +9,7 @@ import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
-import { ProgressProps } from "../elements/Progress"
+import { LoaderProps } from "../elements/Loader"
 import { useApi } from "../useApi"
 import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, NO_ACCOUNT_FOUND_WITH_CREDENTIALS, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
@@ -23,7 +23,7 @@ export type LoginAppearance = {
         submitButtonText?: ReactNode
     }
     elements?: {
-        Progress?: ElementAppearance<ProgressProps>
+        Loader?: ElementAppearance<LoaderProps>
         Container?: ElementAppearance<ContainerProps>
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>

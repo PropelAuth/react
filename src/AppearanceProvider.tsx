@@ -12,12 +12,10 @@ import { ImageProps } from "./elements/Image"
 import { InputProps } from "./elements/Input"
 import { LabelProps } from "./elements/Label"
 import { LinkProps } from "./elements/Link"
+import { LoaderProps } from "./elements/Loader"
 import { ModalProps } from "./elements/Modal"
 import { ParagraphProps } from "./elements/Paragraph"
-import { PopoverProps } from "./elements/Popover"
-import { ProgressProps } from "./elements/Progress"
 import { SelectProps } from "./elements/Select"
-import { TableProps } from "./elements/Table"
 
 export type Element<T> = ((props: T) => JSX.Element) | null
 
@@ -40,10 +38,8 @@ export type Appearance = {
         Link?: ElementAppearance<LinkProps>
         Modal?: ElementAppearance<ModalProps>
         Paragraph?: ElementAppearance<ParagraphProps>
-        Popover?: ElementAppearance<PopoverProps>
-        Progress?: ElementAppearance<ProgressProps>
+        Loader?: ElementAppearance<LoaderProps>
         Select?: ElementAppearance<SelectProps>
-        Table?: ElementAppearance<TableProps>
     }
 }
 

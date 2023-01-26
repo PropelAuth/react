@@ -3,21 +3,21 @@ import { ElementAppearance, useAppearance } from "../AppearanceProvider"
 import { useElements } from "../ElementsProvider"
 import { mergeProps } from "./utils"
 
-export type ProgressProps = {
+export type LoaderProps = {
     className?: string
     style?: CSSProperties
 }
 
 export type ProgressPropsWithAppearance = {
-    appearance?: ElementAppearance<ProgressProps>
-} & ProgressProps
+    appearance?: ElementAppearance<LoaderProps>
+} & LoaderProps
 
-export const Progress = forwardRef<HTMLSpanElement, ProgressPropsWithAppearance>((props, ref) => {
+export const Loader = forwardRef<HTMLSpanElement, ProgressPropsWithAppearance>((props, ref) => {
     const { elements } = useElements()
     const { appearance } = useAppearance()
-    const { classes, styles, Override } = mergeProps<ProgressProps>({
+    const { classes, styles, Override } = mergeProps<LoaderProps>({
         appearance: props.appearance,
-        element: appearance.elements?.Progress,
+        element: appearance.elements?.Loader,
     })
 
     if (Override === null) {
@@ -26,5 +26,5 @@ export const Progress = forwardRef<HTMLSpanElement, ProgressPropsWithAppearance>
         return <Override className={classes} style={styles} />
     }
 
-    return <elements.Progress ref={ref} className={classes} style={styles} />
+    return <elements.Loader ref={ref} className={classes} style={styles} />
 })

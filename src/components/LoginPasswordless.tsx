@@ -9,7 +9,6 @@ import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
-import { ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { withConfig, WithConfigProps } from "../withConfig"
 import {
@@ -27,7 +26,6 @@ export type LoginPasswordlessAppearance = {
         submitButtonText?: ReactNode
     }
     elements?: {
-        Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>

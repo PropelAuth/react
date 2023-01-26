@@ -8,7 +8,6 @@ import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
-import { ProgressProps } from "../elements/Progress"
 import { useApi } from "../useApi"
 import { withConfig, WithConfigProps } from "../withConfig"
 import { ORGS_NOT_ENABLED, ORG_NAME_NOT_FOUND, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
@@ -19,7 +18,6 @@ export type LoginSSOAppearance = {
         submitButtonText?: ReactNode
     }
     elements?: {
-        Progress?: ElementAppearance<ProgressProps>
         Container?: ElementAppearance<ContainerProps>
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>
