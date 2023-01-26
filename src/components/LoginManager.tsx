@@ -48,7 +48,7 @@ const LoginManager = ({
         if (loginState === PropelAuthFeV2.LoginStateEnum.Finished) {
             onLoginCompleted()
         }
-    }, [loginState, onLoginCompleted])
+    }, [loginState])
 
     if (loginStateLoading) {
         return <Loading appearance={loginAppearance} />

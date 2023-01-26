@@ -9,9 +9,11 @@ import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
 import { useApi } from "../useApi"
+import { useAuthInfo } from "../useAuthInfo"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, INCORRECT_PASSWORD, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { Loading } from "./Loading"
 
 export type UpdatePasswordAppearance = {
     options?: {
@@ -22,6 +24,8 @@ export type UpdatePasswordAppearance = {
         Container?: ElementAppearance<ContainerProps>
         Header?: ElementAppearance<H3Props>
         Logo?: ElementAppearance<ImageProps>
+        CurrentPasswordLabel?: ElementAppearance<LabelProps>
+        CurrentPasswordInput?: ElementAppearance<InputProps>
         PasswordLabel?: ElementAppearance<LabelProps>
         PasswordInput?: ElementAppearance<InputProps>
         SubmitButton?: ElementAppearance<ButtonProps>
@@ -36,11 +40,14 @@ type UpdatePasswordProps = {
 } & WithConfigProps
 
 const UpdatePassword = ({ onStepCompleted, appearance, testMode, config }: UpdatePasswordProps) => {
+    const authInfo = useAuthInfo()
     const { userApi, loginApi } = useApi()
+    const [currentPassword, setCurrentPassword] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
     const { redirectToLoginPage } = useRedirectFunctions()
+    const hasPassword = !authInfo.loading && authInfo.user ? authInfo.user.hasPassword : false
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault()
@@ -55,7 +62,13 @@ const UpdatePassword = ({ onStepCompleted, appearance, testMode, config }: Updat
         try {
             setError(undefined)
             setLoading(true)
-            let options: PropelAuthFeV2.UpdatePasswordRequest = { password, xCsrfToken: X_CSRF_TOKEN }
+            let options: PropelAuthFeV2.UpdatePasswordRequest = {
+                password,
+                xCsrfToken: X_CSRF_TOKEN,
+            }
+            if (hasPassword) {
+                options.currentPassword = currentPassword
+            }
             const res = await userApi.updatePassword(options)
             if (res.ok) {
                 const status = await loginApi.fetchLoginState()
@@ -91,6 +104,10 @@ const UpdatePassword = ({ onStepCompleted, appearance, testMode, config }: Updat
         }
     }
 
+    if (authInfo.loading) {
+        return <Loading appearance={appearance} />
+    }
+
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
@@ -108,11 +125,29 @@ const UpdatePassword = ({ onStepCompleted, appearance, testMode, config }: Updat
                 </div>
                 <div data-contain="form">
                     <form onSubmit={handleSubmit}>
+                        {hasPassword && (
+                            <div>
+                                <Label
+                                    htmlFor={"current_password"}
+                                    appearance={appearance?.elements?.CurrentPasswordLabel}
+                                >
+                                    {`Current Password`}
+                                </Label>
+                                <Input
+                                    id={"current_password"}
+                                    type={"password"}
+                                    value={currentPassword}
+                                    onChange={(e) => setCurrentPassword(e.target.value)}
+                                    appearance={appearance?.elements?.CurrentPasswordInput}
+                                />
+                            </div>
+                        )}
                         <div>
                             <Label htmlFor={"new_password"} appearance={appearance?.elements?.PasswordLabel}>
                                 {`Password`}
                             </Label>
                             <Input
+                                id={"new_password"}
                                 type={"password"}
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
