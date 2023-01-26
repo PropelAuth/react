@@ -69,7 +69,7 @@ export const useElements = () => {
     if (context === undefined) {
         throw new Error(
             "The component you are using is part of our component library beta (docs.propelauth.com/component-library/overview). " +
-                "To use it, you must specify the `elements` prop in ComponentLibraryProvider."
+                "To use it, you must specify the `elements` prop in BetaComponentLibraryProvider."
         )
     }
 

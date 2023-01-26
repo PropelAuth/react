@@ -57,8 +57,13 @@ type AuthInfoStateAction = {
 }
 
 function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction): AuthInfoState {
-    if (!action.authInfo) {
-        if (!_state.loading && !_state.authInfo) {
+    if (_state.loading) {
+        return {
+            loading: false,
+            authInfo: action.authInfo,
+        }
+    } else if (action.authInfo) {
+        if (_state.authInfo && _state.authInfo.accessToken === action.authInfo.accessToken) {
             return _state
         } else {
             return {
@@ -66,12 +71,7 @@ function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction
                 authInfo: action.authInfo,
             }
         }
-    } else if (_state.loading) {
-        return {
-            loading: false,
-            authInfo: action.authInfo,
-        }
-    } else if (_state.authInfo && _state.authInfo.accessToken !== action.authInfo.accessToken) {
+    } else if (_state.authInfo) {
         return {
             loading: false,
             authInfo: action.authInfo,
