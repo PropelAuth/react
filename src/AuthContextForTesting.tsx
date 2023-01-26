@@ -7,6 +7,7 @@ import {
     OrgMemberInfo,
     User,
 } from "@propelauth/javascript"
+import { PropelAuthFeV2Client } from "@propelauth/js-apis"
 import React from "react"
 import { AuthContext } from "./AuthContext"
 
@@ -36,6 +37,7 @@ export const AuthProviderForTesting = ({
 }: AuthProviderForTestingProps) => {
     const authInfo = getAuthInfoForTesting(userInformation)
     const activeOrgFnWithDefault = activeOrgFn ? activeOrgFn : () => null
+    const api = new PropelAuthFeV2Client({ environment: "" })
     const contextValue = {
         loading: !!loading,
         authInfo,
@@ -46,6 +48,9 @@ export const AuthProviderForTesting = ({
         redirectToOrgPage: () => {},
         redirectToCreateOrgPage: () => {},
         activeOrgFn: activeOrgFnWithDefault,
+        setLoggedInChangeCounter: () => {},
+        api,
+        authUrl: "",
     }
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

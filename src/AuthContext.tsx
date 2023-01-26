@@ -4,7 +4,8 @@ import {
     RedirectToLoginOptions,
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
+import { PropelAuthFeV2Client } from "@propelauth/js-apis"
+import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useReducer, useState } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
@@ -21,6 +22,11 @@ interface InternalAuthState {
     redirectToCreateOrgPage: () => void
 
     activeOrgFn: () => string | null
+
+    setLoggedInChangeCounter: Dispatch<SetStateAction<number>>
+
+    api: PropelAuthFeV2Client
+    authUrl: string
 }
 
 export type AuthProviderProps = {
@@ -51,17 +57,21 @@ type AuthInfoStateAction = {
 }
 
 function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction): AuthInfoState {
-    if (!action.authInfo) {
+    if (_state.loading) {
         return {
             loading: false,
             authInfo: action.authInfo,
         }
-    } else if (_state.loading) {
-        return {
-            loading: false,
-            authInfo: action.authInfo,
+    } else if (action.authInfo) {
+        if (_state.authInfo && _state.authInfo.accessToken === action.authInfo.accessToken) {
+            return _state
+        } else {
+            return {
+                loading: false,
+                authInfo: action.authInfo,
+            }
         }
-    } else if (_state.authInfo && _state.authInfo.accessToken !== action.authInfo.accessToken) {
+    } else if (_state.authInfo) {
         return {
             loading: false,
             authInfo: action.authInfo,
@@ -149,6 +159,8 @@ export const AuthProvider = (props: AuthProviderProps) => {
         return () => clearTimeout(timeout)
     }, [expiresAtSeconds])
 
+    const api = new PropelAuthFeV2Client({ environment: props.authUrl })
+
     const logout = useCallback(client.logout, [])
     const redirectToLoginPage = useCallback(client.redirectToLoginPage, [])
     const redirectToSignupPage = useCallback(client.redirectToSignupPage, [])
@@ -166,7 +178,11 @@ export const AuthProvider = (props: AuthProviderProps) => {
         redirectToOrgPage,
         redirectToCreateOrgPage,
         activeOrgFn,
+        setLoggedInChangeCounter,
+        api,
+        authUrl: props.authUrl,
     }
+
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
 }
 
