@@ -2,6 +2,7 @@ import React, { useEffect } from "react"
 import { useAuthUrl } from "../additionalHooks"
 import { Button } from "../elements/Button"
 import { Config } from "../withConfig"
+import { NO_PASSWORDLESS_URL, NO_SSO_URL } from "./constants"
 import { withHttp } from "./helpers"
 import { LoginAppearance } from "./Login"
 import { SignupAppearance } from "./Signup"
@@ -27,13 +28,11 @@ export const SignInOptions = ({
     const LINKEDIN_LOGIN_PATH = "/linkedin/login"
 
     function loginWithPasswordless() {
-        onRedirectToPasswordlessLogin
-            ? onRedirectToPasswordlessLogin()
-            : console.error("No passwordless login URL specified.")
+        onRedirectToPasswordlessLogin ? onRedirectToPasswordlessLogin() : console.error(NO_PASSWORDLESS_URL)
     }
 
     function loginWithSSO() {
-        onRedirectToSSOLogin ? onRedirectToSSOLogin() : console.error("No SSO login URL specified.")
+        onRedirectToSSOLogin ? onRedirectToSSOLogin() : console.error(NO_SSO_URL)
     }
 
     function loginWithSocial(path: string) {

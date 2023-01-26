@@ -25,3 +25,5 @@ export const INCORRECT_PASSWORD = "Incorrect password"
 export const ORGS_NOT_ENABLED = "Organizations are not enabled."
 export const INCORRECT_MFA_CODE = "Incorrect code"
 export const MFA_TIMED_OUT = "Code expired"
+export const NO_PASSWORDLESS_URL = `Passwordless login is enabled for your project. The LoginPasswordless component is used to handle those cases. Please implement onRedirectToPasswordlessLogin and have it redirect to the page with a LoginPasswordless component.`
+export const NO_SSO_URL = `Login with SSO is enabled for your project. The LoginSSO component is used to handle those cases. Please implement onRedirectToSSOLogin and have it redirect to the page with a LoginSSO component.`
