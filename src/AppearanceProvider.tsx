@@ -13,7 +13,6 @@ import { InputProps } from "./elements/Input"
 import { LabelProps } from "./elements/Label"
 import { LinkProps } from "./elements/Link"
 import { LoaderProps } from "./elements/Loader"
-import { ModalProps } from "./elements/Modal"
 import { ParagraphProps } from "./elements/Paragraph"
 import { SelectProps } from "./elements/Select"
 
@@ -36,7 +35,6 @@ export type Appearance = {
         Input?: ElementAppearance<InputProps>
         Label?: ElementAppearance<LabelProps>
         Link?: ElementAppearance<LinkProps>
-        Modal?: ElementAppearance<ModalProps>
         Paragraph?: ElementAppearance<ParagraphProps>
         Loader?: ElementAppearance<LoaderProps>
         Select?: ElementAppearance<SelectProps>
