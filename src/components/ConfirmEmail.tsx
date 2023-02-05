@@ -50,7 +50,7 @@ const ConfirmEmail = ({ appearance, testMode, config }: ConfirmEmailProps) => {
     async function handleClick() {
         if (testMode) {
             alert(
-                "You are currently in test mode. Remove the `overrideCurrentScreenForTesting` prop to resend email confirmaion."
+                "You are currently in test mode. Remove the `overrideCurrentScreenForTesting` prop to resend email confirmation."
             )
             return
         }
