@@ -1,6 +1,4 @@
 export const UNEXPECTED_ERROR = "An unexpected error occurred. Please try again."
-export const NOT_FOUND_JOINABLE_ORG = "No joinable organizations found."
-export const NOT_FOUND_JOIN_ORG = "Unable to join organization."
 export const MAGIC_LINK_SUCCESS = `If that email address is in our database, we will send you an email to login to your account.`
 export const FORGOT_PASSWORD_SUCCESS = `If that email address is in our database, we will send you an email to reset your password.`
 export const CONFIRM_EMAIL_MESSAGE =
