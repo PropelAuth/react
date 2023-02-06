@@ -53,10 +53,16 @@ export function withConfig<P extends WithConfigProps>(
                     }
                 })
                 .catch((e) => {
-                    setError(UNEXPECTED_ERROR)
-                    console.error(e)
+                    if (mounted) {
+                        setError(UNEXPECTED_ERROR)
+                        console.error(e)
+                    }
                 })
-                .finally(() => setLoading(false))
+                .finally(() => {
+                    if (mounted) {
+                        setLoading(false)
+                    }
+                })
             return () => {
                 mounted = false
             }
