@@ -76,7 +76,7 @@ export const useAppearance = () => {
     if (context === undefined) {
         throw new Error(
             "The component you are using is part of our component library beta (docs.propelauth.com/component-library/overview). " +
-                "To use it, you must specify the `appearance` prop in ComponentLibraryProvider."
+                "To use it, you must specify the `appearance` prop in BetaComponentLibraryProvider."
         )
     }
 
