@@ -66,7 +66,7 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: Creat
     const { redirectToLoginPage } = useRedirectFunctions()
     const orgMetaname = config?.orgsMetaname || "Organization"
     const autojoinByDomainText = `Any user with an @${existingDomain} email can join without approval.`
-    const restrictToDomainText = `Users without an @${existingDomain} email cannot be invited.`
+    const restrictToDomainText = `Restrict membership to only users with an @${existingDomain} email.`
 
     const clearErrors = () => {
         setStatusError(undefined)
