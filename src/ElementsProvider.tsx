@@ -22,7 +22,6 @@ import { InputProps } from "./elements/Input"
 import { LabelProps } from "./elements/Label"
 import { LinkProps } from "./elements/Link"
 import { LoaderProps } from "./elements/Loader"
-import { ModalProps } from "./elements/Modal"
 import { ParagraphProps } from "./elements/Paragraph"
 import { SelectProps } from "./elements/Select"
 
@@ -40,7 +39,6 @@ export type Elements = {
     Input: FC<InputProps & RefAttributes<HTMLInputElement>>
     Label: FC<LabelProps & RefAttributes<HTMLLabelElement>>
     Link: FC<LinkProps & RefAttributes<HTMLAnchorElement>>
-    Modal: (props: ModalProps) => JSX.Element
     Paragraph: FC<ParagraphProps & RefAttributes<HTMLParagraphElement>>
     Loader: FC<LoaderProps & RefAttributes<HTMLSpanElement>>
     Select: FC<SelectProps & RefAttributes<HTMLSelectElement>>

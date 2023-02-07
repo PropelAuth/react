@@ -38,6 +38,11 @@ export const useLegacyApi = () => {
                             error_type: "bad_image",
                             message: jsonResponseText["file"],
                         })
+                    } else {
+                        resolve({
+                            success: false,
+                            error_type: "unexpected_error",
+                        })
                     }
                 }
             }

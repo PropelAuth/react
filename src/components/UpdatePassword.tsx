@@ -1,5 +1,5 @@
 import { PropelAuthFeV2 } from "@propelauth/js-apis"
-import React, { FormEvent, ReactNode, useState } from "react"
+import React, { FormEvent, ReactNode, useEffect, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
@@ -9,10 +9,10 @@ import { Image, ImageProps } from "../elements/Image"
 import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
 import { useApi } from "../useApi"
-import { useAuthInfo } from "../useAuthInfo"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, INCORRECT_PASSWORD, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { ErrorMessage } from "./ErrorMessage"
 import { Loading } from "./Loading"
 
 export type UpdatePasswordAppearance = {
@@ -40,14 +40,45 @@ type UpdatePasswordProps = {
 } & WithConfigProps
 
 const UpdatePassword = ({ onStepCompleted, appearance, testMode, config }: UpdatePasswordProps) => {
-    const authInfo = useAuthInfo()
     const { userApi, loginApi } = useApi()
     const [currentPassword, setCurrentPassword] = useState("")
     const [password, setPassword] = useState("")
+    const [optionsLoading, setOptionsLoading] = useState(false)
+    const [optionsError, setOptionsError] = useState<string | undefined>(undefined)
+    const [hasPassword, setHasPassword] = useState(false)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
     const { redirectToLoginPage } = useRedirectFunctions()
-    const hasPassword = !authInfo.loading && authInfo.user ? authInfo.user.hasPassword : false
+
+    useEffect(() => {
+        let mounted = true
+        if (!testMode) {
+            setOptionsError(undefined)
+            setOptionsLoading(true)
+            userApi
+                .fetchPasswordOptions()
+                .then((response) => {
+                    if (mounted) {
+                        if (response.ok) {
+                            setHasPassword(response.body.hasPassword)
+                        } else {
+                            response.error._visit({
+                                unauthorized: redirectToLoginPage,
+                                _other: () => setOptionsError(UNEXPECTED_ERROR),
+                            })
+                        }
+                    }
+                })
+                .catch((e) => {
+                    setOptionsError(UNEXPECTED_ERROR)
+                    console.error(e)
+                })
+                .finally(() => setOptionsLoading(false))
+        }
+        return () => {
+            mounted = false
+        }
+    }, [])
 
     async function handleSubmit(event: FormEvent) {
         event.preventDefault()
@@ -104,8 +135,10 @@ const UpdatePassword = ({ onStepCompleted, appearance, testMode, config }: Updat
         }
     }
 
-    if (authInfo.loading) {
+    if (optionsLoading) {
         return <Loading appearance={appearance} />
+    } else if (optionsError) {
+        return <ErrorMessage errorMessage={optionsError} appearance={appearance} />
     }
 
     return (

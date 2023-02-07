@@ -7,6 +7,7 @@ import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
 import { useApi } from "../useApi"
+import { useLogoutFunction } from "../useLogoutFunction"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
 import {
@@ -28,6 +29,7 @@ export type ConfirmEmailAppearance = {
         Header?: ElementAppearance<H3Props>
         ConfirmationText?: ElementAppearance<ParagraphProps>
         ResendConfirmationButton?: ElementAppearance<ButtonProps>
+        LogoutButton?: ElementAppearance<ButtonProps>
         SuccessMessage?: ElementAppearance<AlertProps>
         ErrorMessage?: ElementAppearance<AlertProps>
     }
@@ -39,6 +41,7 @@ type ConfirmEmailProps = {
 
 const ConfirmEmail = ({ appearance, testMode, config }: ConfirmEmailProps) => {
     const { userApi } = useApi()
+    const logoutFn = useLogoutFunction()
     const [loading, setLoading] = useState(false)
     const [resent, setResent] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
@@ -47,7 +50,7 @@ const ConfirmEmail = ({ appearance, testMode, config }: ConfirmEmailProps) => {
     async function handleClick() {
         if (testMode) {
             alert(
-                "You are currently in test mode. Remove the `overrideCurrentScreenForTesting` prop to resend email confirmaion."
+                "You are currently in test mode. Remove the `overrideCurrentScreenForTesting` prop to resend email confirmation."
             )
             return
         }
@@ -105,6 +108,9 @@ const ConfirmEmail = ({ appearance, testMode, config }: ConfirmEmailProps) => {
                             {appearance?.options?.resendConfirmationButtonText || `Resend Confirmation Email`}
                         </Button>
                     )}
+                    <Button onClick={() => logoutFn(true)} appearance={appearance?.elements?.LogoutButton}>
+                        Logout
+                    </Button>
                 </div>
                 {error && (
                     <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>

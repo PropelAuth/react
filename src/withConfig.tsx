@@ -1,12 +1,10 @@
 import { PropelAuthFeV2 } from "@propelauth/js-apis"
 import hoistNonReactStatics from "hoist-non-react-statics"
-import React, { useContext, useEffect, useState } from "react"
+import React, { useContext } from "react"
 import { Subtract } from "utility-types"
-import { AuthContext } from "./AuthContext"
-import { UNEXPECTED_ERROR } from "./components/constants"
 import { ErrorMessage, ErrorMessageAppearance } from "./components/ErrorMessage"
 import { Loading, LoadingAppearance } from "./components/Loading"
-import { useApi } from "./useApi"
+import { ConfigContext } from "./ConfigProvider"
 
 export type Config = PropelAuthFeV2.AuthConfigurationResponse
 
@@ -27,51 +25,21 @@ export function withConfig<P extends WithConfigProps>(
     const displayName = `withConfig(${Component.displayName || Component.name || "Component"})`
 
     const WithConfigWrapper = (props: Subtract<P, WithConfigProps>) => {
-        const context = useContext(AuthContext)
+        const context = useContext(ConfigContext)
         if (context === undefined) {
-            throw new Error("useConfig must be used within an AuthProvider")
+            throw new Error("useConfig must be used within an ConfigProvider")
         }
-
-        const { configApi } = useApi()
-        const [config, setConfig] = useState<Config | null>(null)
-        const [loading, setLoading] = useState<boolean>(true)
-        const [error, setError] = useState<string | undefined>(undefined)
-
-        useEffect(() => {
-            let mounted = true
-            configApi
-                .fetchConfig()
-                .then((res) => {
-                    if (mounted) {
-                        if (res.ok) {
-                            setConfig(res.body)
-                        } else {
-                            res.error._visit({
-                                _other: () => setError(UNEXPECTED_ERROR),
-                            })
-                        }
-                    }
-                })
-                .catch((e) => {
-                    setError(UNEXPECTED_ERROR)
-                    console.error(e)
-                })
-                .finally(() => setLoading(false))
-            return () => {
-                mounted = false
-            }
-        }, [configApi])
 
         const withConfigProps: P = {
             ...(props as P),
-            config: config,
-            configLoading: loading,
-            configError: error,
+            config: context.config,
+            configLoading: context.loading,
+            configError: context.error,
         }
 
-        if (config) {
+        if (context.config) {
             return <Component {...withConfigProps} />
-        } else if (error) {
+        } else if (context.error) {
             return <ErrorMessage appearance={args?.appearance} />
         } else {
             return <Loading appearance={args?.appearance} />
