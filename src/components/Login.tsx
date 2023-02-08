@@ -199,7 +199,7 @@ const Login = ({
                         </form>
                     </div>
                 )}
-                {(onRedirectToSignup || onRedirectToForgotPassword) && (
+                {config.hasPasswordLogin && (onRedirectToSignup || onRedirectToForgotPassword) && (
                     <div data-contain="links">
                         {onRedirectToSignup && (
                             <AnchorButton
