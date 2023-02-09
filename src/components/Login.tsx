@@ -201,7 +201,7 @@ const Login = ({
                 )}
                 {config.hasPasswordLogin && (onRedirectToSignup || onRedirectToForgotPassword) && (
                     <div data-contain="links">
-                        {onRedirectToSignup && (
+                        {config.allowPublicSignups && onRedirectToSignup && (
                             <AnchorButton
                                 onClick={onRedirectToSignup}
                                 appearance={appearance?.elements?.RedirectToSignupLink}
