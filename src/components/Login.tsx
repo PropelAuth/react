@@ -199,26 +199,31 @@ const Login = ({
                         </form>
                     </div>
                 )}
-                {(onRedirectToSignup || onRedirectToForgotPassword) && (
-                    <div data-contain="links">
-                        {onRedirectToSignup && (
-                            <AnchorButton
-                                onClick={onRedirectToSignup}
-                                appearance={appearance?.elements?.RedirectToSignupLink}
-                            >
-                                {`No account? Sign up`}
-                            </AnchorButton>
-                        )}
-                        {onRedirectToForgotPassword && (
-                            <AnchorButton
-                                onClick={onRedirectToForgotPassword}
-                                appearance={appearance?.elements?.RedirectToForgotPasswordLink}
-                            >
-                                {`Forgot Password?`}
-                            </AnchorButton>
-                        )}
-                    </div>
-                )}
+                {config.hasPasswordLogin &&
+                    ((config.allowPublicSignups && onRedirectToSignup) || onRedirectToForgotPassword) && (
+                        <div
+                            data-contain={`link${
+                                config.allowPublicSignups && onRedirectToSignup && onRedirectToForgotPassword ? "s" : ""
+                            }`}
+                        >
+                            {config.allowPublicSignups && onRedirectToSignup && (
+                                <AnchorButton
+                                    onClick={onRedirectToSignup}
+                                    appearance={appearance?.elements?.RedirectToSignupLink}
+                                >
+                                    {`No account? Sign up`}
+                                </AnchorButton>
+                            )}
+                            {onRedirectToForgotPassword && (
+                                <AnchorButton
+                                    onClick={onRedirectToForgotPassword}
+                                    appearance={appearance?.elements?.RedirectToForgotPasswordLink}
+                                >
+                                    {`Forgot Password?`}
+                                </AnchorButton>
+                            )}
+                        </div>
+                    )}
             </Container>
         </div>
     )

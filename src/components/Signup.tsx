@@ -87,9 +87,11 @@ const Signup = ({
                     <OrDivider appearance={appearance?.elements?.Divider} options={appearance?.options?.divider} />
                 )}
                 {config.hasPasswordLogin && (
-                    <SignupForm config={config} onSignupCompleted={onSignupCompleted} appearance={appearance} />
+                    <>
+                        <SignupForm config={config} onSignupCompleted={onSignupCompleted} appearance={appearance} />
+                        <BottomLinks onRedirectToLogin={onRedirectToLogin} appearance={appearance} />
+                    </>
                 )}
-                <BottomLinks onRedirectToLogin={onRedirectToLogin} appearance={appearance} />
             </Container>
         </div>
     )
