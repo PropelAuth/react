@@ -19,6 +19,14 @@ interface InternalAuthState {
     redirectToAccountPage: () => void
     redirectToOrgPage: (orgId?: string) => void
     redirectToCreateOrgPage: () => void
+    redirectToSetupSAMLPage: (orgId: string) => void
+
+    getSignupPageUrl(options?: RedirectToSignupOptions): string
+    getLoginPageUrl(options?: RedirectToLoginOptions): string
+    getAccountPageUrl(): string
+    getOrgPageUrl(orgId?: string): string
+    getCreateOrgPageUrl(): string
+    getSetupSAMLPageUrl(orgId: string): string
 
     activeOrgFn: () => string | null
 }
@@ -155,6 +163,15 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const redirectToAccountPage = useCallback(client.redirectToAccountPage, [])
     const redirectToOrgPage = useCallback(client.redirectToOrgPage, [])
     const redirectToCreateOrgPage = useCallback(client.redirectToCreateOrgPage, [])
+    const redirectToSetupSAMLPage = useCallback(client.redirectToSetupSAMLPage, [])
+
+    const getLoginPageUrl = useCallback(client.getLoginPageUrl, [])
+    const getSignupPageUrl = useCallback(client.getSignupPageUrl, [])
+    const getAccountPageUrl = useCallback(client.getAccountPageUrl, [])
+    const getOrgPageUrl = useCallback(client.getOrgPageUrl, [])
+    const getCreateOrgPageUrl = useCallback(client.getCreateOrgPageUrl, [])
+    const getSetupSAMLPageUrl = useCallback(client.getSetupSAMLPageUrl, [])
+
     const activeOrgFn = props.getActiveOrgFn || loadOrgSelectionFromLocalStorage
     const value = {
         loading: authInfoState.loading,
@@ -165,6 +182,13 @@ export const AuthProvider = (props: AuthProviderProps) => {
         redirectToAccountPage,
         redirectToOrgPage,
         redirectToCreateOrgPage,
+        redirectToSetupSAMLPage,
+        getLoginPageUrl,
+        getSignupPageUrl,
+        getAccountPageUrl,
+        getOrgPageUrl,
+        getCreateOrgPageUrl,
+        getSetupSAMLPageUrl,
         activeOrgFn,
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
