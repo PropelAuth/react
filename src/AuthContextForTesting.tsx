@@ -45,6 +45,13 @@ export const AuthProviderForTesting = ({
         redirectToAccountPage: () => {},
         redirectToOrgPage: () => {},
         redirectToCreateOrgPage: () => {},
+        redirectToSetupSAMLPage: () => {},
+        getLoginPageUrl: () => "",
+        getSignupPageUrl: () => "",
+        getAccountPageUrl: () => "",
+        getOrgPageUrl: () => "",
+        getCreateOrgPageUrl: () => "",
+        getSetupSAMLPageUrl: () => "",
         activeOrgFn: activeOrgFnWithDefault,
     }
 
