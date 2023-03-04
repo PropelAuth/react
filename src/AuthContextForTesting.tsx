@@ -53,6 +53,7 @@ export const AuthProviderForTesting = ({
         getCreateOrgPageUrl: () => "",
         getSetupSAMLPageUrl: () => "",
         activeOrgFn: activeOrgFnWithDefault,
+        refreshAuthInfo: () => Promise.resolve(),
     }
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
