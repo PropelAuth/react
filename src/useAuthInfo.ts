@@ -4,6 +4,11 @@ import { AuthContext } from "./AuthContext"
 
 export type UseAuthInfoLoading = {
     loading: true
+    isLoggedIn: undefined
+    accessToken: undefined
+    user: undefined
+    orgHelper: undefined
+    accessHelper: undefined
 }
 
 export type UseAuthInfoLoggedInProps = {
@@ -36,6 +41,11 @@ export function useAuthInfo(): UseAuthInfoProps {
     if (loading) {
         return {
             loading: true,
+            isLoggedIn: undefined,
+            accessToken: undefined,
+            orgHelper: undefined,
+            accessHelper: undefined,
+            user: undefined,
         }
     } else if (authInfo && authInfo.accessToken) {
         return {
