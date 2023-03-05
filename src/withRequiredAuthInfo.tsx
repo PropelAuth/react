@@ -38,7 +38,7 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
             }
         }
 
-        const { loading, authInfo } = context
+        const { loading, authInfo, refreshAuthInfo } = context
         if (loading) {
             return displayLoading()
         } else if (authInfo) {
@@ -49,6 +49,7 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
                 orgHelper: authInfo.orgHelper,
                 accessHelper: authInfo.accessHelper,
                 user: authInfo.user,
+                refreshAuthInfo,
             }
             return <Component {...loggedInProps} />
         } else {

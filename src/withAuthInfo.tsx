@@ -10,6 +10,7 @@ export type WithLoggedInAuthInfoProps = {
     user: User
     orgHelper: OrgHelper
     accessHelper: AccessHelper
+    refreshAuthInfo: () => Promise<void>
 }
 
 export type WithNotLoggedInAuthInfoProps = {
@@ -18,6 +19,7 @@ export type WithNotLoggedInAuthInfoProps = {
     user: null
     orgHelper: null
     accessHelper: null
+    refreshAuthInfo: () => Promise<void>
 }
 
 export type WithAuthInfoProps = WithLoggedInAuthInfoProps | WithNotLoggedInAuthInfoProps
@@ -46,7 +48,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
             }
         }
 
-        const { loading, authInfo } = context
+        const { loading, authInfo, refreshAuthInfo } = context
         if (loading) {
             return displayLoading()
         } else if (authInfo) {
@@ -57,6 +59,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 orgHelper: authInfo.orgHelper,
                 accessHelper: authInfo.accessHelper,
                 user: authInfo.user,
+                refreshAuthInfo,
             }
             return <Component {...loggedInProps} />
         } else {
@@ -67,6 +70,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 user: null,
                 orgHelper: null,
                 accessHelper: null,
+                refreshAuthInfo,
             }
             return <Component {...notLoggedInProps} />
         }

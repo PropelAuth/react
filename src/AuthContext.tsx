@@ -29,6 +29,8 @@ interface InternalAuthState {
     getSetupSAMLPageUrl(orgId: string): string
 
     activeOrgFn: () => string | null
+
+    refreshAuthInfo: () => Promise<void>
 }
 
 export type AuthProviderProps = {
@@ -172,6 +174,11 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const getCreateOrgPageUrl = useCallback(client.getCreateOrgPageUrl, [])
     const getSetupSAMLPageUrl = useCallback(client.getSetupSAMLPageUrl, [])
 
+    const refreshAuthInfo = useCallback(async () => {
+        const authInfo = await client.getAuthenticationInfoOrNull(true)
+        dispatch({ authInfo })
+    }, [dispatch])
+
     const activeOrgFn = props.getActiveOrgFn || loadOrgSelectionFromLocalStorage
     const value = {
         loading: authInfoState.loading,
@@ -190,6 +197,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
         getCreateOrgPageUrl,
         getSetupSAMLPageUrl,
         activeOrgFn,
+        refreshAuthInfo,
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
 }

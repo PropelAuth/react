@@ -9,6 +9,7 @@ export type UseAuthInfoLoading = {
     user: undefined
     orgHelper: undefined
     accessHelper: undefined
+    refreshAuthInfo: () => Promise<void>
 }
 
 export type UseAuthInfoLoggedInProps = {
@@ -18,6 +19,7 @@ export type UseAuthInfoLoggedInProps = {
     user: User
     orgHelper: OrgHelper
     accessHelper: AccessHelper
+    refreshAuthInfo: () => Promise<void>
 }
 
 export type UseAuthInfoNotLoggedInProps = {
@@ -27,6 +29,7 @@ export type UseAuthInfoNotLoggedInProps = {
     user: null
     orgHelper: null
     accessHelper: null
+    refreshAuthInfo: () => Promise<void>
 }
 
 export type UseAuthInfoProps = UseAuthInfoLoading | UseAuthInfoLoggedInProps | UseAuthInfoNotLoggedInProps
@@ -37,7 +40,7 @@ export function useAuthInfo(): UseAuthInfoProps {
         throw new Error("useAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
     }
 
-    const { loading, authInfo } = context
+    const { loading, authInfo, refreshAuthInfo } = context
     if (loading) {
         return {
             loading: true,
@@ -46,6 +49,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             orgHelper: undefined,
             accessHelper: undefined,
             user: undefined,
+            refreshAuthInfo,
         }
     } else if (authInfo && authInfo.accessToken) {
         return {
@@ -55,6 +59,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             orgHelper: authInfo.orgHelper,
             accessHelper: authInfo.accessHelper,
             user: authInfo.user,
+            refreshAuthInfo,
         }
     }
     return {
@@ -64,5 +69,6 @@ export function useAuthInfo(): UseAuthInfoProps {
         user: null,
         orgHelper: null,
         accessHelper: null,
+        refreshAuthInfo,
     }
 }
