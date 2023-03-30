@@ -256,7 +256,11 @@ const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: Joinabl
             .then((response) => {
                 if (mounted) {
                     if (response.ok) {
-                        setJoinableOrgs(response.body.orgs)
+                        const responseOrgs = response.body.orgs
+                        setJoinableOrgs(responseOrgs)
+                        if (responseOrgs && responseOrgs.length > 0) {
+                            setSelectedOrgId(responseOrgs[0].id)
+                        }
                     } else {
                         response.error._visit({
                             orgsNotEnabled: () => setFetchError(ORGS_NOT_ENABLED),
