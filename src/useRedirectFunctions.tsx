@@ -1,4 +1,3 @@
-import { RedirectToLoginOptions, RedirectToSignupOptions } from "@propelauth/javascript"
 import React, { useContext, useEffect } from "react"
 import { AuthContext } from "./AuthContext"
 
@@ -27,22 +26,36 @@ export interface RedirectProps {
     children?: React.ReactNode
 }
 
-export interface RedirectToSignupProps extends RedirectProps, RedirectToSignupOptions {}
-
-export function RedirectToSignup(props: RedirectToSignupProps) {
-    const { redirectToSignupPage } = useRedirectFunctions()
-    useEffect(() => {
-        redirectToSignupPage(props)
-    }, [])
-    return <>{props.children}</>
+export interface RedirectToSignupProps extends RedirectProps {
+    postSignupRedirectUrl?: string
 }
 
-export interface RedirectToLoginProps extends RedirectProps, RedirectToLoginOptions {}
+export function RedirectToSignup({ children, postSignupRedirectUrl }: RedirectToSignupProps) {
+    const { redirectToSignupPage } = useRedirectFunctions()
 
-export function RedirectToLogin(props: RedirectToLoginProps) {
+    useEffect(() => {
+        if (postSignupRedirectUrl) {
+            redirectToSignupPage({ postSignupRedirectUrl })
+        } else {
+            redirectToSignupPage()
+        }
+    }, [])
+
+    return <>{children}</>
+}
+
+export interface RedirectToLoginProps extends RedirectProps {
+    postLoginRedirectUrl?: string
+}
+
+export function RedirectToLogin({ children, postLoginRedirectUrl }: RedirectToLoginProps) {
     const { redirectToLoginPage } = useRedirectFunctions()
     useEffect(() => {
-        redirectToLoginPage(props)
+        if (postLoginRedirectUrl) {
+            redirectToLoginPage({ postLoginRedirectUrl })
+        } else {
+            redirectToLoginPage()
+        }
     }, [])
-    return <>{props.children}</>
+    return <>{children}</>
 }
