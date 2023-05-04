@@ -10,6 +10,8 @@ export type WithLoggedInAuthInfoProps = {
     user: User
     orgHelper: OrgHelper
     accessHelper: AccessHelper
+    isImpersonating: boolean
+    impersonatorUserId?: string
     refreshAuthInfo: () => Promise<void>
 }
 
@@ -19,6 +21,8 @@ export type WithNotLoggedInAuthInfoProps = {
     user: null
     orgHelper: null
     accessHelper: null
+    isImpersonating: false
+    impersonatorUserId: null
     refreshAuthInfo: () => Promise<void>
 }
 
@@ -59,6 +63,8 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 orgHelper: authInfo.orgHelper,
                 accessHelper: authInfo.accessHelper,
                 user: authInfo.user,
+                isImpersonating: !!authInfo.impersonatorUserId,
+                impersonatorUserId: authInfo.impersonatorUserId,
                 refreshAuthInfo,
             }
             return <Component {...loggedInProps} />
@@ -70,6 +76,8 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 user: null,
                 orgHelper: null,
                 accessHelper: null,
+                isImpersonating: false,
+                impersonatorUserId: null,
                 refreshAuthInfo,
             }
             return <Component {...notLoggedInProps} />

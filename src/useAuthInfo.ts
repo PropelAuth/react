@@ -9,6 +9,8 @@ export type UseAuthInfoLoading = {
     user: undefined
     orgHelper: undefined
     accessHelper: undefined
+    isImpersonating: undefined
+    impersonatorUserId: undefined
     refreshAuthInfo: () => Promise<void>
 }
 
@@ -19,6 +21,8 @@ export type UseAuthInfoLoggedInProps = {
     user: User
     orgHelper: OrgHelper
     accessHelper: AccessHelper
+    isImpersonating: boolean
+    impersonatorUserId?: string
     refreshAuthInfo: () => Promise<void>
 }
 
@@ -29,6 +33,8 @@ export type UseAuthInfoNotLoggedInProps = {
     user: null
     orgHelper: null
     accessHelper: null
+    isImpersonating: false
+    impersonatorUserId: undefined
     refreshAuthInfo: () => Promise<void>
 }
 
@@ -49,6 +55,8 @@ export function useAuthInfo(): UseAuthInfoProps {
             orgHelper: undefined,
             accessHelper: undefined,
             user: undefined,
+            isImpersonating: undefined,
+            impersonatorUserId: undefined,
             refreshAuthInfo,
         }
     } else if (authInfo && authInfo.accessToken) {
@@ -59,6 +67,8 @@ export function useAuthInfo(): UseAuthInfoProps {
             orgHelper: authInfo.orgHelper,
             accessHelper: authInfo.accessHelper,
             user: authInfo.user,
+            isImpersonating: !!authInfo.impersonatorUserId,
+            impersonatorUserId: authInfo.impersonatorUserId,
             refreshAuthInfo,
         }
     }
@@ -69,6 +79,8 @@ export function useAuthInfo(): UseAuthInfoProps {
         user: null,
         orgHelper: null,
         accessHelper: null,
+        isImpersonating: false,
+        impersonatorUserId: undefined,
         refreshAuthInfo,
     }
 }

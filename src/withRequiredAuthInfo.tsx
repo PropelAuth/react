@@ -49,6 +49,8 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
                 orgHelper: authInfo.orgHelper,
                 accessHelper: authInfo.accessHelper,
                 user: authInfo.user,
+                isImpersonating: !!authInfo.impersonatorUserId,
+                impersonatorUserId: authInfo.impersonatorUserId,
                 refreshAuthInfo,
             }
             return <Component {...loggedInProps} />
