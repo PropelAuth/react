@@ -1,7 +1,12 @@
-import { useContext } from "react"
+import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "./AuthContext"
+import { emitter } from "./eventEmitter"
 
 const ORG_SELECTION_LOCAL_STORAGE_KEY = "__last_selected_org"
+const SET_ACTIVE_ORG_EVENT = "activeOrg"
+interface ActiveOrgEventData {
+    orgIdOrName: string
+}
 
 export function useActiveOrg() {
     const context = useContext(AuthContext)
@@ -13,7 +18,18 @@ export function useActiveOrg() {
         return null
     }
 
-    const proposedActiveOrgIdOrName = context.activeOrgFn()
+    const [proposedActiveOrgIdOrName, setProposedActiveOrgIdOrName] = useState(context.activeOrgFn())
+
+    useEffect(() => {
+        const listener = emitter.addListener(SET_ACTIVE_ORG_EVENT, (data: ActiveOrgEventData) => {
+            setProposedActiveOrgIdOrName(data.orgIdOrName)
+        })
+
+        return () => {
+            listener.remove()
+        }
+    }, [])
+
     if (!proposedActiveOrgIdOrName) {
         return null
     }
@@ -24,6 +40,8 @@ export function useActiveOrg() {
 
 export function saveOrgSelectionToLocalStorage(orgIdOrName: string) {
     if (localStorage) {
+        const eventData: ActiveOrgEventData = { orgIdOrName }
+        emitter.emit(SET_ACTIVE_ORG_EVENT, eventData)
         localStorage.setItem(ORG_SELECTION_LOCAL_STORAGE_KEY, orgIdOrName)
     }
 }

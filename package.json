@@ -14,6 +14,7 @@
   ],
   "dependencies": {
     "@propelauth/javascript": "^2.0.5",
+    "fbemitter": "^3.0.0",
     "hoist-non-react-statics": "^3.3.2",
     "utility-types": "^3.10.0"
   },
@@ -27,6 +28,7 @@
     "@rollup/plugin-commonjs": "^18.00",
     "@rollup/plugin-node-resolve": "^11.2.1",
     "@testing-library/react": "^12.0.0",
+    "@types/fbemitter": "^2.0.32",
     "@types/hoist-non-react-statics": "^3.3.1",
     "@types/jest": "^26.0.23",
     "@types/react": "^17.0.4",
