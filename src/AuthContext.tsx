@@ -111,8 +111,8 @@ export const AuthProvider = (props: AuthProviderProps) => {
                 if (!didCancel) {
                     dispatch({ authInfo })
                 }
-            } catch (_) {
-                // Exceptions are logged in the JS library
+            } catch (e) {
+                console.log("Failed to refresh token", e)
             }
         }
 
@@ -133,8 +133,8 @@ export const AuthProvider = (props: AuthProviderProps) => {
                 if (!didCancel) {
                     dispatch({ authInfo })
                 }
-            } catch (_) {
-                // Exceptions are logged in the JS library
+            } catch (e) {
+                console.log("Failed to refresh token", e)
             }
         }
 
