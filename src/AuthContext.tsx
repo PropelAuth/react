@@ -133,8 +133,8 @@ export const AuthProvider = (props: AuthProviderProps) => {
                 if (!didCancel) {
                     dispatch({ authInfo })
                 }
-            } catch (e) {
-                console.log("Failed to refresh token", e)
+            } catch (_) {
+                // Important errors are logged in the client library
             }
         }
 
@@ -143,21 +143,6 @@ export const AuthProvider = (props: AuthProviderProps) => {
             didCancel = true
         }
     }, [client, loggedInChangeCounter])
-
-    // Watchdog timer to make sure that if we hit the expiration we get rid of the token.
-    // This should only be triggered if we are unable to get a new token due to an unexpected error/network timeouts.
-    const expiresAtSeconds = authInfoState.authInfo ? authInfoState.authInfo.expiresAtSeconds : 0
-    useEffect(() => {
-        if (!authInfoState.authInfo) {
-            return
-        }
-        const millisUntilTokenExpires = getMillisUntilTokenExpires(authInfoState.authInfo.expiresAtSeconds)
-        const timeout = setTimeout(() => {
-            dispatch({ authInfo: null })
-        }, millisUntilTokenExpires)
-
-        return () => clearTimeout(timeout)
-    }, [expiresAtSeconds])
 
     const logout = useCallback(client.logout, [])
     const redirectToLoginPage = useCallback(client.redirectToLoginPage, [])
@@ -218,9 +203,4 @@ export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
             <WrappedComponent />
         </AuthProvider>
     )
-}
-
-function getMillisUntilTokenExpires(expiresAtSeconds: number): number {
-    let millisUntilTokenExpires = expiresAtSeconds * 1000 - Date.now()
-    return Math.max(0, millisUntilTokenExpires)
 }
