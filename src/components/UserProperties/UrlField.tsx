@@ -22,7 +22,6 @@ function UrlField<T>({ propertySetting, form, appearance }: UrlFieldProps<T>) {
                 {propertySetting.display_name}
             </Label>
             <Input
-                required={propertySetting.required_on_signup}
                 type="url"
                 id={propertySetting.name}
                 placeholder={"https://example.com"}

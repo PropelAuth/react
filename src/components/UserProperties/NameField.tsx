@@ -30,10 +30,9 @@ function NameField<T>({ form, appearance }: NameFieldProps<T>) {
                     {`First name`}
                 </Label>
                 <Input
-                    required
                     id="first_name"
                     type="text"
-                    placeholder="First Name"
+                    placeholder={appearance?.firstName?.NameFieldLabel === null ? "First Name" : undefined}
                     appearance={appearance?.firstName?.NameFieldInput}
                     {...form.getInputProps("first_name")}
                 />
@@ -48,10 +47,9 @@ function NameField<T>({ form, appearance }: NameFieldProps<T>) {
                     {`Last name`}
                 </Label>
                 <Input
-                    required
                     id="last_name"
                     type="text"
-                    placeholder="Last Name"
+                    placeholder={appearance?.lastName?.NameFieldLabel === null ? "Last Name" : undefined}
                     appearance={appearance?.lastName?.NameFieldInput}
                     {...form.getInputProps("last_name")}
                 />

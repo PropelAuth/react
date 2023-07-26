@@ -8,6 +8,7 @@ import LongTextField, { LongTextFieldAppearance } from "./LongTextField"
 import NameField, { NameFieldAppearance } from "./NameField"
 import TextField, { TextFieldAppearance } from "./TextField"
 import ToggleField, { ToggleFieldAppearance } from "./ToggleField"
+import TosField, { TosFieldAppearance } from "./TosField"
 import UrlField, { UrlFieldAppearance } from "./UrlField"
 
 // import DateField from "./DateField";
@@ -83,6 +84,7 @@ type UserPropertyComponentType =
     | typeof CheckboxField
     | typeof ToggleField
     | typeof UrlField
+    | typeof TosField
 
 type TypeToComponentMapType = {
     [key: string]: UserPropertyComponentType
@@ -98,6 +100,7 @@ const TypeToComponentMap: TypeToComponentMapType = {
     Checkbox: CheckboxField,
     Toggle: ToggleField,
     Url: UrlField,
+    Tos: TosField,
 }
 
 type UserPropertiesFieldsType<T> = {
@@ -115,6 +118,7 @@ type UserPropertyFieldAppearance =
     | CheckboxFieldAppearance
     | ToggleFieldAppearance
     | UrlFieldAppearance
+    | TosFieldAppearance
 
 export type UserPropertyFieldsAppearance = {
     [key: string]: UserPropertyFieldAppearance
@@ -136,6 +140,7 @@ const TypeToAppearanceKeyMap: TypeToAppearanceKeyMapType = {
     Checkbox: "CheckboxField",
     Toggle: "ToggleField",
     Url: "UrlField",
+    Tos: "TosField",
 }
 
 function UserPropertyFields<T>({ propertySettings, form, appearance }: UserPropertyFieldsProps<T>) {

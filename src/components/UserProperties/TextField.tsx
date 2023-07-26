@@ -22,10 +22,9 @@ function TextField<T>({ propertySetting, form, appearance }: TextFieldProps<T>) 
                 {propertySetting.display_name}
             </Label>
             <Input
-                required={propertySetting.required_on_signup}
                 type="text"
                 id={propertySetting.name}
-                placeholder={propertySetting.display_name}
+                placeholder={appearance?.TextFieldLabel === null ? propertySetting.display_name : undefined}
                 appearance={appearance?.TextFieldInput}
                 {...form.getInputProps(propertySetting.name)}
             />

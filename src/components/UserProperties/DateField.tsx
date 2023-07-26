@@ -25,7 +25,6 @@ function DateField<T>({ propertySetting, form, appearance }: DateFieldProps<T>) 
                 required={propertySetting.required_on_signup}
                 type="date"
                 id={propertySetting.name}
-                placeholder={propertySetting.display_name}
                 appearance={appearance?.DateFieldInput}
                 {...form.getInputProps(propertySetting.name)}
             />
