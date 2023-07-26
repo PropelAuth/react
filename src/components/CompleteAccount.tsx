@@ -1,4 +1,4 @@
-import { PropelAuthFeV2 } from "@propelauth/js-apis"
+import { PropelauthFeV2 } from "@propelauth/js-apis"
 import React, { ReactNode, SyntheticEvent, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -73,7 +73,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
         try {
             clearErrors()
             setLoading(true)
-            const options: PropelAuthFeV2.UpdateUserFacingMetadataRequest = { xCsrfToken: X_CSRF_TOKEN }
+            const options: PropelauthFeV2.UpdateUserFacingMetadataRequest = { xCsrfToken: X_CSRF_TOKEN }
             if (config.requireUsersToSetName) {
                 options.firstName = firstName
                 options.lastName = lastName

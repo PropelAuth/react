@@ -15,6 +15,7 @@ import { LinkProps } from "./elements/Link"
 import { LoaderProps } from "./elements/Loader"
 import { ParagraphProps } from "./elements/Paragraph"
 import { SelectProps } from "./elements/Select"
+import { TextAreaProps } from "./elements/Textarea"
 
 export type Element<T> = ((props: T) => JSX.Element) | null
 
@@ -38,6 +39,7 @@ export type Appearance = {
         Paragraph?: ElementAppearance<ParagraphProps>
         Loader?: ElementAppearance<LoaderProps>
         Select?: ElementAppearance<SelectProps>
+        TextArea?: ElementAppearance<TextAreaProps>
     }
 }
 
