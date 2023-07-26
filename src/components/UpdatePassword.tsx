@@ -1,4 +1,4 @@
-import { PropelauthFeV2 } from "@propelauth/js-apis"
+import { PropelAuthFeV2 } from "@propelauth/js-apis"
 import React, { FormEvent, ReactNode, useEffect, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -93,7 +93,7 @@ const UpdatePassword = ({ onStepCompleted, appearance, testMode, config }: Updat
         try {
             setError(undefined)
             setLoading(true)
-            let options: PropelauthFeV2.UpdatePasswordRequest = {
+            let options: PropelAuthFeV2.UpdatePasswordRequest = {
                 password,
                 xCsrfToken: X_CSRF_TOKEN,
             }

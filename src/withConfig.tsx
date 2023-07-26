@@ -1,4 +1,4 @@
-import { PropelauthFeV2 } from "@propelauth/js-apis"
+import { PropelAuthFeV2 } from "@propelauth/js-apis"
 import hoistNonReactStatics from "hoist-non-react-statics"
 import React, { useContext } from "react"
 import { Subtract } from "utility-types"
@@ -6,7 +6,7 @@ import { ErrorMessage, ErrorMessageAppearance } from "./components/ErrorMessage"
 import { Loading, LoadingAppearance } from "./components/Loading"
 import { ConfigContext } from "./ConfigProvider"
 
-export type Config = PropelauthFeV2.AuthConfigurationResponse
+export type Config = PropelAuthFeV2.AuthConfigurationResponse
 
 export type WithConfigProps = {
     config: Config

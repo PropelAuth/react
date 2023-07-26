@@ -1,17 +1,17 @@
-import { PropelauthFeV2 } from "@propelauth/js-apis"
+import { PropelAuthFeV2 } from "@propelauth/js-apis"
 import { useEffect, useState } from "react"
 import { UNEXPECTED_ERROR } from "./components/constants"
 import { useApi } from "./useApi"
 
 export type UseLoginStateProps = {
-    overrideCurrentScreenForTesting?: PropelauthFeV2.LoginStateEnum
+    overrideCurrentScreenForTesting?: PropelAuthFeV2.LoginStateEnum
 }
 
 export const useLoginState = ({ overrideCurrentScreenForTesting }: UseLoginStateProps) => {
     const { loginApi } = useApi()
     const [loading, setLoading] = useState<boolean>(false)
     const [error, setError] = useState<string | undefined>(undefined)
-    const [loginState, setLoginState] = useState<PropelauthFeV2.LoginStateEnum | undefined>(undefined)
+    const [loginState, setLoginState] = useState<PropelAuthFeV2.LoginStateEnum | undefined>(undefined)
 
     useEffect(() => {
         let mounted = true

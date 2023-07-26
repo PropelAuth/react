@@ -1,4 +1,4 @@
-import { PropelauthFeV2 } from "@propelauth/js-apis"
+import { PropelAuthFeV2 } from "@propelauth/js-apis"
 import React, { ReactNode, SyntheticEvent, useEffect, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
@@ -41,7 +41,7 @@ export type CreateOrgAppearance = {
 }
 
 type OrgInfo = {
-    id: PropelauthFeV2.OrgId
+    id: PropelAuthFeV2.OrgId
     name: string
 }
 
@@ -233,7 +233,7 @@ type JoinableOrgsProps = {
 
 const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: JoinableOrgsProps) => {
     const { orgApi } = useApi()
-    const [joinableOrgs, setJoinableOrgs] = useState<PropelauthFeV2.OrgInfoResponse[]>([])
+    const [joinableOrgs, setJoinableOrgs] = useState<PropelAuthFeV2.OrgInfoResponse[]>([])
     const [selectedOrgId, setSelectedOrgId] = useState<string>("")
     const [fetchLoading, setFetchLoading] = useState(false)
     const [fetchError, setFetchError] = useState<string | undefined>(undefined)
@@ -296,7 +296,7 @@ const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: Joinabl
             })
             if (response.ok) {
                 const selectedOrg = joinableOrgs.find((org) => org.id === selectedOrgId)
-                onOrgCreatedOrJoined(selectedOrg as PropelauthFeV2.OrgInfoResponse)
+                onOrgCreatedOrJoined(selectedOrg as PropelAuthFeV2.OrgInfoResponse)
             } else {
                 response.error._visit({
                     orgsNotEnabled: () => setJoinError(ORGS_NOT_ENABLED),

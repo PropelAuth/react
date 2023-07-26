@@ -13,9 +13,8 @@
         "user"
     ],
     "dependencies": {
-        "@mantine/form": "^6.0.17",
         "@propelauth/javascript": "^2.0.0",
-        "@propelauth/js-apis": "^0.0.15",
+        "@propelauth/js-apis": "^0.0.2",
         "hoist-non-react-statics": "^3.3.2",
         "utility-types": "^3.10.0"
     },

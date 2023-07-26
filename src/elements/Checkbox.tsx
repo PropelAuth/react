@@ -4,7 +4,7 @@ import { useElements } from "../ElementsProvider"
 import { mergeProps } from "./utils"
 
 export type CheckboxProps = {
-    checked?: boolean
+    checked: boolean
     onChange: ChangeEventHandler<HTMLInputElement>
     id?: string
     label?: ReactNode
@@ -35,7 +35,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxPropsWithAppearance
                 label={props.label}
                 required={props.required}
                 disabled={props.disabled}
-                checked={props.checked || false}
+                checked={props.checked}
                 onChange={props.onChange}
                 className={classes}
                 style={styles}
