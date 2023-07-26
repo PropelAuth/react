@@ -1,29 +1,33 @@
-import React, { ChangeEventHandler, CSSProperties, forwardRef, ReactNode } from "react"
+import React, { ChangeEventHandler, CSSProperties, forwardRef } from "react"
 import { ElementAppearance, useAppearance } from "../AppearanceProvider"
 import { useElements } from "../ElementsProvider"
 import { mergeProps } from "./utils"
 
-export type CheckboxProps = {
-    checked?: boolean
-    onChange: ChangeEventHandler<HTMLInputElement>
+export type TextAreaProps = {
+    value: string
+    onChange?: ChangeEventHandler<HTMLTextAreaElement>
     id?: string
-    label?: ReactNode
+    type?: string
     required?: boolean
     disabled?: boolean
+    readOnly?: boolean
+    placeholder?: string
     className?: string
     style?: CSSProperties
+    resizable?: boolean
+    wraps?: boolean
 }
 
-export type CheckboxPropsWithAppearance = {
-    appearance?: ElementAppearance<CheckboxProps>
-} & CheckboxProps
+export type TextAreaPropsWithAppearance = {
+    appearance?: ElementAppearance<TextAreaProps>
+} & TextAreaProps
 
-export const Checkbox = forwardRef<HTMLInputElement, CheckboxPropsWithAppearance>((props, ref) => {
+export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaPropsWithAppearance>((props, ref) => {
     const { elements } = useElements()
     const { appearance } = useAppearance()
-    const { classes, styles, Override } = mergeProps<CheckboxProps>({
+    const { classes, styles, Override } = mergeProps<TextAreaProps>({
         appearance: props.appearance,
-        element: appearance.elements?.Checkbox,
+        element: appearance.elements?.TextArea,
     })
 
     if (Override === null) {
@@ -32,28 +36,34 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxPropsWithAppearance
         return (
             <Override
                 id={props.id}
-                label={props.label}
+                type={props.type}
                 required={props.required}
                 disabled={props.disabled}
-                checked={props.checked || false}
+                value={props.value}
+                placeholder={props.placeholder}
                 onChange={props.onChange}
                 className={classes}
                 style={styles}
+                resizable={props.resizable}
+                wraps={props.wraps}
             />
         )
     }
 
     return (
-        <elements.Checkbox
+        <elements.TextArea
             ref={ref}
             id={props.id}
-            label={props.label}
+            type={props.type}
             required={props.required}
             disabled={props.disabled}
-            checked={props.checked}
+            value={props.value}
+            placeholder={props.placeholder}
             onChange={props.onChange}
             className={classes}
             style={styles}
+            resizable={props.resizable}
+            wraps={props.wraps}
         />
     )
 })

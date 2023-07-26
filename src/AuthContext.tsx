@@ -4,7 +4,7 @@ import {
     RedirectToLoginOptions,
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
-import { PropelAuthFeV2Client } from "@propelauth/js-apis"
+import { PropelauthFeV2Client } from "@propelauth/js-apis"
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useReducer, useState } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
@@ -25,7 +25,7 @@ interface InternalAuthState {
 
     setLoggedInChangeCounter: Dispatch<SetStateAction<number>>
 
-    api: PropelAuthFeV2Client
+    api: PropelauthFeV2Client
     authUrl: string
 }
 
@@ -159,7 +159,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
         return () => clearTimeout(timeout)
     }, [expiresAtSeconds])
 
-    const api = new PropelAuthFeV2Client({ environment: props.authUrl })
+    const api = new PropelauthFeV2Client({ environment: props.authUrl })
 
     const logout = useCallback(client.logout, [])
     const redirectToLoginPage = useCallback(client.redirectToLoginPage, [])
