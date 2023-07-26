@@ -1,10 +1,10 @@
 import React from "react"
 import { ElementAppearance } from "../../AppearanceProvider"
-import { Checkbox, CheckboxProps } from "../../elements/Checkbox"
+import { Toggle, ToggleProps } from "../../elements/Toggle"
 import { UserPropertyComponentPropsType } from "./UserPropertyFields"
 
 export type ToggleFieldAppearance = {
-    ToggleFieldInput?: ElementAppearance<CheckboxProps>
+    ToggleFieldInput?: ElementAppearance<ToggleProps>
 }
 
 export type ToggleFieldProps<T> = UserPropertyComponentPropsType<T> & {
@@ -13,7 +13,7 @@ export type ToggleFieldProps<T> = UserPropertyComponentPropsType<T> & {
 
 function ToggleField<T>({ propertySetting, form, appearance }: ToggleFieldProps<T>) {
     return (
-        <Checkbox
+        <Toggle
             id={propertySetting.name}
             label={propertySetting.display_name}
             disabled={propertySetting.visibility !== "Public"}

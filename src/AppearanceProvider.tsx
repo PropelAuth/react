@@ -15,7 +15,8 @@ import { LinkProps } from "./elements/Link"
 import { LoaderProps } from "./elements/Loader"
 import { ParagraphProps } from "./elements/Paragraph"
 import { SelectProps } from "./elements/Select"
-import { TextAreaProps } from "./elements/Textarea"
+import { TextAreaProps } from "./elements/TextArea"
+import { ToggleProps } from "./elements/Toggle"
 
 export type Element<T> = ((props: T) => JSX.Element) | null
 
@@ -40,6 +41,7 @@ export type Appearance = {
         Loader?: ElementAppearance<LoaderProps>
         Select?: ElementAppearance<SelectProps>
         TextArea?: ElementAppearance<TextAreaProps>
+        Toggle?: ElementAppearance<ToggleProps>
     }
 }
 

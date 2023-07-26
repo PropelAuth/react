@@ -34,12 +34,6 @@ export type SignupAppearance = {
         Header?: ElementAppearance<H3Props>
         Divider?: ElementAppearance<DividerProps>
         UserPropertyFields?: UserPropertyFieldsAppearance
-        FirstNameLabel?: ElementAppearance<LabelProps>
-        FirstNameInput?: ElementAppearance<InputProps>
-        LastNameLabel?: ElementAppearance<LabelProps>
-        LastNameInput?: ElementAppearance<InputProps>
-        UsernameLabel?: ElementAppearance<LabelProps>
-        UsernameInput?: ElementAppearance<InputProps>
         EmailLabel?: ElementAppearance<LabelProps>
         EmailInput?: ElementAppearance<InputProps>
         PasswordLabel?: ElementAppearance<LabelProps>
@@ -120,10 +114,10 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
     const [lastName, setLastName] = useState("")
     const [username, setUsername] = useState("")
     const [emailError, setEmailError] = useState<string | undefined>(undefined)
-    const [firstNameError, setFirstNameError] = useState<string | undefined>(undefined)
-    const [lastNameError, setLastNameError] = useState<string | undefined>(undefined)
+    const [_firstNameError, setFirstNameError] = useState<string | undefined>(undefined)
+    const [_lastNameError, setLastNameError] = useState<string | undefined>(undefined)
     const [passwordError, setPasswordError] = useState<string | undefined>(undefined)
-    const [usernameError, setUsernameError] = useState<string | undefined>(undefined)
+    const [_usernameError, setUsernameError] = useState<string | undefined>(undefined)
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState<string | undefined>(undefined)
 
