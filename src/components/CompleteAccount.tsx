@@ -1,18 +1,22 @@
+import { useForm } from "@mantine/form"
 import { PropelauthFeV2 } from "@propelauth/js-apis"
-import React, { ReactNode, SyntheticEvent, useState } from "react"
+import _ from "lodash"
+import React, { ReactNode, useEffect, useMemo, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { Button, ButtonProps } from "../elements/Button"
 import { Container, ContainerProps } from "../elements/Container"
 import { H3, H3Props } from "../elements/H3"
 import { Image, ImageProps } from "../elements/Image"
-import { Input, InputProps } from "../elements/Input"
-import { Label, LabelProps } from "../elements/Label"
+import { InputProps } from "../elements/Input"
+import { LabelProps } from "../elements/Label"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
-import { useApi } from "../useApi"
+import { useApi, UserMetadataResponse } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, COMPLETE_ACCOUNT_TEXT, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
+import { CreateUserFormType } from "./Signup"
+import UserPropertyFields, { UserPropertySetting, UserPropertySettings } from "./UserProperties/UserPropertyFields"
 
 export type CompleteAccountAppearance = {
     options?: {
@@ -42,27 +46,83 @@ type UserMetadataProps = {
 } & WithConfigProps
 
 const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: UserMetadataProps) => {
-    const { userApi, loginApi } = useApi()
+    const { userApi, loginApi, legacyApi } = useApi()
     const [loading, setLoading] = useState(false)
-    const [firstName, setFirstName] = useState("")
-    const [lastName, setLastName] = useState("")
-    const [username, setUsername] = useState("")
-    const [firstNameError, setFirstNameError] = useState<string | undefined>(undefined)
-    const [lastNameError, setLastNameError] = useState<string | undefined>(undefined)
-    const [usernameError, setUsernameError] = useState<string | undefined>(undefined)
     const [error, setError] = useState<string | undefined>(undefined)
+    const [userMetadata, setUserMetadata] = useState<UserMetadataResponse>(null)
     const { redirectToLoginPage } = useRedirectFunctions()
 
     const clearErrors = () => {
-        setFirstNameError(undefined)
-        setLastNameError(undefined)
-        setUsernameError(undefined)
         setError(undefined)
     }
 
-    async function updateMetadata(e: SyntheticEvent) {
-        e.preventDefault()
+    useEffect(() => {
+        let active = true
+        getUserData()
+        return () => {
+            active = false
+        }
 
+        async function getUserData() {
+            const result = await legacyApi.getUserMetadata()
+            if (active) {
+                return
+            }
+            setUserMetadata(result)
+        }
+    }, [])
+
+    const propertySettings = useMemo<UserPropertySetting[]>(() => {
+        const typedPropertySettings = config.userPropertySettings as UserPropertySettings
+        // get all fields that are required retroactively and not in metadata
+        return (typedPropertySettings.fields || [])
+            .filter((property) => {
+                const generalChecks =
+                    property.is_enabled && property.field_type !== "PictureUrl" && property.retroactively_required
+                let notInMetadata = true
+                if (userMetadata) {
+                    if (property.name === "legacy__username") {
+                        notInMetadata = !userMetadata.username
+                    } else if (property.name === "legacy__name") {
+                        notInMetadata = !userMetadata.first_name && !userMetadata.last_name
+                    }
+                }
+                return generalChecks && notInMetadata
+            })
+            .map((property) => ({
+                ...property,
+                // legacy__username needs special treatment as its the only legacy property that renders with a normal field (i.e. text field)
+                name: property.name === "legacy__username" ? "username" : property.name,
+            }))
+    }, [config.userPropertySettings.fields, userMetadata])
+
+    const form = useForm<CreateUserFormType>({
+        initialValues: {
+            first_name: userMetadata?.first_name || "",
+            last_name: userMetadata?.last_name || "",
+            ...propertySettings
+                .map((property) => {
+                    // initialize the list with the correct values
+                    let defaultValue: CreateUserFormType[string] = ""
+                    if (property.field_type === "Checkbox" || property.field_type === "Toggle") {
+                        defaultValue = false
+                    }
+                    return { [property.name]: defaultValue }
+                })
+                .reduce((acc, property) => ({ ...acc, ...property }), {}),
+        },
+        transformValues: (values: CreateUserFormType) => {
+            const transformedValues = { ...values }
+            propertySettings.forEach((property) => {
+                if (property.field_type === "Integer") {
+                    transformedValues[property.name] = parseInt(transformedValues[property.name] as string)
+                }
+            })
+            return transformedValues
+        },
+    })
+
+    async function updateMetadata(values: CreateUserFormType) {
         if (testMode) {
             alert(
                 "You are currently in test mode. Remove the `overrideCurrentScreenForTesting` prop to complete account."
@@ -73,15 +133,27 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
         try {
             clearErrors()
             setLoading(true)
-            const options: PropelauthFeV2.UpdateUserFacingMetadataRequest = { xCsrfToken: X_CSRF_TOKEN }
-            if (config.requireUsersToSetName) {
-                options.firstName = firstName
-                options.lastName = lastName
+            const updateMetadataRequest: PropelauthFeV2.UpdateUserFacingMetadataRequest = { xCsrfToken: X_CSRF_TOKEN }
+
+            if (propertySettings.some((property) => property.name === "legacy__name")) {
+                updateMetadataRequest.firstName = values.first_name as string
+                updateMetadataRequest.lastName = values.last_name as string
             }
-            if (config.requireUsersToSetUsername) {
-                options.username = username
+            if (propertySettings.some((property) => property.name === "legacy__username")) {
+                updateMetadataRequest.username = values.username as string
             }
-            const response = await userApi.updateMetadata(options)
+            Object.keys(_.omit(values, ["username", "first_name", "last_name", "legacy__name"])).forEach((valueKey) => {
+                if (
+                    form.isDirty(valueKey) ||
+                    propertySettings.find((p) => p.name === valueKey)?.retroactively_required
+                ) {
+                    updateMetadataRequest.properties = {
+                        ...(updateMetadataRequest.properties || {}),
+                        [valueKey]: values[valueKey],
+                    }
+                }
+            })
+            const response = await userApi.updateMetadata(updateMetadataRequest)
             if (response.ok) {
                 const status = await loginApi.fetchLoginState()
                 if (status.ok) {
@@ -93,16 +165,8 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
                 response.error._visit({
                     unauthorized: redirectToLoginPage,
                     badRequestUpdateMetadata: (err) => {
-                        if (err.firstName || err.lastName || err.username) {
-                            if (err.firstName) {
-                                setFirstNameError(err.firstName.join(", "))
-                            }
-                            if (err.lastName) {
-                                setLastNameError(err.lastName.join(", "))
-                            }
-                            if (err.username) {
-                                setUsernameError(err.username.join(", "))
-                            }
+                        if (Object.keys(err).length > 0) {
+                            form.setErrors(err)
                         } else {
                             setError(BAD_REQUEST)
                         }
@@ -147,67 +211,8 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
                     <Paragraph appearance={appearance?.elements?.Content}>{getCompleteAccountContent()}</Paragraph>
                 </div>
                 <div data-contain="form">
-                    <form onSubmit={updateMetadata}>
-                        {config.requireUsersToSetName && (
-                            <div data-contain="name_fields">
-                                <div>
-                                    <Label htmlFor="first_name" appearance={appearance?.elements?.FirstNameLabel}>
-                                        First name
-                                    </Label>
-                                    <Input
-                                        id={"first_name"}
-                                        type={"text"}
-                                        value={firstName}
-                                        placeholder={"First name"}
-                                        onChange={(e) => setFirstName(e.target.value)}
-                                        appearance={appearance?.elements?.FirstNameInput}
-                                    />
-                                    {firstNameError && (
-                                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                            {firstNameError}
-                                        </Alert>
-                                    )}
-                                </div>
-                                <div>
-                                    <Label htmlFor="last_name" appearance={appearance?.elements?.LastNameLabel}>
-                                        Last name
-                                    </Label>
-                                    <Input
-                                        id={"last_name"}
-                                        type={"text"}
-                                        value={lastName}
-                                        placeholder={"Last name"}
-                                        onChange={(e) => setLastName(e.target.value)}
-                                        appearance={appearance?.elements?.LastNameInput}
-                                    />
-                                    {lastNameError && (
-                                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                            {lastNameError}
-                                        </Alert>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                        {config.requireUsersToSetUsername && (
-                            <div>
-                                <Label htmlFor="username" appearance={appearance?.elements?.UsernameLabel}>
-                                    Username
-                                </Label>
-                                <Input
-                                    id={"username"}
-                                    type={"text"}
-                                    value={username}
-                                    placeholder={"Username"}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    appearance={appearance?.elements?.UsernameInput}
-                                />
-                                {usernameError && (
-                                    <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                        {usernameError}
-                                    </Alert>
-                                )}
-                            </div>
-                        )}
+                    <form onSubmit={form.onSubmit(updateMetadata)}>
+                        <UserPropertyFields propertySettings={propertySettings} form={form} />
                         <Button loading={loading} appearance={appearance?.elements?.SubmitButton} type="submit">
                             {appearance?.options?.submitButtonText || "Continue"}
                         </Button>

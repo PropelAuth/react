@@ -169,19 +169,16 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
             if (config.requireUsersToSetUsername) {
                 signupRequest.username = values.username as string
             }
-            Object.keys(_.omit(values, ["username", "first_name", "last_name", "email", "password"])).forEach(
-                (valueKey) => {
-                    if (
-                        form.isDirty(valueKey) ||
-                        propertySettings.find((p) => p.name === valueKey)?.required_on_signup
-                    ) {
-                        signupRequest.properties = {
-                            ...(signupRequest.properties || {}),
-                            [valueKey]: values[valueKey],
-                        }
+            Object.keys(
+                _.omit(values, ["username", "first_name", "last_name", "legacy__name", "email", "password"])
+            ).forEach((valueKey) => {
+                if (form.isDirty(valueKey) || propertySettings.find((p) => p.name === valueKey)?.required_on_signup) {
+                    signupRequest.properties = {
+                        ...(signupRequest.properties || {}),
+                        [valueKey]: values[valueKey],
                     }
                 }
-            )
+            })
             const response = await userApi.signup(signupRequest)
             if (response.ok) {
                 onSignupCompleted()

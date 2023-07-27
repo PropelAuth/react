@@ -22,7 +22,6 @@ function LongTextField<T>({ propertySetting, form, appearance }: LongTextFieldPr
                 {propertySetting.display_name}
             </Label>
             <TextArea
-                required={propertySetting.required_on_signup}
                 type="text"
                 id={propertySetting.name}
                 placeholder={appearance?.LongTextFieldLabel === null ? propertySetting.display_name : undefined}

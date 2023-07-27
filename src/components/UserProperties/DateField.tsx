@@ -22,7 +22,6 @@ function DateField<T>({ propertySetting, form, appearance }: DateFieldProps<T>) 
                 {propertySetting.display_name}
             </Label>
             <Input
-                required={propertySetting.required_on_signup}
                 type="date"
                 id={propertySetting.name}
                 appearance={appearance?.DateFieldInput}

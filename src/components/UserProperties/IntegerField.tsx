@@ -22,7 +22,6 @@ function IntegerField<T>({ propertySetting, form, appearance }: IntegerFieldProp
                 {propertySetting.display_name}
             </Label>
             <Input
-                required={propertySetting.required_on_signup}
                 type="number"
                 id={propertySetting.name}
                 placeholder={appearance?.IntegerFieldLabel === null ? propertySetting.display_name : undefined}
