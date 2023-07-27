@@ -1,9 +1,10 @@
+import type { SwitchProps } from "@mantine/core"
 import React, { ChangeEventHandler, CSSProperties, forwardRef, ReactNode } from "react"
 import { ElementAppearance, useAppearance } from "../AppearanceProvider"
 import { useElements } from "../ElementsProvider"
 import { mergeProps } from "./utils"
 
-export type CheckboxProps = {
+export type ToggleProps = SwitchProps & {
     checked?: boolean
     onChange: ChangeEventHandler<HTMLInputElement>
     id?: string
@@ -14,16 +15,16 @@ export type CheckboxProps = {
     style?: CSSProperties
 }
 
-export type CheckboxPropsWithAppearance = {
-    appearance?: ElementAppearance<CheckboxProps>
-} & CheckboxProps
+export type TogglePropsWithAppearance = {
+    appearance?: ElementAppearance<ToggleProps>
+} & ToggleProps
 
-export const Checkbox = forwardRef<HTMLInputElement, CheckboxPropsWithAppearance>((props, ref) => {
+export const Toggle = forwardRef<HTMLInputElement, TogglePropsWithAppearance>((props, ref) => {
     const { elements } = useElements()
     const { appearance } = useAppearance()
-    const { classes, styles, Override } = mergeProps<CheckboxProps>({
+    const { classes, styles, Override } = mergeProps<ToggleProps>({
         appearance: props.appearance,
-        element: appearance.elements?.Checkbox,
+        element: appearance.elements?.Toggle,
     })
 
     if (Override === null) {
@@ -44,7 +45,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxPropsWithAppearance
     }
 
     return (
-        <elements.Checkbox
+        <elements.Toggle
             ref={ref}
             id={props.id}
             label={props.label}

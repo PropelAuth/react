@@ -13,8 +13,10 @@
         "user"
     ],
     "dependencies": {
+        "@mantine/core": "^6.0.17",
+        "@mantine/form": "^6.0.17",
         "@propelauth/javascript": "^2.0.0",
-        "@propelauth/js-apis": "^0.0.2",
+        "@propelauth/js-apis": "^0.0.17",
         "hoist-non-react-statics": "^3.3.2",
         "utility-types": "^3.10.0"
     },
@@ -27,10 +29,12 @@
         "@types/estree": "^1.0.0",
         "@types/hoist-non-react-statics": "^3.3.1",
         "@types/jest": "^26.0.23",
+        "@types/lodash": "^4.14.196",
         "@types/react": "^18.0.4",
         "@types/react-dom": "^18.0.3",
         "babel-jest": "^29.3.1",
         "jest": "^27.0.6",
+        "lodash": "^4.17.21",
         "prettier": "^2.4.1",
         "prettier-plugin-organize-imports": "^2.3.3",
         "react": "^17.0.2",

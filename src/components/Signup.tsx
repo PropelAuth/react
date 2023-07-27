@@ -1,5 +1,8 @@
-import { PropelAuthFeV2 } from "@propelauth/js-apis"
-import React, { ReactNode, SyntheticEvent, useState } from "react"
+import { useForm } from "@mantine/form"
+import { PropelauthFeV2 } from "@propelauth/js-apis"
+import { BadRequestSignup } from "@propelauth/js-apis/types/resources"
+import _ from "lodash"
+import React, { ReactNode, useMemo, useState } from "react"
 import { ElementAppearance } from "../AppearanceProvider"
 import { Alert, AlertProps } from "../elements/Alert"
 import { AnchorButton } from "../elements/AnchorButton"
@@ -15,6 +18,11 @@ import { Config, withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, SIGNUP_NOT_ALLOWED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
 import { OrDivider } from "./OrDivider"
 import { SignInOptions } from "./SignInOptions"
+import UserPropertyFields, {
+    UserPropertyFieldsAppearance,
+    UserPropertySetting,
+    UserPropertySettings,
+} from "./UserProperties/UserPropertyFields"
 
 export type SignupAppearance = {
     options?: {
@@ -27,12 +35,7 @@ export type SignupAppearance = {
         Logo?: ElementAppearance<ImageProps>
         Header?: ElementAppearance<H3Props>
         Divider?: ElementAppearance<DividerProps>
-        FirstNameLabel?: ElementAppearance<LabelProps>
-        FirstNameInput?: ElementAppearance<InputProps>
-        LastNameLabel?: ElementAppearance<LabelProps>
-        LastNameInput?: ElementAppearance<InputProps>
-        UsernameLabel?: ElementAppearance<LabelProps>
-        UsernameInput?: ElementAppearance<InputProps>
+        UserPropertyFields?: UserPropertyFieldsAppearance
         EmailLabel?: ElementAppearance<LabelProps>
         EmailInput?: ElementAppearance<InputProps>
         PasswordLabel?: ElementAppearance<LabelProps>
@@ -45,6 +48,8 @@ export type SignupAppearance = {
         ErrorMessage?: ElementAppearance<AlertProps>
     }
 }
+
+export type CreateUserFormType = Record<string, string | boolean | number | undefined>
 
 export type SignupProps = {
     onSignupCompleted: VoidFunction
@@ -105,68 +110,84 @@ type SignupFormProps = {
 
 const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) => {
     const { userApi } = useApi()
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [firstName, setFirstName] = useState("")
-    const [lastName, setLastName] = useState("")
-    const [username, setUsername] = useState("")
-    const [emailError, setEmailError] = useState<string | undefined>(undefined)
-    const [firstNameError, setFirstNameError] = useState<string | undefined>(undefined)
-    const [lastNameError, setLastNameError] = useState<string | undefined>(undefined)
-    const [passwordError, setPasswordError] = useState<string | undefined>(undefined)
-    const [usernameError, setUsernameError] = useState<string | undefined>(undefined)
+    const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | undefined>(undefined)
 
-    const clearErrors = () => {
-        setEmailError(undefined)
-        setFirstNameError(undefined)
-        setLastNameError(undefined)
-        setPasswordError(undefined)
-        setUsernameError(undefined)
-        setError(undefined)
-    }
+    const propertySettings = useMemo<UserPropertySetting[]>(() => {
+        const typedPropertySettings = config.userPropertySettings as UserPropertySettings
+        return (typedPropertySettings.fields || [])
+            .filter(
+                (property) => property.is_enabled && property.field_type !== "PictureUrl" && property.collect_on_signup
+            )
+            .map((property) => ({
+                ...property,
+                // legacy__username needs special treatment as its the only legacy property that renders with a normal field (i.e. text field)
+                name: property.name === "legacy__username" ? "username" : property.name,
+            }))
+    }, [config.userPropertySettings.fields])
 
-    const signup = async (e: SyntheticEvent) => {
+    const form = useForm<CreateUserFormType>({
+        initialValues: {
+            email: "",
+            password: "",
+            first_name: "",
+            last_name: "",
+            ...propertySettings
+                .map((property) => {
+                    // initialize the list with the correct values
+                    let defaultValue: CreateUserFormType[string] = ""
+                    if (property.field_type === "Checkbox" || property.field_type === "Toggle") {
+                        defaultValue = false
+                    }
+                    return { [property.name]: defaultValue }
+                })
+                .reduce((acc, property) => ({ ...acc, ...property }), {}),
+        },
+        transformValues: (values: CreateUserFormType) => {
+            const transformedValues = { ...values }
+            propertySettings.forEach((property) => {
+                if (property.field_type === "Integer") {
+                    transformedValues[property.name] = parseInt(transformedValues[property.name] as string)
+                }
+            })
+            return transformedValues
+        },
+    })
+
+    const signup = async (values: CreateUserFormType) => {
         try {
-            e.preventDefault()
             setLoading(true)
-            clearErrors()
-            const options: PropelAuthFeV2.SignupRequest = {
-                email: email,
-                password: password,
+            const signupRequest: PropelauthFeV2.SignupRequest = {
+                email: values.email as string,
+                password: values.password as string,
                 xCsrfToken: X_CSRF_TOKEN,
             }
             if (config.requireUsersToSetName) {
-                options.firstName = firstName
-                options.lastName = lastName
+                signupRequest.firstName = values.first_name as string
+                signupRequest.lastName = values.last_name as string
             }
             if (config.requireUsersToSetUsername) {
-                options.username = username
+                signupRequest.username = values.username as string
             }
-            const response = await userApi.signup(options)
+            Object.keys(
+                _.omit(values, ["username", "first_name", "last_name", "legacy__name", "email", "password"])
+            ).forEach((valueKey) => {
+                if (form.isDirty(valueKey) || propertySettings.find((p) => p.name === valueKey)?.required_on_signup) {
+                    signupRequest.properties = {
+                        ...(signupRequest.properties || {}),
+                        [valueKey]: values[valueKey],
+                    }
+                }
+            })
+            const response = await userApi.signup(signupRequest)
             if (response.ok) {
                 onSignupCompleted()
             } else {
                 response.error._visit({
                     signupNotAllowed: () => setError(SIGNUP_NOT_ALLOWED),
-                    badRequestSignup: (err) => {
-                        if (err.email || err.firstName || err.lastName || err.password || err.username) {
-                            if (err.email) {
-                                setEmailError(err.email.join(", "))
-                            }
-                            if (err.firstName) {
-                                setFirstNameError(err.firstName.join(", "))
-                            }
-                            if (err.lastName) {
-                                setLastNameError(err.lastName.join(", "))
-                            }
-                            if (err.password) {
-                                setPasswordError(err.password.join(", "))
-                            }
-                            if (err.username) {
-                                setUsernameError(err.username.join(", "))
-                            }
+                    badRequestSignup: (err: BadRequestSignup) => {
+                        if (Object.keys(err).length > 0) {
+                            form.setErrors(err)
                         } else {
                             setError(BAD_REQUEST)
                         }
@@ -184,110 +205,46 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
 
     return (
         <div data-contain="form">
-            <form onSubmit={signup}>
-                {config.requireUsersToSetName && (
-                    <div data-contain="name_fields">
-                        <div>
-                            <Label htmlFor="first_name" appearance={appearance?.elements?.FirstNameLabel}>
-                                {`First name`}
-                            </Label>
-                            <Input
-                                required
-                                id="first_name"
-                                type="text"
-                                value={firstName}
-                                placeholder="First Name"
-                                onChange={(e) => setFirstName(e.target.value)}
-                                appearance={appearance?.elements?.FirstNameInput}
-                            />
-                            {firstNameError && (
-                                <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                    {firstNameError}
-                                </Alert>
-                            )}
-                        </div>
-                        <div>
-                            <Label
-                                htmlFor="last_name"
-                                appearance={appearance?.elements?.LastNameLabel}
-                            >{`Last name`}</Label>
-
-                            <Input
-                                required
-                                type="text"
-                                id="last_name"
-                                value={lastName}
-                                placeholder="Last Name"
-                                onChange={(e) => setLastName(e.target.value)}
-                                appearance={appearance?.elements?.LastNameInput}
-                            />
-                            {lastNameError && (
-                                <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                    {lastNameError}
-                                </Alert>
-                            )}
-                        </div>
-                    </div>
-                )}
+            <form onSubmit={form.onSubmit(signup)}>
                 <div>
                     <Label htmlFor="email" appearance={appearance?.elements?.EmailLabel}>
                         {`Email`}
                     </Label>
                     <Input
-                        required
                         id="email"
                         type="email"
-                        value={email}
-                        placeholder="Email"
-                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder={appearance?.elements?.EmailLabel === null ? "Email" : undefined}
                         appearance={appearance?.elements?.EmailInput}
+                        {...form.getInputProps("email")}
                     />
-                    {emailError && (
+                    {form.errors["email"] && (
                         <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                            {emailError}
+                            {form.errors["email"]}
                         </Alert>
                     )}
                 </div>
-                {config.requireUsersToSetUsername && (
-                    <div>
-                        <Label htmlFor="username" appearance={appearance?.elements?.UsernameLabel}>
-                            {`Username`}
-                        </Label>
-                        <Input
-                            required
-                            type="text"
-                            id="username"
-                            value={username}
-                            placeholder="Username"
-                            onChange={(e) => setUsername(e.target.value)}
-                            appearance={appearance?.elements?.UsernameInput}
-                        />
-                        {usernameError && (
-                            <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                {usernameError}
-                            </Alert>
-                        )}
-                    </div>
-                )}
                 <div>
                     <Label htmlFor="password" appearance={appearance?.elements?.PasswordLabel}>
                         {`Password`}
                     </Label>
                     <Input
-                        required
                         id="password"
                         type="password"
-                        value={password}
-                        placeholder="Password"
-                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder={appearance?.elements?.PasswordLabel === null ? "Password" : undefined}
                         appearance={appearance?.elements?.PasswordInput}
+                        {...form.getInputProps("password")}
                     />
-                    {passwordError && (
+                    {form.errors["password"] && (
                         <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                            {passwordError}
+                            {form.errors["password"]}
                         </Alert>
                     )}
                 </div>
+                <UserPropertyFields
+                    propertySettings={propertySettings}
+                    form={form}
+                    appearance={appearance?.elements?.UserPropertyFields}
+                />
                 <Button loading={loading} appearance={appearance?.elements?.SubmitButton} type="submit">
                     {appearance?.options?.submitButtonText || "Sign Up"}
                 </Button>

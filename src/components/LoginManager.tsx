@@ -1,4 +1,4 @@
-import { PropelAuthFeV2 } from "@propelauth/js-apis"
+import { PropelauthFeV2 } from "@propelauth/js-apis"
 import React, { useEffect } from "react"
 import { useAuthRefresh } from "../additionalHooks"
 import { useLoginState } from "../useLoginState"
@@ -23,7 +23,7 @@ export type LoginManagerProps = {
     completeAccountAppearance?: CompleteAccountAppearance
     updatePasswordAppearance?: UpdatePasswordAppearance
     createOrgAppearance?: CreateOrgAppearance
-    overrideCurrentScreenForTesting?: PropelAuthFeV2.LoginStateEnum
+    overrideCurrentScreenForTesting?: PropelauthFeV2.LoginStateEnum
 }
 
 const LoginManager = ({
@@ -47,7 +47,7 @@ const LoginManager = ({
     })
 
     useEffect(() => {
-        if (loginState === PropelAuthFeV2.LoginStateEnum.Finished) {
+        if (loginState === PropelauthFeV2.LoginStateEnum.Finished) {
             refreshAuth()
             onLoginCompleted()
         }
@@ -60,7 +60,7 @@ const LoginManager = ({
     }
 
     switch (loginState) {
-        case PropelAuthFeV2.LoginStateEnum.LoginRequired:
+        case PropelauthFeV2.LoginStateEnum.LoginRequired:
             return (
                 <Login
                     onStepCompleted={() => getLoginState()}
@@ -72,9 +72,9 @@ const LoginManager = ({
                     testMode={testMode}
                 />
             )
-        case PropelAuthFeV2.LoginStateEnum.ConfirmEmailRequired:
+        case PropelauthFeV2.LoginStateEnum.ConfirmEmailRequired:
             return <ConfirmEmail appearance={confirmEmailAppearance} testMode={testMode} />
-        case PropelAuthFeV2.LoginStateEnum.TwoFactorRequired:
+        case PropelauthFeV2.LoginStateEnum.TwoFactorRequired:
             return (
                 <VerifyMfa
                     onStepCompleted={() => getLoginState()}
@@ -82,7 +82,7 @@ const LoginManager = ({
                     testMode={testMode}
                 />
             )
-        case PropelAuthFeV2.LoginStateEnum.UserMetadataRequired:
+        case PropelauthFeV2.LoginStateEnum.UserMetadataRequired:
             return (
                 <CompleteAccount
                     onStepCompleted={() => getLoginState()}
@@ -90,7 +90,7 @@ const LoginManager = ({
                     testMode={testMode}
                 />
             )
-        case PropelAuthFeV2.LoginStateEnum.UpdatePasswordRequired:
+        case PropelauthFeV2.LoginStateEnum.UpdatePasswordRequired:
             return (
                 <UpdatePassword
                     onStepCompleted={() => getLoginState()}
@@ -98,7 +98,7 @@ const LoginManager = ({
                     testMode={testMode}
                 />
             )
-        case PropelAuthFeV2.LoginStateEnum.OrgCreationRequired:
+        case PropelauthFeV2.LoginStateEnum.OrgCreationRequired:
             return (
                 <CreateOrg
                     onOrgCreatedOrJoined={() => getLoginState()}
