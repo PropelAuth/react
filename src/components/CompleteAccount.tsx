@@ -65,7 +65,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
 
         async function getUserData() {
             const result = await legacyApi.getUserMetadata()
-            if (active) {
+            if (!active) {
                 return
             }
             setUserMetadata(result)
