@@ -11,19 +11,6 @@ import ToggleField, { ToggleFieldAppearance } from "./ToggleField"
 import TosField, { TosFieldAppearance } from "./TosField"
 import UrlField, { UrlFieldAppearance } from "./UrlField"
 
-// import DateField from "./DateField";
-// import EnumField from "./EnumField";
-// import IntegerField from "./IntegerField";
-// import LongTextField from "./LongTextField";
-// import NameField from "./NameField";
-// import PhoneNumberField from "./PhoneNumberField";
-// import TextField from "./TextField";
-// import ToggleField from "./ToggleField";
-// import UrlField from "./UrlField";
-// import { UserProperty } from "../../js-api/routes/updateMetadata";
-// import { FormSection } from "../../pages/account";
-// import { Button } from "../lib/Button";
-
 export type UserPropertySettings = {
     fields: UserPropertySetting[]
 }
