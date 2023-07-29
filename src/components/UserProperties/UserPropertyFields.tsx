@@ -16,14 +16,17 @@ export type UserPropertySettings = {
 }
 
 export type UserPropertySetting = {
-    display_name: string
-    name: string
-    field_type: UserPropertyFieldType
-    visibility: UserPropertyVisibility
-    required_on_signup: boolean
+    is_user_facing: boolean
+    user_writable: UserPropertyWritable
+    show_in_account: boolean
     collect_on_signup: boolean
-    retroactively_required: boolean
-    include_in_jwt: boolean
+    collect_via_saml: boolean
+    required: boolean
+    required_by: number | undefined
+    in_jwt: boolean
+    name: string
+    display_name: string
+    field_type: UserPropertyFieldType
     metadata: UserPropertyMetadata
     is_enabled: boolean
 }
@@ -53,7 +56,7 @@ export type UserPropertyFieldType =
     | "PictureUrl"
     | "Tos"
 
-export type UserPropertyVisibility = "Public" | "PublicReadonly" | "Private"
+export type UserPropertyWritable = "Write" | "WriteIfUnset" | "Read"
 
 export type UserPropertyComponentPropsType<T> = {
     propertySetting: UserPropertySetting

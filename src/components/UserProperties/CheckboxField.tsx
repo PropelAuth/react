@@ -16,7 +16,6 @@ function CheckboxField<T>({ propertySetting, form, appearance }: CheckboxFieldPr
         <Checkbox
             id={propertySetting.name}
             label={propertySetting.display_name}
-            disabled={propertySetting.visibility !== "Public"}
             appearance={appearance?.CheckboxFieldInput}
             {...form.getInputProps(propertySetting.name, { type: "checkbox" })}
         />

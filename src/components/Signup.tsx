@@ -49,7 +49,7 @@ export type SignupAppearance = {
     }
 }
 
-export type CreateUserFormType = Record<string, string | boolean | number | undefined>
+export type CreateUserFormType = Record<string, string | boolean | number>
 
 export type SignupProps = {
     onSignupCompleted: VoidFunction
@@ -116,9 +116,7 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
     const propertySettings = useMemo<UserPropertySetting[]>(() => {
         const typedPropertySettings = config.userPropertySettings as UserPropertySettings
         return (typedPropertySettings.fields || [])
-            .filter(
-                (property) => property.is_enabled && property.field_type !== "PictureUrl" && property.collect_on_signup
-            )
+            .filter((property) => property.is_enabled && property.collect_on_signup)
             .map((property) => ({
                 ...property,
                 // legacy__username needs special treatment as its the only legacy property that renders with a normal field (i.e. text field)
@@ -172,7 +170,12 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
             Object.keys(
                 _.omit(values, ["username", "first_name", "last_name", "legacy__name", "email", "password"])
             ).forEach((valueKey) => {
-                if (form.isDirty(valueKey) || propertySettings.find((p) => p.name === valueKey)?.required_on_signup) {
+                const propertySetting = propertySettings.find((p) => p.name === valueKey)
+                if (
+                    form.isDirty(valueKey) ||
+                    (propertySetting?.required &&
+                        (!propertySetting?.required_by || propertySetting?.required_by <= Date.now()))
+                ) {
                     signupRequest.properties = {
                         ...(signupRequest.properties || {}),
                         [valueKey]: values[valueKey],

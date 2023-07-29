@@ -78,7 +78,10 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
         return (typedPropertySettings.fields || [])
             .filter((property) => {
                 const generalChecks =
-                    property.is_enabled && property.field_type !== "PictureUrl" && property.retroactively_required
+                    property.is_enabled &&
+                    property.field_type !== "PictureUrl" &&
+                    property.required &&
+                    (!property.required_by || property.required_by <= Date.now())
                 let notInMetadata = true
                 if (userMetadata) {
                     if (property.name === "legacy__username") {
@@ -143,9 +146,11 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
                 updateMetadataRequest.username = values.username as string
             }
             Object.keys(_.omit(values, ["username", "first_name", "last_name", "legacy__name"])).forEach((valueKey) => {
+                const propertySetting = propertySettings.find((p) => p.name === valueKey)
                 if (
                     form.isDirty(valueKey) ||
-                    propertySettings.find((p) => p.name === valueKey)?.retroactively_required
+                    (propertySetting?.required &&
+                        (!propertySetting?.required_by || propertySetting.required_by <= Date.now()))
                 ) {
                     updateMetadataRequest.properties = {
                         ...(updateMetadataRequest.properties || {}),
