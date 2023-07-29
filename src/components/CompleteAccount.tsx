@@ -11,6 +11,7 @@ import { Image, ImageProps } from "../elements/Image"
 import { InputProps } from "../elements/Input"
 import { LabelProps } from "../elements/Label"
 import { Paragraph, ParagraphProps } from "../elements/Paragraph"
+import { useElements } from "../ElementsProvider"
 import { useApi, UserMetadataResponse } from "../useApi"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
@@ -51,6 +52,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
     const [error, setError] = useState<string | undefined>(undefined)
     const [userMetadata, setUserMetadata] = useState<UserMetadataResponse>(null)
     const { redirectToLoginPage } = useRedirectFunctions()
+    const { elements } = useElements()
 
     const clearErrors = () => {
         setError(undefined)
@@ -75,34 +77,27 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
     const propertySettings = useMemo<UserPropertySetting[]>(() => {
         const typedPropertySettings = config.userPropertySettings as UserPropertySettings
         // get all fields that are required retroactively and not in metadata
-        return (typedPropertySettings.fields || [])
-            .filter((property) => {
-                const generalChecks =
-                    property.is_enabled &&
-                    property.field_type !== "PictureUrl" &&
-                    property.required &&
-                    (!property.required_by || property.required_by <= Date.now())
-                let notInMetadata = true
-                if (userMetadata) {
-                    if (property.name === "legacy__username") {
-                        notInMetadata = !userMetadata.username
-                    } else if (property.name === "legacy__name") {
-                        notInMetadata = !userMetadata.first_name && !userMetadata.last_name
-                    }
+        return (typedPropertySettings.fields || []).filter((property) => {
+            const generalChecks = property.is_enabled && property.field_type !== "PictureUrl" && property.required
+            let notInMetadata = true
+            if (userMetadata) {
+                if (property.name === "legacy__username") {
+                    notInMetadata = !userMetadata.username
+                } else if (property.name === "legacy__name") {
+                    notInMetadata = !userMetadata.first_name || !userMetadata.last_name
+                } else {
+                    notInMetadata = !userMetadata.user_properties || !(property.name in userMetadata.user_properties)
                 }
-                return generalChecks && notInMetadata
-            })
-            .map((property) => ({
-                ...property,
-                // legacy__username needs special treatment as its the only legacy property that renders with a normal field (i.e. text field)
-                name: property.name === "legacy__username" ? "username" : property.name,
-            }))
+            }
+            return generalChecks && notInMetadata
+        })
     }, [config.userPropertySettings.fields, userMetadata])
 
     const form = useForm<CreateUserFormType>({
         initialValues: {
             first_name: userMetadata?.first_name || "",
             last_name: userMetadata?.last_name || "",
+            legacy__username: userMetadata?.username || "",
             ...propertySettings
                 .map((property) => {
                     // initialize the list with the correct values
@@ -143,15 +138,13 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
                 updateMetadataRequest.lastName = values.last_name as string
             }
             if (propertySettings.some((property) => property.name === "legacy__username")) {
-                updateMetadataRequest.username = values.username as string
+                updateMetadataRequest.username = values.legacy__username as string
             }
-            Object.keys(_.omit(values, ["username", "first_name", "last_name", "legacy__name"])).forEach((valueKey) => {
+            Object.keys(
+                _.omit(values, ["username", "first_name", "last_name", "legacy__name", "legacy__username"])
+            ).forEach((valueKey) => {
                 const propertySetting = propertySettings.find((p) => p.name === valueKey)
-                if (
-                    form.isDirty(valueKey) ||
-                    (propertySetting?.required &&
-                        (!propertySetting?.required_by || propertySetting.required_by <= Date.now()))
-                ) {
+                if (form.isDirty(valueKey) || propertySetting?.required) {
                     updateMetadataRequest.properties = {
                         ...(updateMetadataRequest.properties || {}),
                         [valueKey]: values[valueKey],
@@ -171,6 +164,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
                     unauthorized: redirectToLoginPage,
                     badRequestUpdateMetadata: (err) => {
                         if (Object.keys(err).length > 0) {
+                            err["legacy__username"] = err["legacy__username"] || err["username"]
                             form.setErrors(err)
                         } else {
                             setError(BAD_REQUEST)
@@ -217,7 +211,11 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
                 </div>
                 <div data-contain="form">
                     <form onSubmit={form.onSubmit(updateMetadata)}>
-                        <UserPropertyFields propertySettings={propertySettings} form={form} />
+                        {userMetadata ? (
+                            <UserPropertyFields propertySettings={propertySettings} form={form} />
+                        ) : (
+                            <elements.Loader />
+                        )}
                         <Button loading={loading} appearance={appearance?.elements?.SubmitButton} type="submit">
                             {appearance?.options?.submitButtonText || "Continue"}
                         </Button>
