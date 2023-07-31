@@ -19,6 +19,8 @@ import { BAD_REQUEST, SIGNUP_NOT_ALLOWED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from 
 import { OrDivider } from "./OrDivider"
 import { SignInOptions } from "./SignInOptions"
 import UserPropertyFields, {
+    LegacyNamePropertySettings,
+    LegacyUsernamePropertySettings,
     UserPropertyFieldsAppearance,
     UserPropertySetting,
     UserPropertySettings,
@@ -114,22 +116,39 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
     const [loading, setLoading] = useState(false)
 
     const propertySettings = useMemo<UserPropertySetting[]>(() => {
-        const typedPropertySettings = config.userPropertySettings as UserPropertySettings
-        return (typedPropertySettings.fields || [])
-            .filter((property) => property.is_enabled && property.collect_on_signup)
-            .map((property) => ({
-                ...property,
-                // legacy__username needs special treatment as its the only legacy property that renders with a normal field (i.e. text field)
-                name: property.name === "legacy__username" ? "username" : property.name,
-            }))
+        const propertySettingsWithLegacy = ((config.userPropertySettings as UserPropertySettings).fields || []).filter(
+            (property) => {
+                // if requireUsersToSetName or requireUsersToSetUsername are false, don't include the legacy fields, even if they're enabled
+                if (
+                    (!config.requireUsersToSetName && property.name === "legacy__name") ||
+                    (!config.requireUsersToSetUsername && property.name === "legacy__username")
+                ) {
+                    return false
+                }
+                return property.is_enabled && property.collect_on_signup
+            }
+        )
+
+        // add legacy fields if they're enabled and not already in the list
+        if (
+            config.requireUsersToSetUsername &&
+            !propertySettingsWithLegacy.find((property) => property.name === "legacy__username")
+        ) {
+            propertySettingsWithLegacy.unshift(LegacyUsernamePropertySettings)
+        }
+
+        if (
+            config.requireUsersToSetName &&
+            !propertySettingsWithLegacy.find((property) => property.name === "legacy__name")
+        ) {
+            propertySettingsWithLegacy.unshift(LegacyNamePropertySettings)
+        }
+
+        return propertySettingsWithLegacy
     }, [config.userPropertySettings.fields])
 
     const form = useForm<CreateUserFormType>({
         initialValues: {
-            email: "",
-            password: "",
-            first_name: "",
-            last_name: "",
             ...propertySettings
                 .map((property) => {
                     // initialize the list with the correct values
@@ -140,6 +159,10 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
                     return { [property.name]: defaultValue }
                 })
                 .reduce((acc, property) => ({ ...acc, ...property }), {}),
+            email: "",
+            password: "",
+            first_name: "",
+            last_name: "",
         },
         transformValues: (values: CreateUserFormType) => {
             const transformedValues = { ...values }
@@ -160,15 +183,18 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
                 password: values.password as string,
                 xCsrfToken: X_CSRF_TOKEN,
             }
+
             if (config.requireUsersToSetName) {
                 signupRequest.firstName = values.first_name as string
                 signupRequest.lastName = values.last_name as string
             }
+
             if (config.requireUsersToSetUsername) {
-                signupRequest.username = values.username as string
+                signupRequest.username = values.legacy__username as string
             }
+
             Object.keys(
-                _.omit(values, ["username", "first_name", "last_name", "legacy__name", "email", "password"])
+                _.omit(values, ["legacy__username", "first_name", "last_name", "legacy__name", "email", "password"])
             ).forEach((valueKey) => {
                 const propertySetting = propertySettings.find((p) => p.name === valueKey)
                 if (
