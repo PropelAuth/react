@@ -16,14 +16,17 @@ export type UserPropertySettings = {
 }
 
 export type UserPropertySetting = {
-    display_name: string
-    name: string
-    field_type: UserPropertyFieldType
-    visibility: UserPropertyVisibility
-    required_on_signup: boolean
+    is_user_facing: boolean
+    user_writable: UserPropertyWritable
+    show_in_account: boolean
     collect_on_signup: boolean
-    retroactively_required: boolean
-    include_in_jwt: boolean
+    collect_via_saml: boolean
+    required: boolean
+    required_by?: number
+    in_jwt: boolean
+    name: string
+    display_name: string
+    field_type: UserPropertyFieldType
     metadata: UserPropertyMetadata
     is_enabled: boolean
 }
@@ -53,7 +56,7 @@ export type UserPropertyFieldType =
     | "PictureUrl"
     | "Tos"
 
-export type UserPropertyVisibility = "Public" | "PublicReadonly" | "Private"
+export type UserPropertyWritable = "Write" | "WriteIfUnset" | "Read"
 
 export type UserPropertyComponentPropsType<T> = {
     propertySetting: UserPropertySetting
@@ -128,6 +131,36 @@ const TypeToAppearanceKeyMap: TypeToAppearanceKeyMapType = {
     Toggle: "ToggleField",
     Url: "UrlField",
     Tos: "TosField",
+}
+
+export const LegacyNamePropertySettings: UserPropertySetting = {
+    name: "legacy__name",
+    display_name: "Name",
+    field_type: "Name",
+    metadata: {},
+    is_user_facing: true,
+    user_writable: "Write",
+    show_in_account: true,
+    collect_on_signup: true,
+    collect_via_saml: true,
+    required: true,
+    in_jwt: true,
+    is_enabled: true,
+}
+
+export const LegacyUsernamePropertySettings: UserPropertySetting = {
+    name: "legacy__username",
+    display_name: "Username",
+    field_type: "Text",
+    metadata: {},
+    is_user_facing: true,
+    user_writable: "Write",
+    show_in_account: true,
+    collect_on_signup: true,
+    collect_via_saml: true,
+    required: true,
+    in_jwt: true,
+    is_enabled: true,
 }
 
 function UserPropertyFields<T>({ propertySettings, form, appearance }: UserPropertyFieldsProps<T>) {

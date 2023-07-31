@@ -16,7 +16,6 @@ function ToggleField<T>({ propertySetting, form, appearance }: ToggleFieldProps<
         <Toggle
             id={propertySetting.name}
             label={propertySetting.display_name}
-            disabled={propertySetting.visibility !== "Public"}
             appearance={appearance?.ToggleFieldInput}
             {...form.getInputProps(propertySetting.name, { type: "checkbox" })}
         />
