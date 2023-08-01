@@ -216,6 +216,7 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
                     signupNotAllowed: () => setError(SIGNUP_NOT_ALLOWED),
                     badRequestSignup: (err: BadRequestSignup) => {
                         if (Object.keys(err).length > 0) {
+                            err["legacy__username"] = err["legacy__username"] || err["username"]
                             form.setErrors(err)
                         } else {
                             setError(BAD_REQUEST)
