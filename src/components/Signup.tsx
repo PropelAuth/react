@@ -115,36 +115,25 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
     const [error, setError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false)
 
-    const propertySettings = useMemo<UserPropertySetting[]>(() => {
-        const propertySettingsWithLegacy = ((config.userPropertySettings as UserPropertySettings).fields || []).filter(
-            (property) => {
-                // if requireUsersToSetName or requireUsersToSetUsername are false, don't include the legacy fields, even if they're enabled
-                if (
-                    (!config.requireUsersToSetName && property.name === "legacy__name") ||
-                    (!config.requireUsersToSetUsername && property.name === "legacy__username")
-                ) {
-                    return false
-                }
-                return property.is_enabled && property.collect_on_signup
+    const [legacyPropertySettings, propertySettings] = useMemo<[UserPropertySetting[], UserPropertySetting[]]>(() => {
+        const legacyPropertySettings = []
+        if (config.requireUsersToSetName) {
+            legacyPropertySettings.push(LegacyNamePropertySettings)
+        }
+        if (config.requireUsersToSetUsername) {
+            legacyPropertySettings.push(LegacyUsernamePropertySettings)
+        }
+
+        const propertySettingsWithoutLegacy = (
+            (config.userPropertySettings as UserPropertySettings).fields || []
+        ).filter((property) => {
+            if (property.name === "legacy__name" || property.name === "legacy__username") {
+                return false
             }
-        )
+            return property.is_enabled && property.collect_on_signup
+        })
 
-        // add legacy fields if they're enabled and not already in the list
-        if (
-            config.requireUsersToSetUsername &&
-            !propertySettingsWithLegacy.find((property) => property.name === "legacy__username")
-        ) {
-            propertySettingsWithLegacy.unshift(LegacyUsernamePropertySettings)
-        }
-
-        if (
-            config.requireUsersToSetName &&
-            !propertySettingsWithLegacy.find((property) => property.name === "legacy__name")
-        ) {
-            propertySettingsWithLegacy.unshift(LegacyNamePropertySettings)
-        }
-
-        return propertySettingsWithLegacy
+        return [legacyPropertySettings, propertySettingsWithoutLegacy]
     }, [config.userPropertySettings.fields])
 
     const form = useForm<CreateUserFormType>({
@@ -236,6 +225,11 @@ const SignupForm = ({ config, onSignupCompleted, appearance }: SignupFormProps) 
     return (
         <div data-contain="form">
             <form onSubmit={form.onSubmit(signup)}>
+                <UserPropertyFields
+                    propertySettings={legacyPropertySettings}
+                    form={form}
+                    appearance={appearance?.elements?.UserPropertyFields}
+                />
                 <div>
                     <Label htmlFor="email" appearance={appearance?.elements?.EmailLabel}>
                         {`Email`}
