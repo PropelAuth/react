@@ -3,6 +3,7 @@ import {
     createClient,
     RedirectToLoginOptions,
     RedirectToSignupOptions,
+    IAuthClient,
 } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
@@ -11,6 +12,7 @@ import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 interface InternalAuthState {
     loading: boolean
     authInfo: AuthenticationInfo | null
+    client: IAuthClient
 
     logout: (redirectOnLogout: boolean) => Promise<void>
 
@@ -168,6 +170,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const value = {
         loading: authInfoState.loading,
         authInfo: authInfoState.authInfo,
+        client,
         logout,
         redirectToLoginPage,
         redirectToSignupPage,
