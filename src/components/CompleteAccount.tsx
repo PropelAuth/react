@@ -87,7 +87,7 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
                     property.is_enabled &&
                     property.field_type !== "PictureUrl" &&
                     property.required &&
-                    (!property.required_by || property.required_by <= (userMetadata?.created_at || 0))
+                    (!property.required_by || property.required_by <= (userMetadata?.user_created_at || 0))
                 let notInMetadata = true
                 if (userMetadata) {
                     // if require__name or require__username are false, don't include the legacy fields, even if they're enabled
