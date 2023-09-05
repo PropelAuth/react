@@ -25,7 +25,7 @@ export type UserMetadataResponse = null | {
     first_name: string | null
     last_name: string | null
     username: string | null
-    created_at?: number
+    user_created_at?: number
     user_properties: Record<string, string | number | boolean | null> | null
 }
 
