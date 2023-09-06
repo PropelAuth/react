@@ -171,11 +171,11 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
             setLoading(true)
             const updateMetadataRequest: PropelauthFeV2.UpdateUserFacingMetadataRequest = { xCsrfToken: X_CSRF_TOKEN }
 
-            if (config.requireUsersToSetName) {
+            if (config.requireUsersToSetName && (values.first_name || values.last_name)) {
                 updateMetadataRequest.firstName = values.first_name as string
                 updateMetadataRequest.lastName = values.last_name as string
             }
-            if (config.requireUsersToSetUsername) {
+            if (config.requireUsersToSetUsername && values.legacy__username) {
                 updateMetadataRequest.username = values.legacy__username as string
             }
             Object.keys(_.omit(values, ["first_name", "last_name", "legacy__name", "legacy__username"])).forEach(
