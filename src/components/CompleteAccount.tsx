@@ -110,17 +110,19 @@ const CompleteAccount = ({ onStepCompleted, appearance, testMode, config }: User
             }
         )
 
-        // add legacy fields if they're enabled and not already in the list
+        // add legacy fields if they're enabled, not already in the list, and not set
         if (
             config.requireUsersToSetUsername &&
-            !propertySettingsWithLegacy.find((property) => property.name === "legacy__username")
+            !propertySettingsWithLegacy.find((property) => property.name === "legacy__username") &&
+            !userMetadata?.username
         ) {
             propertySettingsWithLegacy.unshift(LegacyUsernamePropertySettings)
         }
 
         if (
             config.requireUsersToSetName &&
-            !propertySettingsWithLegacy.find((property) => property.name === "legacy__name")
+            !propertySettingsWithLegacy.find((property) => property.name === "legacy__name") &&
+            (!userMetadata?.first_name || !userMetadata?.last_name)
         ) {
             propertySettingsWithLegacy.unshift(LegacyNamePropertySettings)
         }
