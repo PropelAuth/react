@@ -150,71 +150,83 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: Creat
         }
     }
 
+    let orgCreationInner = (
+        <>
+            <div data-contain="header">
+                <H3 appearance={appearance?.elements?.Header}>{`Create your ${orgMetaname}`}</H3>
+            </div>
+            <div data-contain="form">
+                <form onSubmit={createOrg}>
+                    <div>
+                        <Label htmlFor="org_name" appearance={appearance?.elements?.OrgNameLabel}>
+                            {`What's the name of your ${orgMetaname.toLowerCase()}? This will be visible to other members.`}
+                        </Label>
+                        <Input
+                            id={"org_name"}
+                            type={"text"}
+                            value={name}
+                            placeholder="Name"
+                            onChange={(e) => setName(e.target.value)}
+                            appearance={appearance?.elements?.OrgNameInput}
+                            required
+                        />
+                        {orgNameError && (
+                            <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                                {orgNameError}
+                            </Alert>
+                        )}
+                    </div>
+                    <div>
+                        <Checkbox
+                            id={"autojoin_by_domain"}
+                            label={autojoinByDomainText}
+                            checked={autojoinByDomain}
+                            onChange={(e) => setAutojoinByDomain(e.target.checked)}
+                            appearance={appearance?.elements?.AutojoinByDomainCheckbox}
+                            disabled={!canUseDomainOptions}
+                        />
+                    </div>
+                    <div>
+                        <Checkbox
+                            id={"restrict_to_domain"}
+                            label={restrictToDomainText}
+                            checked={restrictToDomain}
+                            onChange={(e) => setRestrictToDomain(e.target.checked)}
+                            appearance={appearance?.elements?.RestrictToDomainCheckbox}
+                            disabled={!canUseDomainOptions}
+                        />
+                    </div>
+                    <Button loading={loading} appearance={appearance?.elements?.CreateOrgButton} type="submit">
+                        {appearance?.options?.createOrgButtonText || `Create ${orgMetaname}`}
+                    </Button>
+                    {error && (
+                        <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
+                            {error}
+                        </Alert>
+                    )}
+                </form>
+            </div>
+        </>
+    )
+
     if (statusLoading) {
         return <Loading appearance={appearance} />
     } else if (statusError) {
-        return <ErrorMessage errorMessage={statusError} appearance={appearance} />
+        if (statusError === ORG_CREATION_NOT_ENABLED) {
+            const errorMessage = <ErrorMessage errorMessage={statusError} appearance={appearance} />
+            orgCreationInner = errorMessage
+        } else {
+            return <ErrorMessage errorMessage={statusError} appearance={appearance} />
+        }
     }
 
     return (
         <div data-contain="component">
             <Container appearance={appearance?.elements?.Container}>
-                <div data-contain="header">
-                    <H3 appearance={appearance?.elements?.Header}>{`Create your ${orgMetaname}`}</H3>
-                </div>
-                <div data-contain="form">
-                    <form onSubmit={createOrg}>
-                        <div>
-                            <Label htmlFor="org_name" appearance={appearance?.elements?.OrgNameLabel}>
-                                {`What's the name of your ${orgMetaname.toLowerCase()}? This will be visible to other members.`}
-                            </Label>
-                            <Input
-                                id={"org_name"}
-                                type={"text"}
-                                value={name}
-                                placeholder="Name"
-                                onChange={(e) => setName(e.target.value)}
-                                appearance={appearance?.elements?.OrgNameInput}
-                                required
-                            />
-                            {orgNameError && (
-                                <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                    {orgNameError}
-                                </Alert>
-                            )}
-                        </div>
-                        <div>
-                            <Checkbox
-                                id={"autojoin_by_domain"}
-                                label={autojoinByDomainText}
-                                checked={autojoinByDomain}
-                                onChange={(e) => setAutojoinByDomain(e.target.checked)}
-                                appearance={appearance?.elements?.AutojoinByDomainCheckbox}
-                                disabled={!canUseDomainOptions}
-                            />
-                        </div>
-                        <div>
-                            <Checkbox
-                                id={"restrict_to_domain"}
-                                label={restrictToDomainText}
-                                checked={restrictToDomain}
-                                onChange={(e) => setRestrictToDomain(e.target.checked)}
-                                appearance={appearance?.elements?.RestrictToDomainCheckbox}
-                                disabled={!canUseDomainOptions}
-                            />
-                        </div>
-                        <Button loading={loading} appearance={appearance?.elements?.CreateOrgButton} type="submit">
-                            {appearance?.options?.createOrgButtonText || `Create ${orgMetaname}`}
-                        </Button>
-                        {error && (
-                            <Alert appearance={appearance?.elements?.ErrorMessage} type={"error"}>
-                                {error}
-                            </Alert>
-                        )}
-                    </form>
-                </div>
+                {orgCreationInner}
                 {!testMode && (
                     <JoinableOrgs
+                        orgCreationEnabled={!statusError}
                         orgMetaname={orgMetaname}
                         onOrgCreatedOrJoined={onOrgCreatedOrJoined}
                         appearance={appearance}
@@ -226,12 +238,13 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: Creat
 }
 
 type JoinableOrgsProps = {
+    orgCreationEnabled: boolean
     orgMetaname: string
     onOrgCreatedOrJoined: (org: OrgInfo) => void
     appearance?: CreateOrgAppearance
 }
 
-const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: JoinableOrgsProps) => {
+const JoinableOrgs = ({ orgCreationEnabled, orgMetaname, onOrgCreatedOrJoined, appearance }: JoinableOrgsProps) => {
     const { orgApi } = useApi()
     const [joinableOrgs, setJoinableOrgs] = useState<PropelauthFeV2.OrgInfoResponse[]>([])
     const [selectedOrgId, setSelectedOrgId] = useState<string>("")
@@ -321,7 +334,11 @@ const JoinableOrgs = ({ orgMetaname, onOrgCreatedOrJoined, appearance }: Joinabl
 
     return (
         <>
-            <OrDivider appearance={appearance?.elements?.Divider} options={appearance?.options?.divider} />
+            {orgCreationEnabled ? (
+                <OrDivider appearance={appearance?.elements?.Divider} options={appearance?.options?.divider} />
+            ) : (
+                <br />
+            )}
             <div data-contain="form">
                 <form onSubmit={joinOrg}>
                     <div>
