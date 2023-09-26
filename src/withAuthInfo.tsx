@@ -38,15 +38,17 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
             throw new Error("withAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
         }
 
+        const { loading, authInfo, defaultDisplayWhileLoading } = context
+
         function displayLoading() {
-            if (args && args.displayWhileLoading) {
+            if (args?.displayWhileLoading) {
                 return args.displayWhileLoading
-            } else {
-                return <React.Fragment />
+            } else if (defaultDisplayWhileLoading) {
+                return defaultDisplayWhileLoading
             }
+            return <React.Fragment />
         }
 
-        const { loading, authInfo } = context
         if (loading) {
             return displayLoading()
         } else if (authInfo) {

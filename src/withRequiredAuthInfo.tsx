@@ -25,7 +25,7 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
         const { loading, authInfo, defaultDisplayIfLoggedOut, defaultDisplayWhileLoading } = context
 
         function displayLoading() {
-            if (args && args.displayWhileLoading) {
+            if (args?.displayWhileLoading) {
                 return args.displayWhileLoading
             } else if (defaultDisplayWhileLoading) {
                 return defaultDisplayWhileLoading
@@ -34,7 +34,7 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
         }
 
         function displayLoggedOut() {
-            if (args && args.displayIfLoggedOut) {
+            if (args?.displayIfLoggedOut) {
                 return args.displayIfLoggedOut
             } else if (defaultDisplayIfLoggedOut) {
                 return defaultDisplayIfLoggedOut
