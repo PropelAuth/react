@@ -441,7 +441,7 @@ it("when client logs out, authInfo is refreshed", async () => {
     expect(finalProps.isLoggedIn).toBe(false)
 })
 
-it("withAuthInfo renders loading correctly", async () => {
+it("withAuthInfo renders loading correctly from args", async () => {
     const authInfo = createAuthenticationInfo()
     const Loading = () => <div>Loading</div>
     const Component = (props) => <div>Finished</div>
@@ -462,6 +462,57 @@ it("withAuthInfo renders loading correctly", async () => {
     await waitFor(() => screen.getByText("Loading"))
     jest.advanceTimersByTime(50)
     await waitFor(() => screen.getByText("Loading"))
+    jest.advanceTimersByTime(50)
+    await waitFor(() => screen.getByText("Finished"))
+})
+
+it("withAuthInfo renders loading correctly from context", async () => {
+    const authInfo = createAuthenticationInfo()
+    const Loading = () => <div>Loading</div>
+    const Component = (props) => <div>Finished</div>
+    const WrappedComponent = withAuthInfo(Component)
+
+    // Wait 100ms to return authInfo to force loading to be displayed
+    mockClient.getAuthenticationInfoOrNull.mockImplementation(
+        () => new Promise((resolve) => setTimeout(() => resolve(authInfo), 100))
+    )
+
+    render(
+        <AuthProvider authUrl={AUTH_URL} defaultDisplayWhileLoading={<Loading />}>
+            <WrappedComponent />
+        </AuthProvider>
+    )
+
+    // Loading is displayed until 100ms passes
+    await waitFor(() => screen.getByText("Loading"))
+    jest.advanceTimersByTime(50)
+    await waitFor(() => screen.getByText("Loading"))
+    jest.advanceTimersByTime(50)
+    await waitFor(() => screen.getByText("Finished"))
+})
+
+it("withAuthInfo renders loading correctly from args, overriding context", async () => {
+    const authInfo = createAuthenticationInfo()
+    const LoadingFromArg = () => <div>Loading From Arg</div>
+    const LoadingFromContext = () => <div>Loading From Context</div>
+    const Component = (props) => <div>Finished</div>
+    const WrappedComponent = withAuthInfo(Component, { displayWhileLoading: <LoadingFromArg /> })
+
+    // Wait 100ms to return authInfo to force loading to be displayed
+    mockClient.getAuthenticationInfoOrNull.mockImplementation(
+        () => new Promise((resolve) => setTimeout(() => resolve(authInfo), 100))
+    )
+
+    render(
+        <AuthProvider authUrl={AUTH_URL} defaultDisplayWhileLoading={<LoadingFromContext />}>
+            <WrappedComponent />
+        </AuthProvider>
+    )
+
+    // Loading is displayed until 100ms passes
+    await waitFor(() => screen.getByText("Loading From Arg"))
+    jest.advanceTimersByTime(50)
+    await waitFor(() => screen.getByText("Loading From Arg"))
     jest.advanceTimersByTime(50)
     await waitFor(() => screen.getByText("Finished"))
 })
