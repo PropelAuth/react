@@ -32,14 +32,14 @@ interface InternalAuthState {
     activeOrgFn: () => string | null
 
     refreshAuthInfo: () => Promise<void>
-    displayWhileLoading?: React.ReactElement
-    displayIfLoggedOut?: React.ReactElement
+    defaultDisplayWhileLoading?: React.ReactElement
+    defaultDisplayIfLoggedOut?: React.ReactElement
 }
 
 export type AuthProviderProps = {
     authUrl: string
-    displayWhileLoading?: React.ReactElement
-    displayIfLoggedOut?: React.ReactElement
+    defaultDisplayWhileLoading?: React.ReactElement
+    defaultDisplayIfLoggedOut?: React.ReactElement
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
 }
@@ -170,14 +170,14 @@ export const AuthProvider = (props: AuthProviderProps) => {
     }, [dispatch])
 
     const activeOrgFn = props.getActiveOrgFn || loadOrgSelectionFromLocalStorage
-    const displayWhileLoading = props.displayWhileLoading
-    const displayIfLoggedOut = props.displayIfLoggedOut
+
+    const { defaultDisplayWhileLoading, defaultDisplayIfLoggedOut } = props
     const value = {
         loading: authInfoState.loading,
         authInfo: authInfoState.authInfo,
         logout,
-        displayWhileLoading,
-        displayIfLoggedOut,
+        defaultDisplayWhileLoading,
+        defaultDisplayIfLoggedOut,
         redirectToLoginPage,
         redirectToSignupPage,
         redirectToAccountPage,
