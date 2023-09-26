@@ -165,7 +165,6 @@ export const AuthProvider = (props: AuthProviderProps) => {
     }, [expiresAtSeconds])
 
     const api = new PropelauthFeV2Client({ environment: props.authUrl })
-    console.log(props.displayIfLoggedOut)
 
     const logout = useCallback(client.logout, [])
     const redirectToLoginPage = useCallback(client.redirectToLoginPage, [])
