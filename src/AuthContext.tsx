@@ -7,6 +7,7 @@ import {
 import { PropelauthFeV2Client } from "@propelauth/js-apis"
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useReducer, useState } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
+import { WithLoggedInAuthInfoProps } from "./withAuthInfo"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
 interface InternalAuthState {
@@ -24,6 +25,8 @@ interface InternalAuthState {
     activeOrgFn: () => string | null
 
     setLoggedInChangeCounter: Dispatch<SetStateAction<number>>
+    displayWhileLoading?: React.ReactElement
+    displayIfLoggedOut?: React.ReactElement
 
     api: PropelauthFeV2Client
     authUrl: string
@@ -31,6 +34,8 @@ interface InternalAuthState {
 
 export type AuthProviderProps = {
     authUrl: string
+    displayWhileLoading?: React.ReactElement
+    displayIfLoggedOut?: React.ReactElement
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
 }
@@ -160,6 +165,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
     }, [expiresAtSeconds])
 
     const api = new PropelauthFeV2Client({ environment: props.authUrl })
+    console.log(props.displayIfLoggedOut)
 
     const logout = useCallback(client.logout, [])
     const redirectToLoginPage = useCallback(client.redirectToLoginPage, [])
@@ -168,10 +174,14 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const redirectToOrgPage = useCallback(client.redirectToOrgPage, [])
     const redirectToCreateOrgPage = useCallback(client.redirectToCreateOrgPage, [])
     const activeOrgFn = props.getActiveOrgFn || loadOrgSelectionFromLocalStorage
+    const displayWhileLoading = props.displayWhileLoading
+    const displayIfLoggedOut = props.displayIfLoggedOut
     const value = {
         loading: authInfoState.loading,
         authInfo: authInfoState.authInfo,
         logout,
+        displayWhileLoading,
+        displayIfLoggedOut,
         redirectToLoginPage,
         redirectToSignupPage,
         redirectToAccountPage,
@@ -186,20 +196,16 @@ export const AuthProvider = (props: AuthProviderProps) => {
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
 }
 
+const RequiredAuthWrappedComponent = withRequiredAuthInfo(
+    ({ children }: { children: React.ReactNode } & WithLoggedInAuthInfoProps) => <>{children}</>
+)
+
 export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
-    const { children, displayIfLoggedOut, displayWhileLoading, ...sharedProps } = props
-    const WrappedComponent = withRequiredAuthInfo(
-        () => {
-            return <React.Fragment>{children}</React.Fragment>
-        },
-        {
-            displayWhileLoading: displayWhileLoading,
-            displayIfLoggedOut: displayIfLoggedOut,
-        }
-    )
+    const { children, ...sharedProps } = props
+
     return (
         <AuthProvider {...sharedProps}>
-            <WrappedComponent />
+            <RequiredAuthWrappedComponent>{children}</RequiredAuthWrappedComponent>
         </AuthProvider>
     )
 }
