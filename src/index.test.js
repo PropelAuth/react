@@ -197,7 +197,7 @@ it("RequiredAuthProvider displays logged out value if logged out", async () => {
     expectCreateClientWasCalledCorrectly()
 })
 
-it("withRequiredAuthInfo displays logged out value if logged out", async () => {
+it("withRequiredAuthInfo displays logged out value if logged out from args", async () => {
     mockClient.getAuthenticationInfoOrNull.mockReturnValue(null)
 
     const ErrorComponent = () => {
@@ -217,6 +217,54 @@ it("withRequiredAuthInfo displays logged out value if logged out", async () => {
     )
 
     await waitFor(() => screen.getByText("Finished"))
+    expectCreateClientWasCalledCorrectly()
+})
+
+it("withRequiredAuthInfo displays logged out value if logged out from context", async () => {
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(null)
+
+    const ErrorComponent = () => {
+        return <div>Error</div>
+    }
+    const SuccessComponent = () => {
+        return <div>Finished</div>
+    }
+
+    const WrappedComponent = withRequiredAuthInfo(ErrorComponent)
+    render(
+        <AuthProvider authUrl={AUTH_URL} displayIfLoggedOut={<SuccessComponent />}>
+            <WrappedComponent />
+        </AuthProvider>
+    )
+
+    await waitFor(() => screen.getByText("Finished"))
+    expectCreateClientWasCalledCorrectly()
+})
+
+it("withRequiredAuthInfo displays logged out value from args if logged out from both args and context", async () => {
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(null)
+
+    const ErrorComponent = () => {
+        return <div>Error</div>
+    }
+    const SuccessArgComponent = () => {
+        return <div>Finished from Args</div>
+    }
+
+    const SuccessContextComponent = () => {
+        return <div>Finished from Context</div>
+    }
+
+    const WrappedComponent = withRequiredAuthInfo(ErrorComponent, {
+        displayIfLoggedOut: <SuccessArgComponent />,
+    })
+    render(
+        <AuthProvider authUrl={AUTH_URL} displayIfLoggedOut={<SuccessContextComponent />}>
+            <WrappedComponent />
+        </AuthProvider>
+    )
+
+    await waitFor(() => screen.getByText("Finished from Args"))
     expectCreateClientWasCalledCorrectly()
 })
 
