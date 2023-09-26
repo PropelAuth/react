@@ -6,6 +6,7 @@ import {
 } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
+import { WithLoggedInAuthInfoProps } from "./withAuthInfo"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
 interface InternalAuthState {
@@ -31,10 +32,14 @@ interface InternalAuthState {
     activeOrgFn: () => string | null
 
     refreshAuthInfo: () => Promise<void>
+    defaultDisplayWhileLoading?: React.ReactElement
+    defaultDisplayIfLoggedOut?: React.ReactElement
 }
 
 export type AuthProviderProps = {
     authUrl: string
+    defaultDisplayWhileLoading?: React.ReactElement
+    defaultDisplayIfLoggedOut?: React.ReactElement
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
 }
@@ -165,10 +170,14 @@ export const AuthProvider = (props: AuthProviderProps) => {
     }, [dispatch])
 
     const activeOrgFn = props.getActiveOrgFn || loadOrgSelectionFromLocalStorage
+
+    const { defaultDisplayWhileLoading, defaultDisplayIfLoggedOut } = props
     const value = {
         loading: authInfoState.loading,
         authInfo: authInfoState.authInfo,
         logout,
+        defaultDisplayWhileLoading,
+        defaultDisplayIfLoggedOut,
         redirectToLoginPage,
         redirectToSignupPage,
         redirectToAccountPage,
@@ -187,20 +196,16 @@ export const AuthProvider = (props: AuthProviderProps) => {
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
 }
 
+const RequiredAuthWrappedComponent = withRequiredAuthInfo(
+    ({ children }: { children: React.ReactNode } & WithLoggedInAuthInfoProps) => <>{children}</>
+)
+
 export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
-    const { children, displayIfLoggedOut, displayWhileLoading, ...sharedProps } = props
-    const WrappedComponent = withRequiredAuthInfo(
-        () => {
-            return <React.Fragment>{children}</React.Fragment>
-        },
-        {
-            displayWhileLoading: displayWhileLoading,
-            displayIfLoggedOut: displayIfLoggedOut,
-        }
-    )
+    const { children, ...sharedProps } = props
+
     return (
         <AuthProvider {...sharedProps}>
-            <WrappedComponent />
+            <RequiredAuthWrappedComponent>{children}</RequiredAuthWrappedComponent>
         </AuthProvider>
     )
 }

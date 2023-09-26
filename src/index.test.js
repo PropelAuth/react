@@ -188,7 +188,7 @@ it("RequiredAuthProvider displays logged out value if logged out", async () => {
 
     const WrappedComponent = withAuthInfo(ErrorComponent)
     render(
-        <RequiredAuthProvider authUrl={AUTH_URL} displayIfLoggedOut={<SuccessComponent />}>
+        <RequiredAuthProvider authUrl={AUTH_URL} defaultDisplayIfLoggedOut={<SuccessComponent />}>
             <WrappedComponent />
         </RequiredAuthProvider>
     )
@@ -197,7 +197,7 @@ it("RequiredAuthProvider displays logged out value if logged out", async () => {
     expectCreateClientWasCalledCorrectly()
 })
 
-it("withRequiredAuthInfo displays logged out value if logged out", async () => {
+it("withRequiredAuthInfo displays logged out value if logged out from args", async () => {
     mockClient.getAuthenticationInfoOrNull.mockReturnValue(null)
 
     const ErrorComponent = () => {
@@ -217,6 +217,54 @@ it("withRequiredAuthInfo displays logged out value if logged out", async () => {
     )
 
     await waitFor(() => screen.getByText("Finished"))
+    expectCreateClientWasCalledCorrectly()
+})
+
+it("withRequiredAuthInfo displays logged out value if logged out from context", async () => {
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(null)
+
+    const ErrorComponent = () => {
+        return <div>Error</div>
+    }
+    const SuccessComponent = () => {
+        return <div>Finished</div>
+    }
+
+    const WrappedComponent = withRequiredAuthInfo(ErrorComponent)
+    render(
+        <AuthProvider authUrl={AUTH_URL} defaultDisplayIfLoggedOut={<SuccessComponent />}>
+            <WrappedComponent />
+        </AuthProvider>
+    )
+
+    await waitFor(() => screen.getByText("Finished"))
+    expectCreateClientWasCalledCorrectly()
+})
+
+it("withRequiredAuthInfo displays logged out value from args if logged out from both args and context", async () => {
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(null)
+
+    const ErrorComponent = () => {
+        return <div>Error</div>
+    }
+    const SuccessArgComponent = () => {
+        return <div>Finished from Args</div>
+    }
+
+    const SuccessContextComponent = () => {
+        return <div>Finished from Context</div>
+    }
+
+    const WrappedComponent = withRequiredAuthInfo(ErrorComponent, {
+        displayIfLoggedOut: <SuccessArgComponent />,
+    })
+    render(
+        <AuthProvider authUrl={AUTH_URL} displayIfLoggedOut={<SuccessContextComponent />}>
+            <WrappedComponent />
+        </AuthProvider>
+    )
+
+    await waitFor(() => screen.getByText("Finished from Args"))
     expectCreateClientWasCalledCorrectly()
 })
 
@@ -393,7 +441,7 @@ it("when client logs out, authInfo is refreshed", async () => {
     expect(finalProps.isLoggedIn).toBe(false)
 })
 
-it("withAuthInfo renders loading correctly", async () => {
+it("withAuthInfo renders loading correctly from args", async () => {
     const authInfo = createAuthenticationInfo()
     const Loading = () => <div>Loading</div>
     const Component = (props) => <div>Finished</div>
@@ -414,6 +462,57 @@ it("withAuthInfo renders loading correctly", async () => {
     await waitFor(() => screen.getByText("Loading"))
     jest.advanceTimersByTime(50)
     await waitFor(() => screen.getByText("Loading"))
+    jest.advanceTimersByTime(50)
+    await waitFor(() => screen.getByText("Finished"))
+})
+
+it("withAuthInfo renders loading correctly from context", async () => {
+    const authInfo = createAuthenticationInfo()
+    const Loading = () => <div>Loading</div>
+    const Component = (props) => <div>Finished</div>
+    const WrappedComponent = withAuthInfo(Component)
+
+    // Wait 100ms to return authInfo to force loading to be displayed
+    mockClient.getAuthenticationInfoOrNull.mockImplementation(
+        () => new Promise((resolve) => setTimeout(() => resolve(authInfo), 100))
+    )
+
+    render(
+        <AuthProvider authUrl={AUTH_URL} defaultDisplayWhileLoading={<Loading />}>
+            <WrappedComponent />
+        </AuthProvider>
+    )
+
+    // Loading is displayed until 100ms passes
+    await waitFor(() => screen.getByText("Loading"))
+    jest.advanceTimersByTime(50)
+    await waitFor(() => screen.getByText("Loading"))
+    jest.advanceTimersByTime(50)
+    await waitFor(() => screen.getByText("Finished"))
+})
+
+it("withAuthInfo renders loading correctly from args, overriding context", async () => {
+    const authInfo = createAuthenticationInfo()
+    const LoadingFromArg = () => <div>Loading From Arg</div>
+    const LoadingFromContext = () => <div>Loading From Context</div>
+    const Component = (props) => <div>Finished</div>
+    const WrappedComponent = withAuthInfo(Component, { displayWhileLoading: <LoadingFromArg /> })
+
+    // Wait 100ms to return authInfo to force loading to be displayed
+    mockClient.getAuthenticationInfoOrNull.mockImplementation(
+        () => new Promise((resolve) => setTimeout(() => resolve(authInfo), 100))
+    )
+
+    render(
+        <AuthProvider authUrl={AUTH_URL} defaultDisplayWhileLoading={<LoadingFromContext />}>
+            <WrappedComponent />
+        </AuthProvider>
+    )
+
+    // Loading is displayed until 100ms passes
+    await waitFor(() => screen.getByText("Loading From Arg"))
+    jest.advanceTimersByTime(50)
+    await waitFor(() => screen.getByText("Loading From Arg"))
     jest.advanceTimersByTime(50)
     await waitFor(() => screen.getByText("Finished"))
 })
