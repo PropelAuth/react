@@ -22,23 +22,26 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
             throw new Error("withRequiredAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
         }
 
+        const { loading, authInfo, displayWhileLoading, displayIfLoggedOut, refreshAuthInfo } = context
+
         function displayLoading() {
             if (args && args.displayWhileLoading) {
                 return args.displayWhileLoading
-            } else {
-                return <React.Fragment />
+            } else if (displayWhileLoading) {
+                return displayWhileLoading
             }
+            return <React.Fragment />
         }
 
         function displayLoggedOut() {
             if (args && args.displayIfLoggedOut) {
                 return args.displayIfLoggedOut
-            } else {
-                return <RedirectToLogin />
+            } else if (displayIfLoggedOut) {
+                return displayIfLoggedOut
             }
+            return <RedirectToLogin />
         }
 
-        const { loading, authInfo, refreshAuthInfo } = context
         if (loading) {
             return displayLoading()
         } else if (authInfo) {
