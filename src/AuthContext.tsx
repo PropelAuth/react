@@ -25,8 +25,8 @@ interface InternalAuthState {
     activeOrgFn: () => string | null
 
     setLoggedInChangeCounter: Dispatch<SetStateAction<number>>
-    displayWhileLoading?: React.ReactElement
-    displayIfLoggedOut?: React.ReactElement
+    defaultDisplayWhileLoading?: React.ReactElement
+    defaultDisplayIfLoggedOut?: React.ReactElement
 
     api: PropelauthFeV2Client
     authUrl: string
@@ -34,8 +34,8 @@ interface InternalAuthState {
 
 export type AuthProviderProps = {
     authUrl: string
-    displayWhileLoading?: React.ReactElement
-    displayIfLoggedOut?: React.ReactElement
+    defaultDisplayWhileLoading?: React.ReactElement
+    defaultDisplayIfLoggedOut?: React.ReactElement
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
 }
@@ -173,14 +173,14 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const redirectToOrgPage = useCallback(client.redirectToOrgPage, [])
     const redirectToCreateOrgPage = useCallback(client.redirectToCreateOrgPage, [])
     const activeOrgFn = props.getActiveOrgFn || loadOrgSelectionFromLocalStorage
-    const displayWhileLoading = props.displayWhileLoading
-    const displayIfLoggedOut = props.displayIfLoggedOut
+
+    const { defaultDisplayWhileLoading, defaultDisplayIfLoggedOut } = props
     const value = {
         loading: authInfoState.loading,
         authInfo: authInfoState.authInfo,
         logout,
-        displayWhileLoading,
-        displayIfLoggedOut,
+        defaultDisplayWhileLoading,
+        defaultDisplayIfLoggedOut,
         redirectToLoginPage,
         redirectToSignupPage,
         redirectToAccountPage,
