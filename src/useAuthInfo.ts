@@ -12,6 +12,7 @@ export type UseAuthInfoLoading = {
     isImpersonating: undefined
     impersonatorUserId: undefined
     refreshAuthInfo: () => Promise<void>
+    accessTokenExpiresAtSeconds: undefined
 }
 
 export type UseAuthInfoLoggedInProps = {
@@ -24,6 +25,7 @@ export type UseAuthInfoLoggedInProps = {
     isImpersonating: boolean
     impersonatorUserId?: string
     refreshAuthInfo: () => Promise<void>
+    accessTokenExpiresAtSeconds: number
 }
 
 export type UseAuthInfoNotLoggedInProps = {
@@ -36,6 +38,7 @@ export type UseAuthInfoNotLoggedInProps = {
     isImpersonating: false
     impersonatorUserId: undefined
     refreshAuthInfo: () => Promise<void>
+    accessTokenExpiresAtSeconds: undefined
 }
 
 export type UseAuthInfoProps = UseAuthInfoLoading | UseAuthInfoLoggedInProps | UseAuthInfoNotLoggedInProps
@@ -58,6 +61,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             isImpersonating: undefined,
             impersonatorUserId: undefined,
             refreshAuthInfo,
+            accessTokenExpiresAtSeconds: undefined,
         }
     } else if (authInfo && authInfo.accessToken) {
         return {
@@ -70,6 +74,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             isImpersonating: !!authInfo.impersonatorUserId,
             impersonatorUserId: authInfo.impersonatorUserId,
             refreshAuthInfo,
+            accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
         }
     }
     return {
@@ -82,5 +87,6 @@ export function useAuthInfo(): UseAuthInfoProps {
         isImpersonating: false,
         impersonatorUserId: undefined,
         refreshAuthInfo,
+        accessTokenExpiresAtSeconds: undefined,
     }
 }

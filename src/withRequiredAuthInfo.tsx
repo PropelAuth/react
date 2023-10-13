@@ -55,6 +55,7 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
                 isImpersonating: !!authInfo.impersonatorUserId,
                 impersonatorUserId: authInfo.impersonatorUserId,
                 refreshAuthInfo,
+                accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
             }
             return <Component {...loggedInProps} />
         } else {
