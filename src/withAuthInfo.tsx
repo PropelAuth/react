@@ -13,6 +13,7 @@ export type WithLoggedInAuthInfoProps = {
     isImpersonating: boolean
     impersonatorUserId?: string
     refreshAuthInfo: () => Promise<void>
+    accessTokenExpiresAtSeconds: number
 }
 
 export type WithNotLoggedInAuthInfoProps = {
@@ -24,6 +25,7 @@ export type WithNotLoggedInAuthInfoProps = {
     isImpersonating: false
     impersonatorUserId: null
     refreshAuthInfo: () => Promise<void>
+    accessTokenExpiresAtSeconds: null
 }
 
 export type WithAuthInfoProps = WithLoggedInAuthInfoProps | WithNotLoggedInAuthInfoProps
@@ -68,6 +70,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 isImpersonating: !!authInfo.impersonatorUserId,
                 impersonatorUserId: authInfo.impersonatorUserId,
                 refreshAuthInfo,
+                accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
             }
             return <Component {...loggedInProps} />
         } else {
@@ -81,6 +84,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 isImpersonating: false,
                 impersonatorUserId: null,
                 refreshAuthInfo,
+                accessTokenExpiresAtSeconds: null,
             }
             return <Component {...notLoggedInProps} />
         }
