@@ -188,7 +188,7 @@ it("RequiredAuthProvider displays logged out value if logged out", async () => {
 
     const WrappedComponent = withAuthInfo(ErrorComponent)
     render(
-        <RequiredAuthProvider authUrl={AUTH_URL} defaultDisplayIfLoggedOut={<SuccessComponent />}>
+        <RequiredAuthProvider authUrl={AUTH_URL} displayIfLoggedOut={<SuccessComponent />}>
             <WrappedComponent />
         </RequiredAuthProvider>
     )
