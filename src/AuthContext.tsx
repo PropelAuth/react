@@ -44,7 +44,8 @@ export type AuthProviderProps = {
     children?: React.ReactNode
 }
 
-export interface RequiredAuthProviderProps extends AuthProviderProps {
+export interface RequiredAuthProviderProps
+    extends Omit<AuthProviderProps, "defaultDisplayWhileLoading" | "defaultDisplayIfLoggedOut"> {
     displayWhileLoading?: React.ReactElement
     displayIfLoggedOut?: React.ReactElement
 }
@@ -201,10 +202,14 @@ const RequiredAuthWrappedComponent = withRequiredAuthInfo(
 )
 
 export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
-    const { children, ...sharedProps } = props
+    const { children, displayIfLoggedOut, displayWhileLoading, ...sharedProps } = props
 
     return (
-        <AuthProvider {...sharedProps}>
+        <AuthProvider
+            {...sharedProps}
+            defaultDisplayIfLoggedOut={displayIfLoggedOut}
+            defaultDisplayWhileLoading={displayWhileLoading}
+        >
             <RequiredAuthWrappedComponent>{children}</RequiredAuthWrappedComponent>
         </AuthProvider>
     )
