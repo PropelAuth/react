@@ -163,7 +163,7 @@ const ForgotPassword = ({ onRedirectToLogin, appearance, config }: ForgotPasswor
                     <H3 appearance={appearance?.elements?.Header}>{`Forgot Password`}</H3>
                 </div>
                 <div data-contain="content">
-                    {config.hasPasswordLogin ? (
+                    {config.hasPasswordlessLogin ? (
                         <Paragraph appearance={appearance?.elements?.InstructionsText}>
                             {PASSWORDLESS_MESSAGE}
                         </Paragraph>
