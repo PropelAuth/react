@@ -11,6 +11,7 @@ import { Input, InputProps } from "../elements/Input"
 import { Label, LabelProps } from "../elements/Label"
 import { Select, SelectProps } from "../elements/Select"
 import { useApi } from "../useApi"
+import { useLogoutFunction } from "../useLogoutFunction"
 import { useRedirectFunctions } from "../useRedirectFunctions"
 import { withConfig, WithConfigProps } from "../withConfig"
 import { BAD_REQUEST, ORGS_NOT_ENABLED, ORG_CREATION_NOT_ENABLED, UNEXPECTED_ERROR, X_CSRF_TOKEN } from "./constants"
@@ -37,6 +38,7 @@ export type CreateOrgAppearance = {
         JoinOrgSelect?: ElementAppearance<SelectProps>
         JoinOrgButton?: ElementAppearance<ButtonProps>
         ErrorMessage?: ElementAppearance<AlertProps>
+        LogoutButton?: ElementAppearance<ButtonProps>
     }
 }
 
@@ -53,6 +55,7 @@ type CreateOrgProps = {
 
 const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: CreateOrgProps) => {
     const { orgApi } = useApi()
+    const logoutFn = useLogoutFunction()
     const [joinableOrgsState, setJoinableOrgsState] = useState<JoinableOrgsState>(JoinableOrgsState.Loading)
     const [isComponentLoading, setIsComponentLoading] = useState(true)
     const [statusLoading, setStatusLoading] = useState(false)
@@ -218,7 +221,6 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: Creat
     let orgCreationError = undefined
 
     const isStatusOrOrgsLoading = statusLoading || joinableOrgsState === JoinableOrgsState.Loading
-
     const displayOrgCreationError =
         statusError &&
         ((statusError === ORG_CREATION_NOT_ENABLED && joinableOrgsState === JoinableOrgsState.NoOrgs) ||
@@ -228,8 +230,14 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: Creat
         // can't return <Loading /> here because it will prevent the <JoinableOrgs /> component from rendering
         setIsComponentLoading(false)
     } else if (displayOrgCreationError) {
-        // If there are no joinable orgs, the error should replace the entire container
-        orgCreationError = <ErrorMessage errorMessage={statusError} appearance={appearance} />
+        orgCreationError = (
+            <div>
+                <ErrorMessage errorMessage={statusError} appearance={appearance} />
+                <Button onClick={() => logoutFn(true)} appearance={appearance?.elements?.LogoutButton}>
+                    Logout
+                </Button>
+            </div>
+        )
     }
 
     return (
