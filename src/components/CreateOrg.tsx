@@ -53,9 +53,11 @@ type CreateOrgProps = {
 
 const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: CreateOrgProps) => {
     const { orgApi } = useApi()
+    const [joinableOrgsState, setJoinableOrgsState] = useState<JoinableOrgsState>(JoinableOrgsState.Loading)
+    const [isComponentLoading, setIsComponentLoading] = useState(true)
     const [statusLoading, setStatusLoading] = useState(false)
     const [statusError, setStatusError] = useState<string | undefined>(undefined)
-    const [loading, setLoading] = useState(false)
+    const [isOrgCreationLoading, setIsOrgCreationLoading] = useState(false)
     const [name, setName] = useState("")
     const [canUseDomainOptions, setCanUseDomainOptions] = useState(false)
     const [autojoinByDomain, setAutojoinByDomain] = useState(false)
@@ -118,7 +120,7 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: Creat
 
         try {
             clearErrors()
-            setLoading(true)
+            setIsOrgCreationLoading(true)
             const options = { name, autojoinByDomain, restrictToDomain, xCsrfToken: X_CSRF_TOKEN }
             const response = await orgApi.createOrg(options)
             if (response.ok) {
@@ -146,7 +148,7 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: Creat
             setError(UNEXPECTED_ERROR)
             console.error(e)
         } finally {
-            setLoading(false)
+            setIsOrgCreationLoading(false)
         }
     }
 
@@ -196,7 +198,11 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: Creat
                             disabled={!canUseDomainOptions}
                         />
                     </div>
-                    <Button loading={loading} appearance={appearance?.elements?.CreateOrgButton} type="submit">
+                    <Button
+                        loading={isOrgCreationLoading}
+                        appearance={appearance?.elements?.CreateOrgButton}
+                        type="submit"
+                    >
                         {appearance?.options?.createOrgButtonText || `Create ${orgMetaname}`}
                     </Button>
                     {error && (
@@ -209,42 +215,65 @@ const CreateOrg = ({ onOrgCreatedOrJoined, appearance, testMode, config }: Creat
         </>
     )
 
-    if (statusLoading) {
-        return <Loading appearance={appearance} />
-    } else if (statusError) {
-        if (statusError === ORG_CREATION_NOT_ENABLED) {
-            const errorMessage = <ErrorMessage errorMessage={statusError} appearance={appearance} />
-            orgCreationInner = errorMessage
-        } else {
-            return <ErrorMessage errorMessage={statusError} appearance={appearance} />
-        }
+    let orgCreationError = undefined
+
+    const isStatusOrOrgsLoading = statusLoading || joinableOrgsState === JoinableOrgsState.Loading
+
+    const displayOrgCreationError =
+        statusError &&
+        ((statusError === ORG_CREATION_NOT_ENABLED && joinableOrgsState === JoinableOrgsState.NoOrgs) ||
+            statusError !== ORG_CREATION_NOT_ENABLED)
+
+    if (!isStatusOrOrgsLoading && isComponentLoading) {
+        // can't return <Loading /> here because it will prevent the <JoinableOrgs /> component from rendering
+        setIsComponentLoading(false)
+    } else if (displayOrgCreationError) {
+        // If there are no joinable orgs, the error should replace the entire container
+        orgCreationError = <ErrorMessage errorMessage={statusError} appearance={appearance} />
     }
 
     return (
         <div data-contain="component">
-            <Container appearance={appearance?.elements?.Container}>
-                {orgCreationInner}
-                {!testMode && (
-                    <JoinableOrgs
-                        orgCreationEnabled={!statusError}
-                        orgMetaname={orgMetaname}
-                        onOrgCreatedOrJoined={onOrgCreatedOrJoined}
-                        appearance={appearance}
-                    />
-                )}
-            </Container>
+            {isComponentLoading && <Loading appearance={appearance} />}
+            {orgCreationError ?? (
+                <Container appearance={appearance?.elements?.Container}>
+                    {!statusError && !isComponentLoading && orgCreationInner}
+                    {!testMode && (
+                        <JoinableOrgs
+                            orgCreationEnabled={!statusError}
+                            orgMetaname={orgMetaname}
+                            onOrgCreatedOrJoined={onOrgCreatedOrJoined}
+                            setJoinableOrgsState={setJoinableOrgsState}
+                            appearance={appearance}
+                        />
+                    )}
+                </Container>
+            )}
         </div>
     )
+}
+
+enum JoinableOrgsState {
+    Loading,
+    HasOrgs,
+    NoOrgs,
 }
 
 type JoinableOrgsProps = {
     orgCreationEnabled: boolean
     orgMetaname: string
     onOrgCreatedOrJoined: (org: OrgInfo) => void
+    setJoinableOrgsState: (state: JoinableOrgsState) => void
     appearance?: CreateOrgAppearance
 }
 
-const JoinableOrgs = ({ orgCreationEnabled, orgMetaname, onOrgCreatedOrJoined, appearance }: JoinableOrgsProps) => {
+const JoinableOrgs = ({
+    orgCreationEnabled,
+    orgMetaname,
+    onOrgCreatedOrJoined,
+    setJoinableOrgsState,
+    appearance,
+}: JoinableOrgsProps) => {
     const { orgApi } = useApi()
     const [joinableOrgs, setJoinableOrgs] = useState<PropelauthFeV2.OrgInfoResponse[]>([])
     const [selectedOrgId, setSelectedOrgId] = useState<string>("")
@@ -273,6 +302,9 @@ const JoinableOrgs = ({ orgCreationEnabled, orgMetaname, onOrgCreatedOrJoined, a
                         setJoinableOrgs(responseOrgs)
                         if (responseOrgs && responseOrgs.length > 0) {
                             setSelectedOrgId(responseOrgs[0].id)
+                            setJoinableOrgsState(JoinableOrgsState.HasOrgs)
+                        } else {
+                            setJoinableOrgsState(JoinableOrgsState.NoOrgs)
                         }
                     } else {
                         response.error._visit({
