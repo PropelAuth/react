@@ -7,7 +7,8 @@ export const FORGOT_PASSWORD_MESSAGE =
     "Enter your email address and we will send you an email with a link that will let you reset your password."
 export const PASSWORDLESS_MESSAGE =
     "You can choose between receiving an email to reset your password or receiving an email with a magic link that will log you in."
-export const ORG_CREATION_NOT_ENABLED = "Organization creation not enabled."
+export const ORG_CREATION_NOT_ENABLED =
+    "It looks like there are currently no organizations for you to join. Please contact your administrator to continue with your account set up."
 export const LOGIN_PASSWORDLESS_NOT_SUPPORTED = "Passwordless login not supported."
 export const NO_ACCOUNT_FOUND_WITH_CREDENTIALS = "No account found with those credentials."
 export const SIGNUP_NOT_ALLOWED = "Signups are disabled."
