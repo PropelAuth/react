@@ -32,6 +32,7 @@ afterAll(() => {
 
 // Mocking utilities for createClient
 jest.mock("@propelauth/javascript", () => ({
+    ...jest.requireActual("@propelauth/javascript"),
     createClient: jest.fn(),
 }))
 createClient.mockImplementation(() => mockClient)
@@ -424,8 +425,8 @@ it("when client logs out, authInfo is refreshed", async () => {
 
     // Then simulate a logout event by calling the observer
     Component.mockReturnValue(<div>Finished 2</div>)
-    expect(mockClient.addLoggedInChangeObserver.mock.calls.length).toBe(1)
-    const observer = mockClient.addLoggedInChangeObserver.mock.calls[0][0]
+    expect(mockClient.addAccessTokenChangeObserver.mock.calls.length).toBe(1)
+    const observer = mockClient.addAccessTokenChangeObserver.mock.calls[0][0]
     observer(false)
 
     await waitFor(() => screen.getByText("Finished 2"))
@@ -591,6 +592,8 @@ function createMockClient() {
         redirectToCreateOrgPage: jest.fn(),
         addLoggedInChangeObserver: jest.fn(),
         removeLoggedInChangeObserver: jest.fn(),
+        addAccessTokenChangeObserver: jest.fn(),
+        removeAccessTokenChangeObserver: jest.fn(),
         destroy: jest.fn(),
     }
 }
@@ -598,7 +601,7 @@ function createMockClient() {
 const AUTH_URL = "authUrl"
 
 function expectCreateClientWasCalledCorrectly() {
-    expect(createClient).toHaveBeenCalledWith({ authUrl: AUTH_URL, enableBackgroundTokenRefresh: false })
+    expect(createClient).toHaveBeenCalledWith({ authUrl: AUTH_URL, enableBackgroundTokenRefresh: true })
 }
 
 function createOrg() {
