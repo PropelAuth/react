@@ -89,13 +89,12 @@ function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction
 
 export const AuthProvider = (props: AuthProviderProps) => {
     const [authInfoState, dispatch] = useReducer(authInfoStateReducer, initialAuthInfoState)
-    const [loggedInChangeCounter, setLoggedInChangeCounter] = useState(0)
+    const [accessTokenChangeCounter, setAccessTokenChangeCounter] = useState(0)
 
     // Create a client and register an observer that triggers when the user logs in or out
     const client = useMemo(() => {
-        // Disable background token refresh as we will do it within React instead
-        const client = createClient({ authUrl: props.authUrl, enableBackgroundTokenRefresh: false })
-        client.addLoggedInChangeObserver(() => setLoggedInChangeCounter((x) => x + 1))
+        const client = createClient({ authUrl: props.authUrl, enableBackgroundTokenRefresh: true })
+        client.addAccessTokenChangeObserver(() => setAccessTokenChangeCounter((x) => x + 1))
         return client
     }, [props.authUrl])
 
@@ -105,29 +104,6 @@ export const AuthProvider = (props: AuthProviderProps) => {
             client.destroy()
         }
     }, [])
-
-    // Periodically refresh the token. The client will only make requests when the authInfo is stale
-    // Errors are logged and the token will be invalidated separately
-    useEffect(() => {
-        let didCancel = false
-
-        async function refreshToken() {
-            try {
-                const authInfo = await client.getAuthenticationInfoOrNull()
-                if (!didCancel) {
-                    dispatch({ authInfo })
-                }
-            } catch (e) {
-                console.log("Failed to refresh token", e)
-            }
-        }
-
-        const interval = setInterval(refreshToken, 60000)
-        return () => {
-            didCancel = true
-            clearInterval(interval)
-        }
-    }, [client])
 
     // Refresh the token when the user has logged in or out
     useEffect(() => {
@@ -148,7 +124,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
         return () => {
             didCancel = true
         }
-    }, [client, loggedInChangeCounter])
+    }, [client, accessTokenChangeCounter])
 
     const logout = useCallback(client.logout, [])
     const redirectToLoginPage = useCallback(client.redirectToLoginPage, [])

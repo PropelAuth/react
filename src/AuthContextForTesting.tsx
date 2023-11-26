@@ -4,8 +4,11 @@ import {
     AuthenticationInfo,
     OrgHelper,
     OrgIdToOrgMemberInfo,
+    OrgIdToOrgMemberInfoClass,
     OrgMemberInfo,
+    OrgMemberInfoClass,
     User,
+    UserClass,
 } from "@propelauth/javascript"
 import React from "react"
 import { AuthContext } from "./AuthContext"
@@ -79,7 +82,24 @@ function getAuthInfoForTesting(userInformation?: UserInformationForTesting): Aut
         accessHelper: getAccessHelper(orgIdToOrgMemberInfo),
         orgIdToOrgMemberInfo: orgIdToOrgMemberInfo,
         user: userInformation.user,
+        userClass: new UserClass(userInformation.user, toOrgIdToUserOrgInfo(orgIdToOrgMemberInfo)),
     }
+}
+
+function toOrgIdToUserOrgInfo(orgIdToOrgMemberInfo: OrgIdToOrgMemberInfo): OrgIdToOrgMemberInfoClass {
+    const orgIdToUserOrgInfo: OrgIdToOrgMemberInfoClass = {}
+    for (const orgMemberInfo of Object.values(orgIdToOrgMemberInfo)) {
+        orgIdToUserOrgInfo[orgMemberInfo.orgId] = new OrgMemberInfoClass(
+            orgMemberInfo.orgId,
+            orgMemberInfo.orgName,
+            {},
+            orgMemberInfo.urlSafeOrgName,
+            orgMemberInfo.userAssignedRole,
+            orgMemberInfo.userInheritedRolesPlusCurrentRole,
+            orgMemberInfo.userPermissions
+        )
+    }
+    return orgIdToUserOrgInfo
 }
 
 // These helpers come from @propelauth/javascript, down the road we may want to export them from that library
