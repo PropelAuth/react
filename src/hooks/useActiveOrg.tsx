@@ -1,8 +1,9 @@
-import { getActiveOrgId, setActiveOrgId } from "@propelauth/javascript"
+import { getActiveOrgId, setActiveOrgId as setActiveOrgIdCookie } from "@propelauth/javascript"
 import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../AuthContext"
 
 const ORG_SELECTION_LOCAL_STORAGE_KEY = "__last_selected_org"
+const ACTIVE_ORG_ID_LOCAL_STORAGE_KEY = "__ACTIVE_ORG_ID"
 
 export function useActiveOrg() {
     const context = useContext(AuthContext)
@@ -11,17 +12,17 @@ export function useActiveOrg() {
     }
     const [activeOrgIdState, setActiveOrgIdState] = useState<string | undefined>(getActiveOrgId())
 
-    useEffect(() => {
-        const intervalId = setInterval(() => {
-            const currentCookieValue = getActiveOrgId()
-            if (currentCookieValue !== activeOrgIdState) {
-                setActiveOrgIdState(currentCookieValue)
-            }
-            // TODO: What should this value be?
-        }, 500)
+    const setActiveOrgId = (orgId: string) => {
+        setActiveOrgIdCookie(orgId)
+        setActiveOrgIdState(orgId)
+        localStorage.setItem(ACTIVE_ORG_ID_LOCAL_STORAGE_KEY, orgId)
+    }
 
-        return () => {
-            clearInterval(intervalId)
+    // If a cookie exists for the active org on first load, set it in local storage.
+    useEffect(() => {
+        const isLocalStorageNotSet = activeOrgIdState && !localStorage.getItem(ACTIVE_ORG_ID_LOCAL_STORAGE_KEY)
+        if (isLocalStorageNotSet) {
+            localStorage.setItem(ACTIVE_ORG_ID_LOCAL_STORAGE_KEY, activeOrgIdState)
         }
     }, [activeOrgIdState])
 
