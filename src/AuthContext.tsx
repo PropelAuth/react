@@ -5,7 +5,6 @@ import {
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
-import { loadOrgSelectionFromLocalStorage } from "./hooks/useActiveOrg"
 import { WithLoggedInAuthInfoProps } from "./withAuthInfo"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
@@ -28,8 +27,6 @@ interface InternalAuthState {
     getOrgPageUrl(orgId?: string): string
     getCreateOrgPageUrl(): string
     getSetupSAMLPageUrl(orgId: string): string
-
-    activeOrgFn: () => string | null
 
     refreshAuthInfo: () => Promise<void>
     defaultDisplayWhileLoading?: React.ReactElement
@@ -150,8 +147,6 @@ export const AuthProvider = (props: AuthProviderProps) => {
         dispatch({ authInfo })
     }, [dispatch])
 
-    const activeOrgFn = props.getActiveOrgFn || loadOrgSelectionFromLocalStorage
-
     const { defaultDisplayWhileLoading, defaultDisplayIfLoggedOut } = props
     const value = {
         loading: authInfoState.loading,
@@ -171,7 +166,6 @@ export const AuthProvider = (props: AuthProviderProps) => {
         getOrgPageUrl,
         getCreateOrgPageUrl,
         getSetupSAMLPageUrl,
-        activeOrgFn,
         refreshAuthInfo,
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
