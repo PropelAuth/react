@@ -1,4 +1,5 @@
-import { useContext } from "react"
+import { getActiveOrgId, setActiveOrgId } from "@propelauth/javascript"
+import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../AuthContext"
 
 const ORG_SELECTION_LOCAL_STORAGE_KEY = "__last_selected_org"
@@ -8,26 +9,37 @@ export function useActiveOrg() {
     if (context === undefined) {
         throw new Error("useActiveOrg must be used within an AuthProvider or RequiredAuthProvider")
     }
+    const [activeOrgIdState, setActiveOrgIdState] = useState<string | undefined>(getActiveOrgId())
 
-    if (context.loading || !context.authInfo || !context.authInfo.orgHelper) {
-        return null
-    }
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            const currentCookieValue = getActiveOrgId()
+            if (currentCookieValue !== activeOrgIdState) {
+                setActiveOrgIdState(currentCookieValue)
+            }
+            // TODO: What should this value be?
+        }, 500)
 
-    const proposedActiveOrgIdOrName = context.activeOrgFn()
-    if (!proposedActiveOrgIdOrName) {
-        return null
-    }
+        return () => {
+            clearInterval(intervalId)
+        }
+    }, [activeOrgIdState])
 
-    const orgHelper = context.authInfo.orgHelper
-    return orgHelper.getOrg(proposedActiveOrgIdOrName) || orgHelper.getOrgByName(proposedActiveOrgIdOrName)
+    return { activeOrgId: activeOrgIdState, setActiveOrgId }
 }
 
+/**
+ * @deprecated Use useActiveOrg instead.
+ */
 export function saveOrgSelectionToLocalStorage(orgIdOrName: string) {
     if (localStorage) {
         localStorage.setItem(ORG_SELECTION_LOCAL_STORAGE_KEY, orgIdOrName)
     }
 }
 
+/**
+ * @deprecated Use useActiveOrg instead.
+ */
 export function loadOrgSelectionFromLocalStorage(): string | null {
     if (localStorage) {
         return localStorage.getItem(ORG_SELECTION_LOCAL_STORAGE_KEY)
