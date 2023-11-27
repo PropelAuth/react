@@ -5,8 +5,6 @@ import {
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
-import { WithLoggedInAuthInfoProps } from "./withAuthInfo"
-import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
 interface InternalAuthState {
     loading: boolean
@@ -169,22 +167,4 @@ export const AuthProvider = (props: AuthProviderProps) => {
         refreshAuthInfo,
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
-}
-
-const RequiredAuthWrappedComponent = withRequiredAuthInfo(
-    ({ children }: { children: React.ReactNode } & WithLoggedInAuthInfoProps) => <>{children}</>
-)
-
-export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
-    const { children, displayIfLoggedOut, displayWhileLoading, ...sharedProps } = props
-
-    return (
-        <AuthProvider
-            {...sharedProps}
-            defaultDisplayIfLoggedOut={displayIfLoggedOut}
-            defaultDisplayWhileLoading={displayWhileLoading}
-        >
-            <RequiredAuthWrappedComponent>{children}</RequiredAuthWrappedComponent>
-        </AuthProvider>
-    )
 }

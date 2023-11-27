@@ -8,7 +8,7 @@ export type {
     RedirectToSignupOptions,
     User,
 } from "@propelauth/javascript"
-export { AuthProvider, RequiredAuthProvider } from "./AuthContext"
+export { AuthProvider } from "./AuthContext"
 export type { AuthProviderProps, RequiredAuthProviderProps } from "./AuthContext"
 export { AuthProviderForTesting } from "./AuthContextForTesting"
 export type { AuthProviderForTestingProps, UserInformationForTesting } from "./AuthContextForTesting"
@@ -27,6 +27,7 @@ export { useHostedPageUrls } from "./hooks/useHostedPageUrls"
 export { useLogoutFunction } from "./hooks/useLogoutFunction"
 export { RedirectToLogin, RedirectToSignup, useRedirectFunctions } from "./hooks/useRedirectFunctions"
 export type { RedirectProps } from "./hooks/useRedirectFunctions"
+export { RequiredAuthProvider } from "./RequiredAuthProvider"
 export { withAuthInfo } from "./withAuthInfo"
 export type {
     WithAuthInfoArgs,
