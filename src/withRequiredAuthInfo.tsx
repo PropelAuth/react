@@ -2,7 +2,7 @@ import hoistNonReactStatics from "hoist-non-react-statics"
 import React, { useContext } from "react"
 import { Subtract } from "utility-types"
 import { AuthContext } from "./AuthContext"
-import { RedirectToLogin } from "./useRedirectFunctions"
+import { RedirectToLogin } from "./hooks/useRedirectFunctions"
 import { WithLoggedInAuthInfoProps } from "./withAuthInfo"
 
 export interface WithRequiredAuthInfoArgs {

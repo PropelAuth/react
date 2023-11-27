@@ -1,5 +1,5 @@
 import { useContext } from "react"
-import { AuthContext } from "./AuthContext"
+import { AuthContext } from "../AuthContext"
 
 const ORG_SELECTION_LOCAL_STORAGE_KEY = "__last_selected_org"
 

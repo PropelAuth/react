@@ -1,5 +1,5 @@
 import React, { useContext, useEffect } from "react"
-import { AuthContext } from "./AuthContext"
+import { AuthContext } from "../AuthContext"
 
 export function useRedirectFunctions() {
     const context = useContext(AuthContext)

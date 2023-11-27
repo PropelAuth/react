@@ -5,7 +5,7 @@ import {
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
-import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
+import { loadOrgSelectionFromLocalStorage } from "./hooks/useActiveOrg"
 import { WithLoggedInAuthInfoProps } from "./withAuthInfo"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
