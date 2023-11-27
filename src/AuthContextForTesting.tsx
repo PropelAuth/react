@@ -107,7 +107,7 @@ function toOrgIdToUserOrgInfo(orgIdToOrgMemberInfo: OrgIdToOrgMemberInfo): OrgId
 function getOrgHelper(orgIdToOrgMemberInfo: OrgIdToOrgMemberInfo): OrgHelper {
     return {
         getOrg(orgId: string): OrgMemberInfo | undefined {
-            if (orgIdToOrgMemberInfo.hasOwnProperty(orgId)) {
+            if (Object.prototype.hasOwnProperty.call(orgIdToOrgMemberInfo, orgId)) {
                 return orgIdToOrgMemberInfo[orgId]
             } else {
                 return undefined

@@ -40,6 +40,7 @@ export type AuthProviderProps = {
     authUrl: string
     defaultDisplayWhileLoading?: React.ReactElement
     defaultDisplayIfLoggedOut?: React.ReactElement
+    // getActiveOrgFn is deprecated. Users should use useActiveOrg instead.
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
 }
@@ -100,6 +101,9 @@ export const AuthProvider = (props: AuthProviderProps) => {
 
     // On unmount, destroy the client
     useEffect(() => {
+        if (props.getActiveOrgFn) {
+            console.warn("The getActiveOrgFn prop is deprecated. Please use useActiveOrg instead.")
+        }
         return () => {
             client.destroy()
         }
