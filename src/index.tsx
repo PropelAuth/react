@@ -27,6 +27,7 @@ export { useHostedPageUrls } from "./hooks/useHostedPageUrls"
 export { useLogoutFunction } from "./hooks/useLogoutFunction"
 export { RedirectToLogin, RedirectToSignup, useRedirectFunctions } from "./hooks/useRedirectFunctions"
 export type { RedirectProps } from "./hooks/useRedirectFunctions"
+export { useUser } from "./hooks/useUser"
 export { RequiredAuthProvider } from "./RequiredAuthProvider"
 export { withAuthInfo } from "./withAuthInfo"
 export type {
