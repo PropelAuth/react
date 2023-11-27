@@ -12,6 +12,10 @@ export function useActiveOrg() {
     }
     const [activeOrgIdState, setActiveOrgIdState] = useState<string | undefined>(getActiveOrgId())
 
+    const handleLocalStorageChange = () => {
+        setActiveOrgIdState(localStorage.getItem(ACTIVE_ORG_ID_LOCAL_STORAGE_KEY) ?? undefined)
+    }
+
     const setActiveOrgId = (orgId: string) => {
         setActiveOrgIdCookie(orgId)
         setActiveOrgIdState(orgId)
@@ -25,6 +29,14 @@ export function useActiveOrg() {
             localStorage.setItem(ACTIVE_ORG_ID_LOCAL_STORAGE_KEY, activeOrgIdState)
         }
     }, [activeOrgIdState])
+
+    useEffect(() => {
+        window.addEventListener("storage", handleLocalStorageChange)
+
+        return () => {
+            window.removeEventListener("storage", handleLocalStorageChange)
+        }
+    }, [])
 
     return { activeOrgId: activeOrgIdState, setActiveOrgId }
 }
