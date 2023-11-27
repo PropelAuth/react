@@ -62,8 +62,8 @@
     "build:types": "tsc --emitDeclarationOnly",
     "build:js": "rollup -c",
     "lint": "eslint --ext .ts,.tsx .",
-    "build": "npm run test && npm run build:types && npm run build:js",
-    "test": "jest --silent",
+    "build": "npm run test && npm run lint && npm run build:types && npm run build:js",
+    "test": "npm run lint && jest --silent",
     "prepublishOnly": "npm run build"
   },
   "main": "dist/index.cjs.js",

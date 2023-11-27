@@ -1,4 +1,3 @@
-/* eslint-disable */
 /**
  * @jest-environment jsdom
  */
@@ -14,6 +13,7 @@ import { useRedirectFunctions } from "./hooks/useRedirectFunctions"
 import { withAuthInfo } from "./withAuthInfo"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
+/* eslint-disable */
 // Fake timer setup
 beforeAll(() => {
     jest.useFakeTimers()
