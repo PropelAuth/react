@@ -47,6 +47,10 @@ export function useActiveOrg(): ActiveOrg | undefined {
     }
 
     const setActiveOrgId = (orgId: string) => {
+        const isUserInOrg = authInfo.userClass.getOrg(orgId)
+        if (!isUserInOrg) {
+            throw new Error(`User "${authInfo.userClass.userId}" is not in Org "${orgId}"`)
+        }
         setActiveOrgIdCookie(orgId)
         setActiveOrgIdState(orgId)
         localStorage.setItem(ACTIVE_ORG_ID_LOCAL_STORAGE_KEY, Date.now().toString())
