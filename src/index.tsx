@@ -22,6 +22,7 @@ export type {
     UseOrgHelperLoading,
 } from "./hooks/additionalHooks"
 export { loadOrgSelectionFromLocalStorage, saveOrgSelectionToLocalStorage, useActiveOrg } from "./hooks/useActiveOrg"
+export { useActiveOrgV2 } from "./hooks/useActiveOrgV2"
 export { useAuthInfo } from "./hooks/useAuthInfo"
 export { useHostedPageUrls } from "./hooks/useHostedPageUrls"
 export { useLogoutFunction } from "./hooks/useLogoutFunction"

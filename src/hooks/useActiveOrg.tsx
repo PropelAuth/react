@@ -1,66 +1,32 @@
-import { getActiveOrgId, setActiveOrgId as setActiveOrgIdCookie } from "@propelauth/javascript"
-import { useContext, useEffect, useState } from "react"
+import { useContext } from "react"
 import { AuthContext } from "../AuthContext"
 
 const DEPRECATED_ORG_SELECTION_LOCAL_STORAGE_KEY = "__last_selected_org"
-const ACTIVE_ORG_ID_LOCAL_STORAGE_KEY = "__ACTIVE_ORG_ID"
 
-interface ActiveOrg {
-    activeOrgId?: string
-    setActiveOrgId: (orgId: string) => void
-}
-
-export function useActiveOrg(): ActiveOrg | undefined {
+/**
+ * @deprecated This hook is deprecated and no longer supported. Use `useActiveOrgV2` instead.
+ */
+export function useActiveOrg() {
     const context = useContext(AuthContext)
     if (context === undefined) {
         throw new Error("useActiveOrg must be used within an AuthProvider or RequiredAuthProvider")
     }
 
-    const [activeOrgIdState, setActiveOrgIdState] = useState<string | undefined>(getActiveOrgId())
-
-    // If a cookie exists for the active org on first load, set it in local storage.
-    useEffect(() => {
-        const isLocalStorageNotSet = activeOrgIdState && !localStorage.getItem(ACTIVE_ORG_ID_LOCAL_STORAGE_KEY)
-        if (isLocalStorageNotSet) {
-            localStorage.setItem(ACTIVE_ORG_ID_LOCAL_STORAGE_KEY, Date.now().toString())
-        }
-    }, [activeOrgIdState])
-
-    const handleLocalStorageChange = () => {
-        setActiveOrgIdState(getActiveOrgId())
+    if (context.loading || !context.authInfo || !context.authInfo.orgHelper) {
+        return null
     }
 
-    useEffect(() => {
-        window.addEventListener("storage", handleLocalStorageChange)
-
-        return () => {
-            window.removeEventListener("storage", handleLocalStorageChange)
-        }
-    }, [])
-
-    const { loading, authInfo } = context
-    if (loading) {
-        return undefined
-    }
-    if (!authInfo) {
-        return undefined
+    const proposedActiveOrgIdOrName = context.activeOrgFn()
+    if (!proposedActiveOrgIdOrName) {
+        return null
     }
 
-    const setActiveOrgId = (orgId: string) => {
-        const isUserInOrg = authInfo.userClass.getOrg(orgId)
-        if (!isUserInOrg) {
-            throw new Error(`User "${authInfo.userClass.userId}" is not in Org "${orgId}"`)
-        }
-        setActiveOrgIdCookie(orgId)
-        setActiveOrgIdState(orgId)
-        localStorage.setItem(ACTIVE_ORG_ID_LOCAL_STORAGE_KEY, Date.now().toString())
-    }
-
-    return { activeOrgId: activeOrgIdState, setActiveOrgId }
+    const orgHelper = context.authInfo.orgHelper
+    return orgHelper.getOrg(proposedActiveOrgIdOrName) || orgHelper.getOrgByName(proposedActiveOrgIdOrName)
 }
 
 /**
- * @deprecated Use `useActiveOrg` instead.
+ * @deprecated Use `useActiveOrgV2` instead.
  */
 export function saveOrgSelectionToLocalStorage(orgIdOrName: string) {
     if (localStorage) {
@@ -69,7 +35,7 @@ export function saveOrgSelectionToLocalStorage(orgIdOrName: string) {
 }
 
 /**
- * @deprecated Use `useActiveOrg` instead.
+ * @deprecated Use `useActiveOrgV2` instead.
  */
 export function loadOrgSelectionFromLocalStorage(): string | null {
     if (localStorage) {
