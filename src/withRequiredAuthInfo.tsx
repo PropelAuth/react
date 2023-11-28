@@ -52,6 +52,7 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
                 orgHelper: authInfo.orgHelper,
                 accessHelper: authInfo.accessHelper,
                 user: authInfo.user,
+                userClass: authInfo.userClass,
                 isImpersonating: !!authInfo.impersonatorUserId,
                 impersonatorUserId: authInfo.impersonatorUserId,
                 refreshAuthInfo,

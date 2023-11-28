@@ -1,4 +1,4 @@
-import { AccessHelper, OrgHelper, User } from "@propelauth/javascript"
+import { AccessHelper, OrgHelper, User, UserClass } from "@propelauth/javascript"
 import { useContext } from "react"
 import { AuthContext } from "../AuthContext"
 
@@ -7,6 +7,7 @@ export type UseAuthInfoLoading = {
     isLoggedIn: undefined
     accessToken: undefined
     user: undefined
+    userClass: undefined
     orgHelper: undefined
     accessHelper: undefined
     isImpersonating: undefined
@@ -20,6 +21,7 @@ export type UseAuthInfoLoggedInProps = {
     isLoggedIn: true
     accessToken: string
     user: User
+    userClass: UserClass
     orgHelper: OrgHelper
     accessHelper: AccessHelper
     isImpersonating: boolean
@@ -33,6 +35,7 @@ export type UseAuthInfoNotLoggedInProps = {
     isLoggedIn: false
     accessToken: null
     user: null
+    userClass: null
     orgHelper: null
     accessHelper: null
     isImpersonating: false
@@ -58,6 +61,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             orgHelper: undefined,
             accessHelper: undefined,
             user: undefined,
+            userClass: undefined,
             isImpersonating: undefined,
             impersonatorUserId: undefined,
             refreshAuthInfo,
@@ -71,6 +75,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             orgHelper: authInfo.orgHelper,
             accessHelper: authInfo.accessHelper,
             user: authInfo.user,
+            userClass: authInfo.userClass,
             isImpersonating: !!authInfo.impersonatorUserId,
             impersonatorUserId: authInfo.impersonatorUserId,
             refreshAuthInfo,
@@ -82,6 +87,7 @@ export function useAuthInfo(): UseAuthInfoProps {
         isLoggedIn: false,
         accessToken: null,
         user: null,
+        userClass: null,
         orgHelper: null,
         accessHelper: null,
         isImpersonating: false,

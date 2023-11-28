@@ -1,4 +1,4 @@
-import { AccessHelper, OrgHelper, User } from "@propelauth/javascript"
+import { AccessHelper, OrgHelper, User, UserClass } from "@propelauth/javascript"
 import hoistNonReactStatics from "hoist-non-react-statics"
 import React, { useContext } from "react"
 import { Subtract } from "utility-types"
@@ -8,6 +8,7 @@ export type WithLoggedInAuthInfoProps = {
     isLoggedIn: true
     accessToken: string
     user: User
+    userClass: UserClass
     orgHelper: OrgHelper
     accessHelper: AccessHelper
     isImpersonating: boolean
@@ -20,6 +21,7 @@ export type WithNotLoggedInAuthInfoProps = {
     isLoggedIn: false
     accessToken: null
     user: null
+    userClass: null
     orgHelper: null
     accessHelper: null
     isImpersonating: false
@@ -67,6 +69,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 orgHelper: authInfo.orgHelper,
                 accessHelper: authInfo.accessHelper,
                 user: authInfo.user,
+                userClass: authInfo.userClass,
                 isImpersonating: !!authInfo.impersonatorUserId,
                 impersonatorUserId: authInfo.impersonatorUserId,
                 refreshAuthInfo,
@@ -79,6 +82,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 accessToken: null,
                 isLoggedIn: false,
                 user: null,
+                userClass: null,
                 orgHelper: null,
                 accessHelper: null,
                 isImpersonating: false,
