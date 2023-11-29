@@ -1,12 +1,13 @@
-import { getActiveOrgId, setActiveOrgId as setActiveOrgIdCookie } from "@propelauth/javascript"
+import { getActiveOrgId, OrgMemberInfoClass, setActiveOrgId as setActiveOrgIdCookie } from "@propelauth/javascript"
 import { useContext, useEffect, useState } from "react"
 import { AuthContext } from "../AuthContext"
 
 const ACTIVE_ORG_ID_LOCAL_STORAGE_KEY = "__ACTIVE_ORG_ID"
 
 interface ActiveOrg {
-    activeOrgId?: string
+    activeOrg?: OrgMemberInfoClass
     setActiveOrgId: (orgId: string) => void
+    loading: boolean
 }
 
 export function useActiveOrgV2(): ActiveOrg | undefined {
@@ -37,23 +38,29 @@ export function useActiveOrgV2(): ActiveOrg | undefined {
         }
     }, [])
 
-    const { loading, authInfo } = context
-    if (loading) {
-        return undefined
-    }
-    if (!authInfo) {
-        return undefined
-    }
-
     const setActiveOrgId = (orgId: string) => {
-        const isUserInOrg = authInfo.userClass.getOrg(orgId)
+        const isUserInOrg = authInfo?.userClass.getOrg(orgId)
         if (!isUserInOrg) {
-            throw new Error(`User "${authInfo.userClass.userId}" is not in Org "${orgId}"`)
+            throw new Error(`User "${authInfo?.userClass.userId}" is not in Org "${orgId}"`)
         }
         setActiveOrgIdCookie(orgId)
         setActiveOrgIdState(orgId)
         localStorage.setItem(ACTIVE_ORG_ID_LOCAL_STORAGE_KEY, Date.now().toString())
     }
 
-    return { activeOrgId: activeOrgIdState, setActiveOrgId }
+    const { loading, authInfo } = context
+    if (loading) {
+        return {
+            loading,
+            activeOrg: undefined,
+            setActiveOrgId,
+        }
+    }
+    if (!authInfo) {
+        return undefined
+    }
+
+    const activeOrg = authInfo.userClass.getOrg(activeOrgIdState || "")
+
+    return { activeOrg, setActiveOrgId, loading }
 }
