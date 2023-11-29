@@ -10,7 +10,7 @@ interface ActiveOrg {
     loading: boolean
 }
 
-export function useActiveOrgV2(): ActiveOrg | undefined {
+export function useActiveOrgV2(): ActiveOrg {
     const context = useContext(AuthContext)
     if (context === undefined) {
         throw new Error("useActiveOrgV2 must be used within an AuthProvider or RequiredAuthProvider")
@@ -57,10 +57,14 @@ export function useActiveOrgV2(): ActiveOrg | undefined {
         }
     }
     if (!authInfo) {
-        return undefined
+        return {
+            loading: false,
+            activeOrg: undefined,
+            setActiveOrgId,
+        }
     }
 
     const activeOrg = authInfo.userClass.getOrg(activeOrgIdState || "")
 
-    return { activeOrg, setActiveOrgId, loading }
+    return { activeOrg, setActiveOrgId, loading: false }
 }
