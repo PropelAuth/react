@@ -8,7 +8,11 @@ export type {
     RedirectToSignupOptions,
     User,
 } from "@propelauth/javascript"
-export { useAccessHelper, useOrgHelper } from "./additionalHooks"
+export { AuthProvider } from "./AuthContext"
+export type { AuthProviderProps, RequiredAuthProviderProps } from "./AuthContext"
+export { AuthProviderForTesting } from "./AuthContextForTesting"
+export type { AuthProviderForTestingProps, UserInformationForTesting } from "./AuthContextForTesting"
+export { useAccessHelper, useOrgHelper } from "./hooks/additionalHooks"
 export type {
     UseAccessHelper,
     UseAccessHelperLoaded,
@@ -16,17 +20,15 @@ export type {
     UseOrgHelper,
     UseOrgHelperLoaded,
     UseOrgHelperLoading,
-} from "./additionalHooks"
-export { AuthProvider, RequiredAuthProvider } from "./AuthContext"
-export type { AuthProviderProps, RequiredAuthProviderProps } from "./AuthContext"
-export { AuthProviderForTesting } from "./AuthContextForTesting"
-export type { AuthProviderForTestingProps, UserInformationForTesting } from "./AuthContextForTesting"
-export { loadOrgSelectionFromLocalStorage, saveOrgSelectionToLocalStorage, useActiveOrg } from "./useActiveOrg"
-export { useAuthInfo } from "./useAuthInfo"
-export { useHostedPageUrls } from "./useHostedPageUrls"
-export { useLogoutFunction } from "./useLogoutFunction"
-export { RedirectToLogin, RedirectToSignup, useRedirectFunctions } from "./useRedirectFunctions"
-export type { RedirectProps } from "./useRedirectFunctions"
+} from "./hooks/additionalHooks"
+export { loadOrgSelectionFromLocalStorage, saveOrgSelectionToLocalStorage, useActiveOrg } from "./hooks/useActiveOrg"
+export { useActiveOrgV2 } from "./hooks/useActiveOrgV2"
+export { useAuthInfo } from "./hooks/useAuthInfo"
+export { useHostedPageUrls } from "./hooks/useHostedPageUrls"
+export { useLogoutFunction } from "./hooks/useLogoutFunction"
+export { RedirectToLogin, RedirectToSignup, useRedirectFunctions } from "./hooks/useRedirectFunctions"
+export type { RedirectProps } from "./hooks/useRedirectFunctions"
+export { RequiredAuthProvider } from "./RequiredAuthProvider"
 export { withAuthInfo } from "./withAuthInfo"
 export type {
     WithAuthInfoArgs,

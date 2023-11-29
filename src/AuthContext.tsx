@@ -5,15 +5,14 @@ import {
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
-import { loadOrgSelectionFromLocalStorage } from "./useActiveOrg"
-import { WithLoggedInAuthInfoProps } from "./withAuthInfo"
-import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
+import { loadOrgSelectionFromLocalStorage } from "./hooks/useActiveOrg"
 
 interface InternalAuthState {
     loading: boolean
     authInfo: AuthenticationInfo | null
 
     logout: (redirectOnLogout: boolean) => Promise<void>
+    activeOrgFn: () => string | null
 
     redirectToLoginPage: (options?: RedirectToLoginOptions) => void
     redirectToSignupPage: (options?: RedirectToSignupOptions) => void
@@ -29,8 +28,6 @@ interface InternalAuthState {
     getCreateOrgPageUrl(): string
     getSetupSAMLPageUrl(orgId: string): string
 
-    activeOrgFn: () => string | null
-
     refreshAuthInfo: () => Promise<void>
     defaultDisplayWhileLoading?: React.ReactElement
     defaultDisplayIfLoggedOut?: React.ReactElement
@@ -40,6 +37,9 @@ export type AuthProviderProps = {
     authUrl: string
     defaultDisplayWhileLoading?: React.ReactElement
     defaultDisplayIfLoggedOut?: React.ReactElement
+    /**
+     * getActiveOrgFn is deprecated. Use `useActiveOrgV2` instead.
+     */
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
 }
@@ -100,6 +100,9 @@ export const AuthProvider = (props: AuthProviderProps) => {
 
     // On unmount, destroy the client
     useEffect(() => {
+        if (props.getActiveOrgFn) {
+            console.warn("The `getActiveOrgFn` prop is deprecated. Please use `useActiveOrgV2` instead.")
+        }
         return () => {
             client.destroy()
         }
@@ -146,10 +149,11 @@ export const AuthProvider = (props: AuthProviderProps) => {
         dispatch({ authInfo })
     }, [dispatch])
 
-    const activeOrgFn = props.getActiveOrgFn || loadOrgSelectionFromLocalStorage
+    // TODO: Remove this, as both `getActiveOrgFn` and `loadOrgSelectionFromLocalStorage` are deprecated.
+    const deprecatedActiveOrgFn = props.getActiveOrgFn || loadOrgSelectionFromLocalStorage
 
     const { defaultDisplayWhileLoading, defaultDisplayIfLoggedOut } = props
-    const value = {
+    const value: InternalAuthState = {
         loading: authInfoState.loading,
         authInfo: authInfoState.authInfo,
         logout,
@@ -162,31 +166,13 @@ export const AuthProvider = (props: AuthProviderProps) => {
         redirectToCreateOrgPage,
         redirectToSetupSAMLPage,
         getLoginPageUrl,
+        activeOrgFn: deprecatedActiveOrgFn,
         getSignupPageUrl,
         getAccountPageUrl,
         getOrgPageUrl,
         getCreateOrgPageUrl,
         getSetupSAMLPageUrl,
-        activeOrgFn,
         refreshAuthInfo,
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
-}
-
-const RequiredAuthWrappedComponent = withRequiredAuthInfo(
-    ({ children }: { children: React.ReactNode } & WithLoggedInAuthInfoProps) => <>{children}</>
-)
-
-export const RequiredAuthProvider = (props: RequiredAuthProviderProps) => {
-    const { children, displayIfLoggedOut, displayWhileLoading, ...sharedProps } = props
-
-    return (
-        <AuthProvider
-            {...sharedProps}
-            defaultDisplayIfLoggedOut={displayIfLoggedOut}
-            defaultDisplayWhileLoading={displayWhileLoading}
-        >
-            <RequiredAuthWrappedComponent>{children}</RequiredAuthWrappedComponent>
-        </AuthProvider>
-    )
 }

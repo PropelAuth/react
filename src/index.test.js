@@ -5,14 +5,16 @@ import { createClient } from "@propelauth/javascript"
 import { render, screen, waitFor } from "@testing-library/react"
 import React from "react"
 import { v4 as uuidv4 } from "uuid"
-import { AuthProvider, RequiredAuthProvider } from "./AuthContext"
+import { AuthProvider } from "./AuthContext"
 import { AuthProviderForTesting } from "./AuthContextForTesting"
-import { useAuthInfo } from "./useAuthInfo"
-import { useLogoutFunction } from "./useLogoutFunction"
-import { useRedirectFunctions } from "./useRedirectFunctions"
+import { useAuthInfo } from "./hooks/useAuthInfo"
+import { useLogoutFunction } from "./hooks/useLogoutFunction"
+import { useRedirectFunctions } from "./hooks/useRedirectFunctions"
+import { RequiredAuthProvider } from "./RequiredAuthProvider"
 import { withAuthInfo } from "./withAuthInfo"
 import { withRequiredAuthInfo } from "./withRequiredAuthInfo"
 
+/* eslint-disable */
 // Fake timer setup
 beforeAll(() => {
     jest.useFakeTimers()
