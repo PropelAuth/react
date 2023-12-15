@@ -343,5 +343,9 @@ $RECYCLE.BIN/
 # Windows shortcuts
 *.lnk
 
+# Yalc
+.yalc
+yalc.lock
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij+all,vim,emacs,windows,macos,node
 

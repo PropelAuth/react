@@ -28,18 +28,17 @@ export interface RedirectProps {
 
 export interface RedirectToSignupProps extends RedirectProps {
     postSignupRedirectUrl?: string
+    userSignupQueryParameters?: Record<string, string>
 }
 
-export function RedirectToSignup({ children, postSignupRedirectUrl }: RedirectToSignupProps) {
+export function RedirectToSignup({
+    children,
+    postSignupRedirectUrl,
+    userSignupQueryParameters,
+}: RedirectToSignupProps) {
     const { redirectToSignupPage } = useRedirectFunctions()
 
-    useEffect(() => {
-        if (postSignupRedirectUrl) {
-            redirectToSignupPage({ postSignupRedirectUrl })
-        } else {
-            redirectToSignupPage()
-        }
-    }, [])
+    useEffect(() => redirectToSignupPage({ postSignupRedirectUrl, userSignupQueryParameters }), [])
 
     return <>{children}</>
 }
