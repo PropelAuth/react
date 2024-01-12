@@ -101,7 +101,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
     // On unmount, destroy the client
     useEffect(() => {
         if (props.getActiveOrgFn) {
-            console.warn("The `getActiveOrgFn` prop is deprecated. Please use `useActiveOrgV2` instead.")
+            console.warn("The `getActiveOrgFn` prop is deprecated.")
         }
         return () => {
             client.destroy()

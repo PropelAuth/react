@@ -4,7 +4,7 @@ import { AuthContext } from "../AuthContext"
 const DEPRECATED_ORG_SELECTION_LOCAL_STORAGE_KEY = "__last_selected_org"
 
 /**
- * @deprecated This hook is deprecated and no longer supported. Use `useActiveOrgV2` instead.
+ * @deprecated This hook is deprecated and no longer supported.
  */
 export function useActiveOrg() {
     const context = useContext(AuthContext)
@@ -25,18 +25,12 @@ export function useActiveOrg() {
     return orgHelper.getOrg(proposedActiveOrgIdOrName) || orgHelper.getOrgByName(proposedActiveOrgIdOrName)
 }
 
-/**
- * @deprecated Use `useActiveOrgV2` instead.
- */
 export function saveOrgSelectionToLocalStorage(orgIdOrName: string) {
     if (localStorage) {
         localStorage.setItem(DEPRECATED_ORG_SELECTION_LOCAL_STORAGE_KEY, orgIdOrName)
     }
 }
 
-/**
- * @deprecated Use `useActiveOrgV2` instead.
- */
 export function loadOrgSelectionFromLocalStorage(): string | null {
     if (localStorage) {
         return localStorage.getItem(DEPRECATED_ORG_SELECTION_LOCAL_STORAGE_KEY)
