@@ -1,4 +1,10 @@
-import { AuthenticationInfo, RedirectToLoginOptions, RedirectToSignupOptions } from "@propelauth/javascript"
+import {
+    AuthenticationInfo,
+    RedirectToAccountOptions,
+    RedirectToCreateOrgOptions,
+    RedirectToLoginOptions,
+    RedirectToSignupOptions,
+} from "@propelauth/javascript"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./hooks/useActiveOrg"
 import { useClientRef, useClientRefCallback } from "./useClientRef"
@@ -12,17 +18,17 @@ interface InternalAuthState {
 
     redirectToLoginPage: (options?: RedirectToLoginOptions) => void
     redirectToSignupPage: (options?: RedirectToSignupOptions) => void
-    redirectToAccountPage: () => void
-    redirectToOrgPage: (orgId?: string) => void
-    redirectToCreateOrgPage: () => void
-    redirectToSetupSAMLPage: (orgId: string) => void
+    redirectToAccountPage: (options?: RedirectToAccountOptions) => void
+    redirectToOrgPage: (orgId?: string, redirectBackToUrl?: string) => void
+    redirectToCreateOrgPage: (options?: RedirectToCreateOrgOptions) => void
+    redirectToSetupSAMLPage: (orgId: string, redirectBackToUrl?: string) => void
 
     getSignupPageUrl(options?: RedirectToSignupOptions): string
     getLoginPageUrl(options?: RedirectToLoginOptions): string
-    getAccountPageUrl(): string
-    getOrgPageUrl(orgId?: string): string
-    getCreateOrgPageUrl(): string
-    getSetupSAMLPageUrl(orgId: string): string
+    getAccountPageUrl(options?: RedirectToAccountOptions): string
+    getOrgPageUrl(orgId?: string, redirectBackToUrl?: string): string
+    getCreateOrgPageUrl(optoins?: RedirectToCreateOrgOptions): string
+    getSetupSAMLPageUrl(orgId: string, redirectBackToUrl?: string): string
 
     refreshAuthInfo: () => Promise<void>
     defaultDisplayWhileLoading?: React.ReactElement
