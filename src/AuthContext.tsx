@@ -93,18 +93,30 @@ export const AuthProvider = (props: AuthProviderProps) => {
 
     // Create a client and register an observer that triggers when the user logs in or out
     const client = useMemo(() => {
-        const client = createClient({ authUrl: props.authUrl, enableBackgroundTokenRefresh: true })
-        client.addAccessTokenChangeObserver(() => setAccessTokenChangeCounter((x) => x + 1))
-        return client
+        return createClient({ authUrl: props.authUrl, enableBackgroundTokenRefresh: true })
     }, [props.authUrl])
+
+    useEffect(() => {
+        const observer = () => {
+            setAccessTokenChangeCounter((x) => x + 1)
+        }
+        client.addAccessTokenChangeObserver(observer)
+        return () => {
+            client.removeAccessTokenChangeObserver(observer)
+        }
+    }, [client])
 
     // On unmount, destroy the client
     useEffect(() => {
-        if (props.getActiveOrgFn) {
-            console.warn("The `getActiveOrgFn` prop is deprecated.")
-        }
         return () => {
             client.destroy()
+        }
+    }, [])
+
+    // Deprecation warning
+    useEffect(() => {
+        if (props.getActiveOrgFn) {
+            console.warn("The `getActiveOrgFn` prop is deprecated.")
         }
     }, [])
 
