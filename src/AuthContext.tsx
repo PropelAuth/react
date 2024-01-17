@@ -1,11 +1,7 @@
-import {
-    AuthenticationInfo,
-    createClient,
-    RedirectToLoginOptions,
-    RedirectToSignupOptions,
-} from "@propelauth/javascript"
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from "react"
+import { AuthenticationInfo, RedirectToLoginOptions, RedirectToSignupOptions } from "@propelauth/javascript"
+import React, { useCallback, useEffect, useReducer } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./hooks/useActiveOrg"
+import { useClientRef, useClientRefCallback, useClientRefNoArgCallback } from "./useClientRef"
 
 interface InternalAuthState {
     loading: boolean
@@ -89,42 +85,18 @@ function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction
 
 export const AuthProvider = (props: AuthProviderProps) => {
     const [authInfoState, dispatch] = useReducer(authInfoStateReducer, initialAuthInfoState)
-    const [accessTokenChangeCounter, setAccessTokenChangeCounter] = useState(0)
-
-    // Create a client and register an observer that triggers when the user logs in or out
-    const client = useMemo(() => {
-        return createClient({ authUrl: props.authUrl, enableBackgroundTokenRefresh: true })
-    }, [props.authUrl])
-
-    useEffect(() => {
-        const observer = () => {
-            setAccessTokenChangeCounter((x) => x + 1)
-        }
-        client.addAccessTokenChangeObserver(observer)
-        return () => {
-            client.removeAccessTokenChangeObserver(observer)
-        }
-    }, [client])
-
-    // On unmount, destroy the client
-    useEffect(() => {
-        return () => {
-            client.destroy()
-        }
-    }, [])
-
-    // Deprecation warning
-    useEffect(() => {
-        if (props.getActiveOrgFn) {
-            console.warn("The `getActiveOrgFn` prop is deprecated.")
-        }
-    }, [])
+    const { clientRef, accessTokenChangeCounter } = useClientRef({ authUrl: props.authUrl })
 
     // Refresh the token when the user has logged in or out
     useEffect(() => {
         let didCancel = false
 
         async function refreshToken() {
+            const client = clientRef.current?.client
+            if (!client) {
+                return
+            }
+
             try {
                 const authInfo = await client.getAuthenticationInfoOrNull()
                 if (!didCancel) {
@@ -139,24 +111,36 @@ export const AuthProvider = (props: AuthProviderProps) => {
         return () => {
             didCancel = true
         }
-    }, [client, accessTokenChangeCounter])
+    }, [accessTokenChangeCounter])
 
-    const logout = useCallback(client.logout, [])
-    const redirectToLoginPage = useCallback(client.redirectToLoginPage, [])
-    const redirectToSignupPage = useCallback(client.redirectToSignupPage, [])
-    const redirectToAccountPage = useCallback(client.redirectToAccountPage, [])
-    const redirectToOrgPage = useCallback(client.redirectToOrgPage, [])
-    const redirectToCreateOrgPage = useCallback(client.redirectToCreateOrgPage, [])
-    const redirectToSetupSAMLPage = useCallback(client.redirectToSetupSAMLPage, [])
+    // Deprecation warning
+    useEffect(() => {
+        if (props.getActiveOrgFn) {
+            console.warn("The `getActiveOrgFn` prop is deprecated.")
+        }
+    }, [])
 
-    const getLoginPageUrl = useCallback(client.getLoginPageUrl, [])
-    const getSignupPageUrl = useCallback(client.getSignupPageUrl, [])
-    const getAccountPageUrl = useCallback(client.getAccountPageUrl, [])
-    const getOrgPageUrl = useCallback(client.getOrgPageUrl, [])
-    const getCreateOrgPageUrl = useCallback(client.getCreateOrgPageUrl, [])
-    const getSetupSAMLPageUrl = useCallback(client.getSetupSAMLPageUrl, [])
+    const logout = useClientRefCallback(clientRef, (client) => client.logout)
+    const redirectToLoginPage = useClientRefCallback(clientRef, (client) => client.redirectToLoginPage)
+    const redirectToSignupPage = useClientRefCallback(clientRef, (client) => client.redirectToSignupPage)
+    const redirectToAccountPage = useClientRefNoArgCallback(clientRef, (client) => client.redirectToAccountPage)
+    const redirectToOrgPage = useClientRefCallback(clientRef, (client) => client.redirectToOrgPage)
+    const redirectToCreateOrgPage = useClientRefNoArgCallback(clientRef, (client) => client.redirectToCreateOrgPage)
+    const redirectToSetupSAMLPage = useClientRefCallback(clientRef, (client) => client.redirectToSetupSAMLPage)
+
+    const getLoginPageUrl = useClientRefCallback(clientRef, (client) => client.getLoginPageUrl)
+    const getSignupPageUrl = useClientRefCallback(clientRef, (client) => client.getSignupPageUrl)
+    const getAccountPageUrl = useClientRefNoArgCallback(clientRef, (client) => client.getAccountPageUrl)
+    const getOrgPageUrl = useClientRefCallback(clientRef, (client) => client.getOrgPageUrl)
+    const getCreateOrgPageUrl = useClientRefNoArgCallback(clientRef, (client) => client.getCreateOrgPageUrl)
+    const getSetupSAMLPageUrl = useClientRefCallback(clientRef, (client) => client.getSetupSAMLPageUrl)
 
     const refreshAuthInfo = useCallback(async () => {
+        if (clientRef.current === null) {
+            return
+        }
+
+        const client = clientRef.current.client
         const authInfo = await client.getAuthenticationInfoOrNull(true)
         dispatch({ authInfo })
     }, [dispatch])
