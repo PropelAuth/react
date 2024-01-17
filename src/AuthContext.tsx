@@ -1,7 +1,7 @@
 import { AuthenticationInfo, RedirectToLoginOptions, RedirectToSignupOptions } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./hooks/useActiveOrg"
-import { useClientRef, useClientRefCallback, useClientRefNoArgCallback } from "./useClientRef"
+import { useClientRef, useClientRefCallback } from "./useClientRef"
 
 interface InternalAuthState {
     loading: boolean
@@ -123,16 +123,16 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const logout = useClientRefCallback(clientRef, (client) => client.logout)
     const redirectToLoginPage = useClientRefCallback(clientRef, (client) => client.redirectToLoginPage)
     const redirectToSignupPage = useClientRefCallback(clientRef, (client) => client.redirectToSignupPage)
-    const redirectToAccountPage = useClientRefNoArgCallback(clientRef, (client) => client.redirectToAccountPage)
+    const redirectToAccountPage = useClientRefCallback(clientRef, (client) => client.redirectToAccountPage)
     const redirectToOrgPage = useClientRefCallback(clientRef, (client) => client.redirectToOrgPage)
-    const redirectToCreateOrgPage = useClientRefNoArgCallback(clientRef, (client) => client.redirectToCreateOrgPage)
+    const redirectToCreateOrgPage = useClientRefCallback(clientRef, (client) => client.redirectToCreateOrgPage)
     const redirectToSetupSAMLPage = useClientRefCallback(clientRef, (client) => client.redirectToSetupSAMLPage)
 
     const getLoginPageUrl = useClientRefCallback(clientRef, (client) => client.getLoginPageUrl)
     const getSignupPageUrl = useClientRefCallback(clientRef, (client) => client.getSignupPageUrl)
-    const getAccountPageUrl = useClientRefNoArgCallback(clientRef, (client) => client.getAccountPageUrl)
+    const getAccountPageUrl = useClientRefCallback(clientRef, (client) => client.getAccountPageUrl)
     const getOrgPageUrl = useClientRefCallback(clientRef, (client) => client.getOrgPageUrl)
-    const getCreateOrgPageUrl = useClientRefNoArgCallback(clientRef, (client) => client.getCreateOrgPageUrl)
+    const getCreateOrgPageUrl = useClientRefCallback(clientRef, (client) => client.getCreateOrgPageUrl)
     const getSetupSAMLPageUrl = useClientRefCallback(clientRef, (client) => client.getSetupSAMLPageUrl)
 
     const refreshAuthInfo = useCallback(async () => {
