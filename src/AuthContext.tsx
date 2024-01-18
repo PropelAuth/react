@@ -3,6 +3,8 @@ import {
     RedirectToAccountOptions,
     RedirectToCreateOrgOptions,
     RedirectToLoginOptions,
+    RedirectToOrgPageOptions,
+    RedirectToSetupSAMLPageOptions,
     RedirectToSignupOptions,
 } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useReducer } from "react"
@@ -19,16 +21,16 @@ interface InternalAuthState {
     redirectToLoginPage: (options?: RedirectToLoginOptions) => void
     redirectToSignupPage: (options?: RedirectToSignupOptions) => void
     redirectToAccountPage: (options?: RedirectToAccountOptions) => void
-    redirectToOrgPage: (orgId?: string, redirectBackToUrl?: string) => void
+    redirectToOrgPage: (orgId?: string, options?: RedirectToOrgPageOptions) => void
     redirectToCreateOrgPage: (options?: RedirectToCreateOrgOptions) => void
-    redirectToSetupSAMLPage: (orgId: string, redirectBackToUrl?: string) => void
+    redirectToSetupSAMLPage: (orgId: string, options?: RedirectToSetupSAMLPageOptions) => void
 
     getSignupPageUrl(options?: RedirectToSignupOptions): string
     getLoginPageUrl(options?: RedirectToLoginOptions): string
     getAccountPageUrl(options?: RedirectToAccountOptions): string
-    getOrgPageUrl(orgId?: string, redirectBackToUrl?: string): string
-    getCreateOrgPageUrl(optoins?: RedirectToCreateOrgOptions): string
-    getSetupSAMLPageUrl(orgId: string, redirectBackToUrl?: string): string
+    getOrgPageUrl(orgId?: string, options?: RedirectToOrgPageOptions): string
+    getCreateOrgPageUrl(options?: RedirectToCreateOrgOptions): string
+    getSetupSAMLPageUrl(orgId: string, options?: RedirectToSetupSAMLPageOptions): string
 
     refreshAuthInfo: () => Promise<void>
     defaultDisplayWhileLoading?: React.ReactElement
