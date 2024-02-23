@@ -5,7 +5,7 @@
         "type": "git",
         "url": "https://github.com/PropelAuth/react"
     },
-    "version": "2.0.16",
+    "version": "2.0.17",
     "license": "MIT",
     "keywords": [
         "auth",
@@ -13,7 +13,7 @@
         "user"
     ],
     "dependencies": {
-        "@propelauth/javascript": "^2.0.11",
+        "@propelauth/javascript": "^2.0.12",
         "hoist-non-react-statics": "^3.3.2",
         "utility-types": "^3.10.0"
     },
