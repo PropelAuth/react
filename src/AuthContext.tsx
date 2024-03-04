@@ -6,6 +6,7 @@ import {
     RedirectToOrgPageOptions,
     RedirectToSetupSAMLPageOptions,
     RedirectToSignupOptions,
+    IAuthClient,
 } from "@propelauth/javascript"
 import React, { useCallback, useEffect, useReducer } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./hooks/useActiveOrg"
@@ -14,6 +15,7 @@ import { useClientRef, useClientRefCallback } from "./useClientRef"
 interface InternalAuthState {
     loading: boolean
     authInfo: AuthenticationInfo | null
+    client: IAuthClient
 
     logout: (redirectOnLogout: boolean) => Promise<void>
     activeOrgFn: () => string | null
@@ -160,6 +162,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const value: InternalAuthState = {
         loading: authInfoState.loading,
         authInfo: authInfoState.authInfo,
+        client,
         logout,
         defaultDisplayWhileLoading,
         defaultDisplayIfLoggedOut,
