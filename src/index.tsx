@@ -36,7 +36,6 @@ export { useLogoutFunction } from "./hooks/useLogoutFunction"
 export { RedirectToLogin, RedirectToSignup, useRedirectFunctions } from "./hooks/useRedirectFunctions"
 export type { RedirectProps } from "./hooks/useRedirectFunctions"
 export { RequiredAuthProvider } from "./RequiredAuthProvider"
-export type {} from "./user"
 export { withAuthInfo } from "./withAuthInfo"
 export type {
     WithAuthInfoArgs,
