@@ -1,12 +1,20 @@
+export { OrgMemberInfoClass, UserClass } from "@propelauth/javascript"
 export type {
     AccessHelper,
     AccessHelperWithOrg,
     OrgHelper,
     OrgIdToOrgMemberInfo,
+    OrgIdToOrgMemberInfoClass,
     OrgMemberInfo,
+    RedirectToAccountOptions,
+    RedirectToCreateOrgOptions,
     RedirectToLoginOptions,
+    RedirectToOrgPageOptions,
+    RedirectToSetupSAMLPageOptions,
     RedirectToSignupOptions,
     User,
+    UserFields,
+    UserProperties,
 } from "@propelauth/javascript"
 export { AuthProvider } from "./AuthContext"
 export type { AuthProviderProps, RequiredAuthProviderProps } from "./AuthContext"
