@@ -1,12 +1,20 @@
+export { OrgMemberInfoClass, UserClass } from "@propelauth/javascript"
 export type {
     AccessHelper,
     AccessHelperWithOrg,
     OrgHelper,
     OrgIdToOrgMemberInfo,
+    OrgIdToOrgMemberInfoClass,
     OrgMemberInfo,
+    RedirectToAccountOptions,
+    RedirectToCreateOrgOptions,
     RedirectToLoginOptions,
+    RedirectToOrgPageOptions,
+    RedirectToSetupSAMLPageOptions,
     RedirectToSignupOptions,
     User,
+    UserFields,
+    UserProperties,
 } from "@propelauth/javascript"
 export { AuthProvider } from "./AuthContext"
 export type { AuthProviderProps, RequiredAuthProviderProps } from "./AuthContext"
@@ -28,6 +36,7 @@ export { useLogoutFunction } from "./hooks/useLogoutFunction"
 export { RedirectToLogin, RedirectToSignup, useRedirectFunctions } from "./hooks/useRedirectFunctions"
 export type { RedirectProps } from "./hooks/useRedirectFunctions"
 export { RequiredAuthProvider } from "./RequiredAuthProvider"
+export type {} from "./user"
 export { withAuthInfo } from "./withAuthInfo"
 export type {
     WithAuthInfoArgs,
