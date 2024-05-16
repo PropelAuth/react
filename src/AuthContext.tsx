@@ -1,4 +1,5 @@
 import {
+    AccessTokenForActiveOrg,
     AuthenticationInfo,
     RedirectToAccountOptions,
     RedirectToCreateOrgOptions,
@@ -11,7 +12,7 @@ import React, { useCallback, useEffect, useReducer } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./hooks/useActiveOrg"
 import { useClientRef, useClientRefCallback } from "./useClientRef"
 
-interface InternalAuthState {
+export interface InternalAuthState {
     loading: boolean
     authInfo: AuthenticationInfo | null
 
@@ -32,6 +33,7 @@ interface InternalAuthState {
     getCreateOrgPageUrl(options?: RedirectToCreateOrgOptions): string
     getSetupSAMLPageUrl(orgId: string, options?: RedirectToSetupSAMLPageOptions): string
 
+    getAccessTokenForActiveOrg: (orgId: string) => Promise<AccessTokenForActiveOrg>
     refreshAuthInfo: () => Promise<void>
     defaultDisplayWhileLoading?: React.ReactElement
     defaultDisplayIfLoggedOut?: React.ReactElement
@@ -143,6 +145,8 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const getCreateOrgPageUrl = useClientRefCallback(clientRef, (client) => client.getCreateOrgPageUrl)
     const getSetupSAMLPageUrl = useClientRefCallback(clientRef, (client) => client.getSetupSAMLPageUrl)
 
+    const getAccessTokenForActiveOrg = useClientRefCallback(clientRef, (client) => client.getAccessTokenForActiveOrg)
+
     const refreshAuthInfo = useCallback(async () => {
         if (clientRef.current === null) {
             return
@@ -177,6 +181,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
         getCreateOrgPageUrl,
         getSetupSAMLPageUrl,
         refreshAuthInfo,
+        getAccessTokenForActiveOrg,
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
 }

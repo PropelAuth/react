@@ -11,7 +11,7 @@ import {
     UserClass,
 } from "@propelauth/javascript"
 import React from "react"
-import { AuthContext } from "./AuthContext"
+import { AuthContext, InternalAuthState } from "./AuthContext"
 
 // User information that we will hard code within the AuthProvider
 export type UserInformationForTesting = {
@@ -39,7 +39,7 @@ export const AuthProviderForTesting = ({
 }: AuthProviderForTestingProps) => {
     const authInfo = getAuthInfoForTesting(userInformation)
     const activeOrgFnWithDefault = activeOrgFn ? activeOrgFn : () => null
-    const contextValue = {
+    const contextValue: InternalAuthState = {
         loading: !!loading,
         authInfo,
         logout: () => Promise.resolve(),
@@ -57,6 +57,11 @@ export const AuthProviderForTesting = ({
         getSetupSAMLPageUrl: () => "",
         activeOrgFn: activeOrgFnWithDefault,
         refreshAuthInfo: () => Promise.resolve(),
+        getAccessTokenForActiveOrg: () =>
+            Promise.resolve({
+                error: undefined,
+                accessToken: "ACCESS_TOKEN",
+            }),
     }
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
