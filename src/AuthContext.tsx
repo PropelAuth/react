@@ -33,7 +33,7 @@ export interface InternalAuthState {
     getCreateOrgPageUrl(options?: RedirectToCreateOrgOptions): string
     getSetupSAMLPageUrl(orgId: string, options?: RedirectToSetupSAMLPageOptions): string
 
-    getAccessTokenForActiveOrg: (orgId: string) => Promise<AccessTokenForActiveOrg>
+    getAccessTokenForOrg: (orgId: string) => Promise<AccessTokenForActiveOrg>
     refreshAuthInfo: () => Promise<void>
     defaultDisplayWhileLoading?: React.ReactElement
     defaultDisplayIfLoggedOut?: React.ReactElement
@@ -145,7 +145,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const getCreateOrgPageUrl = useClientRefCallback(clientRef, (client) => client.getCreateOrgPageUrl)
     const getSetupSAMLPageUrl = useClientRefCallback(clientRef, (client) => client.getSetupSAMLPageUrl)
 
-    const getAccessTokenForActiveOrg = useClientRefCallback(clientRef, (client) => client.getAccessTokenForActiveOrg)
+    const getAccessTokenForOrg = useClientRefCallback(clientRef, (client) => client.getAccessTokenForOrg)
 
     const refreshAuthInfo = useCallback(async () => {
         if (clientRef.current === null) {
@@ -181,7 +181,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
         getCreateOrgPageUrl,
         getSetupSAMLPageUrl,
         refreshAuthInfo,
-        getAccessTokenForActiveOrg,
+        getAccessTokenForOrg,
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
 }

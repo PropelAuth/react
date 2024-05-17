@@ -28,7 +28,7 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
             defaultDisplayIfLoggedOut,
             defaultDisplayWhileLoading,
             refreshAuthInfo,
-            getAccessTokenForActiveOrg,
+            getAccessTokenForOrg,
         } = context
 
         function displayLoading() {
@@ -63,7 +63,7 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
                 isImpersonating: !!authInfo.impersonatorUserId,
                 impersonatorUserId: authInfo.impersonatorUserId,
                 refreshAuthInfo,
-                getAccessTokenForOrg: getAccessTokenForActiveOrg,
+                getAccessTokenForOrg,
                 accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
             }
             return <Component {...loggedInProps} />

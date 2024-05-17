@@ -50,7 +50,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
             throw new Error("withAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
         }
 
-        const { loading, authInfo, defaultDisplayWhileLoading, refreshAuthInfo, getAccessTokenForActiveOrg } = context
+        const { loading, authInfo, defaultDisplayWhileLoading, refreshAuthInfo, getAccessTokenForOrg } = context
 
         function displayLoading() {
             if (args?.displayWhileLoading) {
@@ -75,7 +75,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 isImpersonating: !!authInfo.impersonatorUserId,
                 impersonatorUserId: authInfo.impersonatorUserId,
                 refreshAuthInfo,
-                getAccessTokenForOrg: getAccessTokenForActiveOrg,
+                getAccessTokenForOrg,
                 accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
             }
             return <Component {...loggedInProps} />
@@ -91,7 +91,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 isImpersonating: false,
                 impersonatorUserId: null,
                 refreshAuthInfo,
-                getAccessTokenForOrg: getAccessTokenForActiveOrg,
+                getAccessTokenForOrg,
                 accessTokenExpiresAtSeconds: null,
             }
             return <Component {...notLoggedInProps} />

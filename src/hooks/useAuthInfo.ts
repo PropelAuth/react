@@ -55,7 +55,7 @@ export function useAuthInfo(): UseAuthInfoProps {
         throw new Error("useAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
     }
 
-    const { loading, authInfo, refreshAuthInfo, getAccessTokenForActiveOrg } = context
+    const { loading, authInfo, refreshAuthInfo, getAccessTokenForOrg } = context
     if (loading) {
         return {
             loading: true,
@@ -68,7 +68,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             isImpersonating: undefined,
             impersonatorUserId: undefined,
             refreshAuthInfo,
-            getAccessTokenForOrg: getAccessTokenForActiveOrg,
+            getAccessTokenForOrg,
             accessTokenExpiresAtSeconds: undefined,
         }
     } else if (authInfo && authInfo.accessToken) {
@@ -83,7 +83,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             isImpersonating: !!authInfo.impersonatorUserId,
             impersonatorUserId: authInfo.impersonatorUserId,
             refreshAuthInfo,
-            getAccessTokenForOrg: getAccessTokenForActiveOrg,
+            getAccessTokenForOrg,
             accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
         }
     }
@@ -98,7 +98,7 @@ export function useAuthInfo(): UseAuthInfoProps {
         isImpersonating: false,
         impersonatorUserId: undefined,
         refreshAuthInfo,
-        getAccessTokenForOrg: getAccessTokenForActiveOrg,
+        getAccessTokenForOrg,
         accessTokenExpiresAtSeconds: undefined,
     }
 }

@@ -57,7 +57,7 @@ export const AuthProviderForTesting = ({
         getSetupSAMLPageUrl: () => "",
         activeOrgFn: activeOrgFnWithDefault,
         refreshAuthInfo: () => Promise.resolve(),
-        getAccessTokenForActiveOrg: () =>
+        getAccessTokenForOrg: () =>
             Promise.resolve({
                 error: undefined,
                 accessToken: "ACCESS_TOKEN",
