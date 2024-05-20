@@ -12,6 +12,10 @@ import React, { useCallback, useEffect, useReducer } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./hooks/useActiveOrg"
 import { useClientRef, useClientRefCallback } from "./useClientRef"
 
+export interface Tokens {
+    getAccessTokenForOrg: (orgId: string) => Promise<AccessTokenForActiveOrg>
+}
+
 export interface InternalAuthState {
     loading: boolean
     authInfo: AuthenticationInfo | null
@@ -32,8 +36,7 @@ export interface InternalAuthState {
     getOrgPageUrl(orgId?: string, options?: RedirectToOrgPageOptions): string
     getCreateOrgPageUrl(options?: RedirectToCreateOrgOptions): string
     getSetupSAMLPageUrl(orgId: string, options?: RedirectToSetupSAMLPageOptions): string
-
-    getAccessTokenForOrg: (orgId: string) => Promise<AccessTokenForActiveOrg>
+    tokens: Tokens
     refreshAuthInfo: () => Promise<void>
     defaultDisplayWhileLoading?: React.ReactElement
     defaultDisplayIfLoggedOut?: React.ReactElement
@@ -181,7 +184,9 @@ export const AuthProvider = (props: AuthProviderProps) => {
         getCreateOrgPageUrl,
         getSetupSAMLPageUrl,
         refreshAuthInfo,
-        getAccessTokenForOrg,
+        tokens: {
+            getAccessTokenForOrg,
+        },
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
 }
