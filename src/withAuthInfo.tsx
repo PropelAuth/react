@@ -2,7 +2,7 @@ import { AccessHelper, OrgHelper, User, UserClass } from "@propelauth/javascript
 import hoistNonReactStatics from "hoist-non-react-statics"
 import React, { useContext } from "react"
 import { Subtract } from "utility-types"
-import { AuthContext } from "./AuthContext"
+import { AuthContext, Tokens } from "./AuthContext"
 
 export type WithLoggedInAuthInfoProps = {
     isLoggedIn: true
@@ -14,6 +14,7 @@ export type WithLoggedInAuthInfoProps = {
     isImpersonating: boolean
     impersonatorUserId?: string
     refreshAuthInfo: () => Promise<void>
+    tokens: Tokens
     accessTokenExpiresAtSeconds: number
 }
 
@@ -27,6 +28,7 @@ export type WithNotLoggedInAuthInfoProps = {
     isImpersonating: false
     impersonatorUserId: null
     refreshAuthInfo: () => Promise<void>
+    tokens: Tokens
     accessTokenExpiresAtSeconds: null
 }
 
@@ -48,7 +50,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
             throw new Error("withAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
         }
 
-        const { loading, authInfo, defaultDisplayWhileLoading, refreshAuthInfo } = context
+        const { loading, authInfo, defaultDisplayWhileLoading, refreshAuthInfo, tokens } = context
 
         function displayLoading() {
             if (args?.displayWhileLoading) {
@@ -73,6 +75,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 isImpersonating: !!authInfo.impersonatorUserId,
                 impersonatorUserId: authInfo.impersonatorUserId,
                 refreshAuthInfo,
+                tokens,
                 accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
             }
             return <Component {...loggedInProps} />
@@ -88,6 +91,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 isImpersonating: false,
                 impersonatorUserId: null,
                 refreshAuthInfo,
+                tokens,
                 accessTokenExpiresAtSeconds: null,
             }
             return <Component {...notLoggedInProps} />

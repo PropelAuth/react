@@ -1,6 +1,6 @@
 import { AccessHelper, OrgHelper, User, UserClass } from "@propelauth/javascript"
 import { useContext } from "react"
-import { AuthContext } from "../AuthContext"
+import { AuthContext, Tokens } from "../AuthContext"
 
 export type UseAuthInfoLoading = {
     loading: true
@@ -13,6 +13,7 @@ export type UseAuthInfoLoading = {
     isImpersonating: undefined
     impersonatorUserId: undefined
     refreshAuthInfo: () => Promise<void>
+    tokens: Tokens
     accessTokenExpiresAtSeconds: undefined
 }
 
@@ -27,6 +28,7 @@ export type UseAuthInfoLoggedInProps = {
     isImpersonating: boolean
     impersonatorUserId?: string
     refreshAuthInfo: () => Promise<void>
+    tokens: Tokens
     accessTokenExpiresAtSeconds: number
 }
 
@@ -41,6 +43,7 @@ export type UseAuthInfoNotLoggedInProps = {
     isImpersonating: false
     impersonatorUserId: undefined
     refreshAuthInfo: () => Promise<void>
+    tokens: Tokens
     accessTokenExpiresAtSeconds: undefined
 }
 
@@ -52,7 +55,7 @@ export function useAuthInfo(): UseAuthInfoProps {
         throw new Error("useAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
     }
 
-    const { loading, authInfo, refreshAuthInfo } = context
+    const { loading, authInfo, refreshAuthInfo, tokens } = context
     if (loading) {
         return {
             loading: true,
@@ -65,6 +68,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             isImpersonating: undefined,
             impersonatorUserId: undefined,
             refreshAuthInfo,
+            tokens,
             accessTokenExpiresAtSeconds: undefined,
         }
     } else if (authInfo && authInfo.accessToken) {
@@ -79,6 +83,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             isImpersonating: !!authInfo.impersonatorUserId,
             impersonatorUserId: authInfo.impersonatorUserId,
             refreshAuthInfo,
+            tokens,
             accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
         }
     }
@@ -93,6 +98,7 @@ export function useAuthInfo(): UseAuthInfoProps {
         isImpersonating: false,
         impersonatorUserId: undefined,
         refreshAuthInfo,
+        tokens,
         accessTokenExpiresAtSeconds: undefined,
     }
 }
