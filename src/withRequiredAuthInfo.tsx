@@ -49,6 +49,7 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
             const loggedInProps: P = {
                 ...(props as P),
                 accessToken: authInfo.accessToken,
+                getAccessToken: tokens.getAccessToken,
                 isLoggedIn: !!authInfo.accessToken,
                 orgHelper: authInfo.orgHelper,
                 accessHelper: authInfo.accessHelper,

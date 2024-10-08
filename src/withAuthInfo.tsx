@@ -7,6 +7,7 @@ import { AuthContext, Tokens } from "./AuthContext"
 export type WithLoggedInAuthInfoProps = {
     isLoggedIn: true
     accessToken: string
+    getAccessToken: () => Promise<string>
     user: User
     userClass: UserClass
     orgHelper: OrgHelper
@@ -21,6 +22,7 @@ export type WithLoggedInAuthInfoProps = {
 export type WithNotLoggedInAuthInfoProps = {
     isLoggedIn: false
     accessToken: null
+    getAccessToken: () => Promise<undefined>
     user: null
     userClass: null
     orgHelper: null
@@ -67,6 +69,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
             const loggedInProps: P = {
                 ...(props as P),
                 accessToken: authInfo.accessToken,
+                getAccessToken: tokens.getAccessToken,
                 isLoggedIn: !!authInfo.accessToken,
                 orgHelper: authInfo.orgHelper,
                 accessHelper: authInfo.accessHelper,
@@ -83,6 +86,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
             const notLoggedInProps: P = {
                 ...(props as P),
                 accessToken: null,
+                getAccessToken: () => undefined,
                 isLoggedIn: false,
                 user: null,
                 userClass: null,
