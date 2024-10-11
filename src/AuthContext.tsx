@@ -52,6 +52,7 @@ export type AuthProviderProps = {
      */
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
+    minSecondsBeforeRefresh?: number
 }
 
 export interface RequiredAuthProviderProps
@@ -98,8 +99,19 @@ function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction
 }
 
 export const AuthProvider = (props: AuthProviderProps) => {
+    const {
+        authUrl,
+        minSecondsBeforeRefresh,
+        getActiveOrgFn: deprecatedGetActiveOrgFn,
+        children,
+        defaultDisplayWhileLoading,
+        defaultDisplayIfLoggedOut,
+    } = props
     const [authInfoState, dispatch] = useReducer(authInfoStateReducer, initialAuthInfoState)
-    const { clientRef, accessTokenChangeCounter } = useClientRef({ authUrl: props.authUrl })
+    const { clientRef, accessTokenChangeCounter } = useClientRef({
+        authUrl,
+        minSecondsBeforeRefresh,
+    })
 
     // Refresh the token when the user has logged in or out
     useEffect(() => {
@@ -129,7 +141,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
 
     // Deprecation warning
     useEffect(() => {
-        if (props.getActiveOrgFn) {
+        if (deprecatedGetActiveOrgFn) {
             console.warn("The `getActiveOrgFn` prop is deprecated.")
         }
     }, [])
@@ -168,9 +180,8 @@ export const AuthProvider = (props: AuthProviderProps) => {
     }, [dispatch])
 
     // TODO: Remove this, as both `getActiveOrgFn` and `loadOrgSelectionFromLocalStorage` are deprecated.
-    const deprecatedActiveOrgFn = props.getActiveOrgFn || loadOrgSelectionFromLocalStorage
+    const deprecatedActiveOrgFn = deprecatedGetActiveOrgFn || loadOrgSelectionFromLocalStorage
 
-    const { defaultDisplayWhileLoading, defaultDisplayIfLoggedOut } = props
     const value: InternalAuthState = {
         loading: authInfoState.loading,
         authInfo: authInfoState.authInfo,
@@ -196,5 +207,5 @@ export const AuthProvider = (props: AuthProviderProps) => {
             getAccessToken,
         },
     }
-    return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>
+    return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
