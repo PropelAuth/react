@@ -14,6 +14,7 @@ import { useClientRef, useClientRefCallback } from "./useClientRef"
 
 export interface Tokens {
     getAccessTokenForOrg: (orgId: string) => Promise<AccessTokenForActiveOrg>
+    getAccessToken: () => Promise<string | undefined>
 }
 
 export interface InternalAuthState {
@@ -149,6 +150,12 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const getSetupSAMLPageUrl = useClientRefCallback(clientRef, (client) => client.getSetupSAMLPageUrl)
 
     const getAccessTokenForOrg = useClientRefCallback(clientRef, (client) => client.getAccessTokenForOrg)
+    const getAccessToken = useClientRefCallback(clientRef, (client) => {
+        return async () => {
+            const authInfo = await client.getAuthenticationInfoOrNull()
+            return authInfo?.accessToken
+        }
+    })
 
     const refreshAuthInfo = useCallback(async () => {
         if (clientRef.current === null) {
@@ -186,6 +193,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
         refreshAuthInfo,
         tokens: {
             getAccessTokenForOrg,
+            getAccessToken,
         },
     }
     return <AuthContext.Provider value={value}>{props.children}</AuthContext.Provider>

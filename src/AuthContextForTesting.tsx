@@ -63,6 +63,7 @@ export const AuthProviderForTesting = ({
                     error: undefined,
                     accessToken: "ACCESS_TOKEN",
                 }),
+            getAccessToken: () => Promise.resolve("ACCESS_TOKEN"),
         },
     }
 
