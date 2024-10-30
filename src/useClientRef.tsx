@@ -6,14 +6,19 @@ type ClientRef = {
     client: IAuthClient
 }
 
-export const useClientRef = (props: { authUrl: string }) => {
+interface UseClientRefProps {
+    authUrl: string
+    minSecondsBeforeRefresh?: number
+}
+
+export const useClientRef = (props: UseClientRefProps) => {
     const [accessTokenChangeCounter, setAccessTokenChangeCounter] = useState(0)
-    const { authUrl } = props
+    const { authUrl, minSecondsBeforeRefresh } = props
 
     // Use a ref to store the client so that it doesn't get recreated on every render
     const clientRef = useRef<ClientRef | null>(null)
     if (clientRef.current === null) {
-        const client = createClient({ authUrl, enableBackgroundTokenRefresh: true })
+        const client = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh })
         client.addAccessTokenChangeObserver(() => setAccessTokenChangeCounter((x) => x + 1))
         clientRef.current = { authUrl, client }
     }
@@ -27,7 +32,7 @@ export const useClientRef = (props: { authUrl: string }) => {
         } else {
             clientRef.current.client.destroy()
 
-            const newClient = createClient({ authUrl, enableBackgroundTokenRefresh: true })
+            const newClient = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh })
             newClient.addAccessTokenChangeObserver(() => setAccessTokenChangeCounter((x) => x + 1))
             clientRef.current = { authUrl, client: newClient }
         }
