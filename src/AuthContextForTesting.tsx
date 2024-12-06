@@ -1,6 +1,7 @@
 import {
     AccessHelper,
     AccessHelperWithOrg,
+    AccessTokenForActiveOrg,
     AuthenticationInfo,
     OrgHelper,
     OrgIdToOrgMemberInfo,
@@ -10,7 +11,7 @@ import {
     User,
     UserClass,
 } from "@propelauth/javascript"
-import React from "react"
+import React, { useCallback } from "react"
 import { AuthContext, InternalAuthState } from "./AuthContext"
 
 // User information that we will hard code within the AuthProvider
@@ -18,6 +19,7 @@ export type UserInformationForTesting = {
     user: User
     orgMemberInfos: OrgMemberInfo[]
     accessToken?: string
+    getAccessTokenForOrg?: (orgId: string) => Promise<AccessTokenForActiveOrg>
 }
 
 export type AuthProviderForTestingProps = {
@@ -39,6 +41,19 @@ export const AuthProviderForTesting = ({
 }: AuthProviderForTestingProps) => {
     const authInfo = getAuthInfoForTesting(userInformation)
     const activeOrgFnWithDefault = activeOrgFn ? activeOrgFn : () => null
+    const getAccessTokenForOrg = useCallback(
+        (orgId: string) => {
+            if (userInformation?.getAccessTokenForOrg) {
+                return userInformation.getAccessTokenForOrg(orgId)
+            }
+            return Promise.resolve({
+                error: undefined,
+                accessToken: "ACCESS_TOKEN",
+            })
+        },
+        [userInformation?.getAccessTokenForOrg]
+    )
+
     const contextValue: InternalAuthState = {
         loading: !!loading,
         authInfo,
@@ -58,12 +73,8 @@ export const AuthProviderForTesting = ({
         activeOrgFn: activeOrgFnWithDefault,
         refreshAuthInfo: () => Promise.resolve(),
         tokens: {
-            getAccessTokenForOrg: () =>
-                Promise.resolve({
-                    error: undefined,
-                    accessToken: "ACCESS_TOKEN",
-                }),
-            getAccessToken: () => Promise.resolve("ACCESS_TOKEN"),
+            getAccessTokenForOrg: getAccessTokenForOrg,
+            getAccessToken: () => Promise.resolve(userInformation?.accessToken ?? "ACCESS_TOKEN"),
         },
     }
 
