@@ -5,7 +5,7 @@
         "type": "git",
         "url": "https://github.com/PropelAuth/react"
     },
-    "version": "2.0.25",
+    "version": "2.0.26",
     "license": "MIT",
     "keywords": [
         "auth",
@@ -49,8 +49,8 @@
         "uuid": "^8.3.2"
     },
     "peerDependencies": {
-        "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
-        "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
+        "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
+        "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0"
     },
     "browserslist": [
         "> 0.2%",
