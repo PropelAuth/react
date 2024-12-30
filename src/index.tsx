@@ -31,6 +31,7 @@ export type {
 } from "./hooks/additionalHooks"
 export { loadOrgSelectionFromLocalStorage, saveOrgSelectionToLocalStorage, useActiveOrg } from "./hooks/useActiveOrg"
 export { useAuthInfo } from "./hooks/useAuthInfo"
+export { useAuthUrl } from "./hooks/useAuthUrl"
 export { useHostedPageUrls } from "./hooks/useHostedPageUrls"
 export { useLogoutFunction } from "./hooks/useLogoutFunction"
 export { RedirectToLogin, RedirectToSignup, useRedirectFunctions } from "./hooks/useRedirectFunctions"
