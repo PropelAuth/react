@@ -26,6 +26,7 @@ export type AuthProviderForTestingProps = {
     loading?: boolean
     userInformation?: UserInformationForTesting
     activeOrgFn?: () => string | null
+    authUrl?: string
     children?: React.ReactNode
 }
 
@@ -37,6 +38,7 @@ export const AuthProviderForTesting = ({
     loading,
     userInformation,
     activeOrgFn,
+    authUrl,
     children,
 }: AuthProviderForTestingProps) => {
     const authInfo = getAuthInfoForTesting(userInformation)
@@ -70,6 +72,7 @@ export const AuthProviderForTesting = ({
         getOrgPageUrl: () => "",
         getCreateOrgPageUrl: () => "",
         getSetupSAMLPageUrl: () => "",
+        authUrl: authUrl ?? "https://auth.example.com",
         activeOrgFn: activeOrgFnWithDefault,
         refreshAuthInfo: () => Promise.resolve(),
         tokens: {

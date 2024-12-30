@@ -37,6 +37,9 @@ export interface InternalAuthState {
     getOrgPageUrl(orgId?: string, options?: RedirectToOrgPageOptions): string
     getCreateOrgPageUrl(options?: RedirectToCreateOrgOptions): string
     getSetupSAMLPageUrl(orgId: string, options?: RedirectToSetupSAMLPageOptions): string
+
+    authUrl: string
+
     tokens: Tokens
     refreshAuthInfo: () => Promise<void>
     defaultDisplayWhileLoading?: React.ReactElement
@@ -201,6 +204,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
         getOrgPageUrl,
         getCreateOrgPageUrl,
         getSetupSAMLPageUrl,
+        authUrl,
         refreshAuthInfo,
         tokens: {
             getAccessTokenForOrg,
