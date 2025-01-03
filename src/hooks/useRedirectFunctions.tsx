@@ -47,15 +47,20 @@ export function RedirectToSignup({
 
 export interface RedirectToLoginProps extends RedirectProps {
     postLoginRedirectUrl?: string
+    userSignupQueryParameters?: Record<string, string>
 }
 
-export function RedirectToLogin({ children, postLoginRedirectUrl }: RedirectToLoginProps) {
+export function RedirectToLogin({ 
+    children,
+    postLoginRedirectUrl,
+    userSignupQueryParameters,
+}: RedirectToLoginProps) {
     const { redirectToLoginPage } = useRedirectFunctions()
     useEffect(() => {
         if (postLoginRedirectUrl) {
-            redirectToLoginPage({ postLoginRedirectUrl })
+            redirectToLoginPage({ postLoginRedirectUrl, userSignupQueryParameters })
         } else {
-            redirectToLoginPage()
+            redirectToLoginPage({ userSignupQueryParameters })
         }
     }, [])
     return <>{children}</>
