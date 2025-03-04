@@ -91,7 +91,7 @@ function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction
             loading: false,
             authInfo: action.authInfo,
         }
-    } else if (_state.authInfo && _state.authInfo.accessToken !== action.authInfo.accessToken) {
+    } else if (_state?.authInfo?.accessToken !== action.authInfo?.accessToken) {
         return {
             loading: false,
             authInfo: action.authInfo,
