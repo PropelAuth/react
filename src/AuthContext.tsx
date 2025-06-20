@@ -7,8 +7,9 @@ import {
     RedirectToOrgPageOptions,
     RedirectToSetupSAMLPageOptions,
     RedirectToSignupOptions,
+    OrgMemberInfoClass
 } from "@propelauth/javascript"
-import React, { useCallback, useEffect, useReducer } from "react"
+import React, { useCallback, useEffect, useReducer, useState } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./hooks/useActiveOrg"
 import { useClientRef, useClientRefCallback } from "./useClientRef"
 
@@ -41,6 +42,10 @@ export interface InternalAuthState {
     authUrl: string
 
     tokens: Tokens
+
+    activeOrg: OrgMemberInfoClass | undefined
+    setActiveOrg: (orgId: string) => Promise<boolean>
+
     refreshAuthInfo: () => Promise<void>
     defaultDisplayWhileLoading?: React.ReactElement
     defaultDisplayIfLoggedOut?: React.ReactElement
@@ -56,6 +61,7 @@ export type AuthProviderProps = {
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
     minSecondsBeforeRefresh?: number
+    useLocalStorageForActiveOrg?: boolean
 }
 
 export interface RequiredAuthProviderProps
@@ -101,6 +107,60 @@ function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction
     }
 }
 
+const ACTIVE_ORG_KEY = 'activeOrgId';
+
+const getStoredActiveOrgId = (): string | null => {
+    try {
+        return localStorage.getItem(ACTIVE_ORG_KEY);
+    } catch (error) {
+        console.warn('Failed to read from localStorage:', error);
+        return null;
+    }
+};
+
+const setStoredActiveOrgId = (orgId: string): void => {
+    try {
+        localStorage.setItem(ACTIVE_ORG_KEY, orgId);
+    } catch (error) {
+        console.warn('Failed to write to localStorage:', error);
+    }
+};
+
+const removeStoredActiveOrgId = (): void => {
+    try {
+        localStorage.removeItem(ACTIVE_ORG_KEY);
+    } catch (error) {
+        console.warn('Failed to remove from localStorage:', error);
+    }
+};
+
+const useLocalStorageSync = (key: string): string | null => {
+    const [value, setValue] = useState<string | null>(() => {
+        try {
+            return localStorage.getItem(key);
+        } catch (error) {
+            console.warn('Failed to read from localStorage:', error);
+            return null;
+        }
+    });
+
+    useEffect(() => {
+        const handleStorageChange = (e: StorageEvent) => {
+            if (e.key === key) {
+                setValue(e.newValue);
+            }
+        };
+
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
+    }, [key]);
+
+    return value;
+};
+
 export const AuthProvider = (props: AuthProviderProps) => {
     const {
         authUrl,
@@ -109,8 +169,11 @@ export const AuthProvider = (props: AuthProviderProps) => {
         children,
         defaultDisplayWhileLoading,
         defaultDisplayIfLoggedOut,
+        useLocalStorageForActiveOrg
     } = props
+    const storedActiveOrgId = useLocalStorageSync(ACTIVE_ORG_KEY);
     const [authInfoState, dispatch] = useReducer(authInfoStateReducer, initialAuthInfoState)
+    const [activeOrg, setActiveOrgState] = useState<OrgMemberInfoClass | undefined>();
     const { clientRef, accessTokenChangeCounter } = useClientRef({
         authUrl,
         minSecondsBeforeRefresh,
@@ -142,12 +205,20 @@ export const AuthProvider = (props: AuthProviderProps) => {
         }
     }, [accessTokenChangeCounter])
 
+    // Re-render when stored active org is updated
+    useEffect(() => {
+        if (storedActiveOrgId && useLocalStorageForActiveOrg) {
+            setActiveOrg(storedActiveOrgId)
+        }
+    }, [storedActiveOrgId])
+
     // Deprecation warning
     useEffect(() => {
         if (deprecatedGetActiveOrgFn) {
             console.warn("The `getActiveOrgFn` prop is deprecated.")
         }
     }, [])
+
 
     const logout = useClientRefCallback(clientRef, (client) => client.logout)
     const redirectToLoginPage = useClientRefCallback(clientRef, (client) => client.redirectToLoginPage)
@@ -182,6 +253,54 @@ export const AuthProvider = (props: AuthProviderProps) => {
         dispatch({ authInfo })
     }, [dispatch])
 
+
+    const setActiveOrg = async (orgId: string) => {
+        if (authInfoState.authInfo === null) {
+            return false
+        }
+
+        const authInfo = authInfoState.authInfo
+        const userClass = authInfo?.userClass
+
+        if (userClass.getOrg(orgId)) {
+            if (useLocalStorageForActiveOrg) {
+                setStoredActiveOrgId(orgId);
+            }
+            setActiveOrgState(userClass.getOrg(orgId));
+            return true
+        } else {
+            if (useLocalStorageForActiveOrg) {
+                removeStoredActiveOrgId();
+            }
+            setActiveOrgState(undefined);
+            return false
+        }
+    };
+
+    const getActiveOrg = () => {
+        if (authInfoState.authInfo === null) {
+            return undefined
+        }
+
+        const authInfo = authInfoState.authInfo
+        const userClass = authInfo?.userClass
+
+        if (!activeOrg && useLocalStorageForActiveOrg) {
+            const activeOrgIdFromLocalStorage = getStoredActiveOrgId()
+            if (activeOrgIdFromLocalStorage) {
+                return userClass.getOrg(activeOrgIdFromLocalStorage)
+            }
+        }
+        
+        if (activeOrg && userClass.getOrg(activeOrg.orgId)) {
+            return activeOrg
+        } else {
+            return undefined
+        }
+    }
+
+    
+
     // TODO: Remove this, as both `getActiveOrgFn` and `loadOrgSelectionFromLocalStorage` are deprecated.
     const deprecatedActiveOrgFn = deprecatedGetActiveOrgFn || loadOrgSelectionFromLocalStorage
 
@@ -206,6 +325,8 @@ export const AuthProvider = (props: AuthProviderProps) => {
         getSetupSAMLPageUrl,
         authUrl,
         refreshAuthInfo,
+        activeOrg: getActiveOrg(),
+        setActiveOrg,
         tokens: {
             getAccessTokenForOrg,
             getAccessToken,

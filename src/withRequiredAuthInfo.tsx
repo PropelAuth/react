@@ -22,7 +22,7 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
             throw new Error("withRequiredAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
         }
 
-        const { loading, authInfo, defaultDisplayIfLoggedOut, defaultDisplayWhileLoading, refreshAuthInfo, tokens } =
+        const { loading, authInfo, defaultDisplayIfLoggedOut, defaultDisplayWhileLoading, refreshAuthInfo, tokens, activeOrg, setActiveOrg } =
             context
 
         function displayLoading() {
@@ -60,6 +60,8 @@ export function withRequiredAuthInfo<P extends WithLoggedInAuthInfoProps>(
                 refreshAuthInfo,
                 tokens,
                 accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
+                activeOrg,
+                setActiveOrg
             }
             return <Component {...loggedInProps} />
         } else {
