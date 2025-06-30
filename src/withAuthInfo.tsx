@@ -19,6 +19,7 @@ export type WithLoggedInAuthInfoProps = {
     accessTokenExpiresAtSeconds: number
     activeOrg: OrgMemberInfoClass | undefined
     setActiveOrg: (orgId: string) => Promise<boolean>
+    removeActiveOrg: () => void
 }
 
 export type WithNotLoggedInAuthInfoProps = {
@@ -36,6 +37,7 @@ export type WithNotLoggedInAuthInfoProps = {
     accessTokenExpiresAtSeconds: null
     activeOrg: undefined
     setActiveOrg: undefined
+    removeActiveOrg: () => void
 }
 
 export type WithAuthInfoProps = WithLoggedInAuthInfoProps | WithNotLoggedInAuthInfoProps
@@ -56,7 +58,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
             throw new Error("withAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
         }
 
-        const { loading, authInfo, defaultDisplayWhileLoading, refreshAuthInfo, tokens, activeOrg, setActiveOrg } = context
+        const { loading, authInfo, defaultDisplayWhileLoading, refreshAuthInfo, tokens, activeOrg, setActiveOrg, removeActiveOrg } = context
 
         function displayLoading() {
             if (args?.displayWhileLoading) {
@@ -85,7 +87,8 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 tokens,
                 accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
                 activeOrg,
-                setActiveOrg
+                setActiveOrg,
+                removeActiveOrg
             }
             return <Component {...loggedInProps} />
         } else {
@@ -104,7 +107,8 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 tokens,
                 accessTokenExpiresAtSeconds: null,
                 activeOrg: undefined,
-                setActiveOrg: undefined
+                setActiveOrg: undefined,
+                removeActiveOrg
             }
             return <Component {...notLoggedInProps} />
         }

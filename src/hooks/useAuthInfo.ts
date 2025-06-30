@@ -17,6 +17,7 @@ export type UseAuthInfoLoading = {
     accessTokenExpiresAtSeconds: undefined
     activeOrg: undefined
     setActiveOrg: undefined
+    removeActiveOrg: undefined
 }
 
 export type UseAuthInfoLoggedInProps = {
@@ -34,6 +35,7 @@ export type UseAuthInfoLoggedInProps = {
     accessTokenExpiresAtSeconds: number
     activeOrg: OrgMemberInfoClass | undefined
     setActiveOrg: (orgId: string) => Promise<boolean>
+    removeActiveOrg: () => void
 }
 
 export type UseAuthInfoNotLoggedInProps = {
@@ -51,6 +53,7 @@ export type UseAuthInfoNotLoggedInProps = {
     accessTokenExpiresAtSeconds: undefined
     activeOrg: undefined
     setActiveOrg: undefined
+    removeActiveOrg: () => void
 }
 
 export type UseAuthInfoProps = UseAuthInfoLoading | UseAuthInfoLoggedInProps | UseAuthInfoNotLoggedInProps
@@ -61,7 +64,7 @@ export function useAuthInfo(): UseAuthInfoProps {
         throw new Error("useAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
     }
 
-    const { loading, authInfo, refreshAuthInfo, tokens, activeOrg, setActiveOrg } = context
+    const { loading, authInfo, refreshAuthInfo, tokens, activeOrg, setActiveOrg, removeActiveOrg } = context
     if (loading) {
         return {
             loading: true,
@@ -78,6 +81,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             accessTokenExpiresAtSeconds: undefined,
             activeOrg: undefined,
             setActiveOrg: undefined,
+            removeActiveOrg: undefined
         }
     } else if (authInfo && authInfo.accessToken) {
         return {
@@ -95,6 +99,7 @@ export function useAuthInfo(): UseAuthInfoProps {
             accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
             activeOrg,
             setActiveOrg,
+            removeActiveOrg,
         }
     }
     return {
@@ -112,5 +117,6 @@ export function useAuthInfo(): UseAuthInfoProps {
         accessTokenExpiresAtSeconds: undefined,
         activeOrg: undefined,
         setActiveOrg: undefined,
+        removeActiveOrg
     }
 }

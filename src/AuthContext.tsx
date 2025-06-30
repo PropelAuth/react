@@ -9,7 +9,7 @@ import {
     RedirectToSignupOptions,
     OrgMemberInfoClass
 } from "@propelauth/javascript"
-import React, { useCallback, useEffect, useReducer, useState } from "react"
+import React, { useCallback, useEffect, useReducer, useState, useMemo } from "react"
 import { loadOrgSelectionFromLocalStorage } from "./hooks/useActiveOrg"
 import { useClientRef, useClientRefCallback } from "./useClientRef"
 
@@ -45,6 +45,7 @@ export interface InternalAuthState {
 
     activeOrg: OrgMemberInfoClass | undefined
     setActiveOrg: (orgId: string) => Promise<boolean>
+    removeActiveOrg: () => void
 
     refreshAuthInfo: () => Promise<void>
     defaultDisplayWhileLoading?: React.ReactElement
@@ -255,18 +256,17 @@ export const AuthProvider = (props: AuthProviderProps) => {
 
 
     const setActiveOrg = async (orgId: string) => {
-        if (authInfoState.authInfo === null) {
+        const userClass = authInfoState?.authInfo?.userClass
+        if (!userClass) {
             return false
         }
+        const org = userClass.getOrg(orgId)
 
-        const authInfo = authInfoState.authInfo
-        const userClass = authInfo?.userClass
-
-        if (userClass.getOrg(orgId)) {
+        if (org) {
             if (useLocalStorageForActiveOrg) {
                 setStoredActiveOrgId(orgId);
             }
-            setActiveOrgState(userClass.getOrg(orgId));
+            setActiveOrgState(org);
             return true
         } else {
             if (useLocalStorageForActiveOrg) {
@@ -277,13 +277,11 @@ export const AuthProvider = (props: AuthProviderProps) => {
         }
     };
 
-    const getActiveOrg = () => {
-        if (authInfoState.authInfo === null) {
+    const getActiveOrg = useMemo(() => {
+        const userClass = authInfoState?.authInfo?.userClass
+        if (!userClass) {
             return undefined
         }
-
-        const authInfo = authInfoState.authInfo
-        const userClass = authInfo?.userClass
 
         if (!activeOrg && useLocalStorageForActiveOrg) {
             const activeOrgIdFromLocalStorage = getStoredActiveOrgId()
@@ -291,15 +289,20 @@ export const AuthProvider = (props: AuthProviderProps) => {
                 return userClass.getOrg(activeOrgIdFromLocalStorage)
             }
         }
-        
-        if (activeOrg && userClass.getOrg(activeOrg.orgId)) {
-            return activeOrg
-        } else {
-            return undefined
+        if (activeOrg) {
+            return userClass.getOrg(activeOrg.orgId)
         }
+        return undefined
+    }, [activeOrg, authInfoState?.authInfo?.userClass])
+    
+
+    function removeActiveOrg() {
+        if (useLocalStorageForActiveOrg) {
+            removeStoredActiveOrgId();
+        }
+        setActiveOrgState(undefined);
     }
 
-    
 
     // TODO: Remove this, as both `getActiveOrgFn` and `loadOrgSelectionFromLocalStorage` are deprecated.
     const deprecatedActiveOrgFn = deprecatedGetActiveOrgFn || loadOrgSelectionFromLocalStorage
@@ -325,8 +328,9 @@ export const AuthProvider = (props: AuthProviderProps) => {
         getSetupSAMLPageUrl,
         authUrl,
         refreshAuthInfo,
-        activeOrg: getActiveOrg(),
+        activeOrg: getActiveOrg,
         setActiveOrg,
+        removeActiveOrg,
         tokens: {
             getAccessTokenForOrg,
             getAccessToken,
