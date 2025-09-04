@@ -118,7 +118,10 @@ function toOrgIdToUserOrgInfo(orgIdToOrgMemberInfo: OrgIdToOrgMemberInfo): OrgId
             orgMemberInfo.urlSafeOrgName,
             orgMemberInfo.userAssignedRole,
             orgMemberInfo.userInheritedRolesPlusCurrentRole,
-            orgMemberInfo.userPermissions
+            orgMemberInfo.userPermissions,
+            orgMemberInfo.orgRoleStructure,
+            orgMemberInfo.userAssignedAdditionalRoles,
+            orgMemberInfo.legacyOrgId
         )
     }
     return orgIdToUserOrgInfo
