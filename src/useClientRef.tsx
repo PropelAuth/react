@@ -9,17 +9,16 @@ type ClientRef = {
 interface UseClientRefProps {
     authUrl: string
     minSecondsBeforeRefresh?: number
-    skipInitialFetch?: boolean
 }
 
 export const useClientRef = (props: UseClientRefProps) => {
     const [accessTokenChangeCounter, setAccessTokenChangeCounter] = useState(0)
-    const { authUrl, minSecondsBeforeRefresh, skipInitialFetch } = props
+    const { authUrl, minSecondsBeforeRefresh } = props
 
     // Use a ref to store the client so that it doesn't get recreated on every render
     const clientRef = useRef<ClientRef | null>(null)
     if (clientRef.current === null) {
-        const client = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh, skipInitialFetch })
+        const client = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh, skipInitialFetch: true })
         client.addAccessTokenChangeObserver(() => setAccessTokenChangeCounter((x) => x + 1))
         clientRef.current = { authUrl, client }
     }
@@ -33,7 +32,7 @@ export const useClientRef = (props: UseClientRefProps) => {
         } else {
             clientRef.current.client.destroy()
 
-            const newClient = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh, skipInitialFetch })
+            const newClient = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh, skipInitialFetch: true })
             newClient.addAccessTokenChangeObserver(() => setAccessTokenChangeCounter((x) => x + 1))
             clientRef.current = { authUrl, client: newClient }
         }

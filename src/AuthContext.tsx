@@ -56,7 +56,6 @@ export type AuthProviderProps = {
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
     minSecondsBeforeRefresh?: number
-    skipInitialFetch?: boolean
 }
 
 export interface RequiredAuthProviderProps
@@ -106,7 +105,6 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const {
         authUrl,
         minSecondsBeforeRefresh,
-        skipInitialFetch,
         getActiveOrgFn: deprecatedGetActiveOrgFn,
         children,
         defaultDisplayWhileLoading,
@@ -116,7 +114,6 @@ export const AuthProvider = (props: AuthProviderProps) => {
     const { clientRef, accessTokenChangeCounter } = useClientRef({
         authUrl,
         minSecondsBeforeRefresh,
-        skipInitialFetch
     })
 
     // Refresh the token when the user has logged in or out
