@@ -603,7 +603,7 @@ function createMockClient() {
 const AUTH_URL = "authUrl"
 
 function expectCreateClientWasCalledCorrectly() {
-    expect(createClient).toHaveBeenCalledWith({ authUrl: AUTH_URL, enableBackgroundTokenRefresh: true })
+    expect(createClient).toHaveBeenCalledWith({ authUrl: AUTH_URL, enableBackgroundTokenRefresh: true, skipInitialFetch: true })
 }
 
 function createOrg() {
