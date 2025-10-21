@@ -18,7 +18,7 @@ export const useClientRef = (props: UseClientRefProps) => {
     // Use a ref to store the client so that it doesn't get recreated on every render
     const clientRef = useRef<ClientRef | null>(null)
     if (clientRef.current === null) {
-        const client = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh })
+        const client = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh, skipInitialFetch: true })
         client.addAccessTokenChangeObserver(() => setAccessTokenChangeCounter((x) => x + 1))
         clientRef.current = { authUrl, client }
     }
@@ -32,7 +32,7 @@ export const useClientRef = (props: UseClientRefProps) => {
         } else {
             clientRef.current.client.destroy()
 
-            const newClient = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh })
+            const newClient = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh, skipInitialFetch: true })
             newClient.addAccessTokenChangeObserver(() => setAccessTokenChangeCounter((x) => x + 1))
             clientRef.current = { authUrl, client: newClient }
         }
