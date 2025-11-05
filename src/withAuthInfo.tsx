@@ -1,4 +1,4 @@
-import { AccessHelper, OrgHelper, User, UserClass } from "@propelauth/javascript"
+import { AccessHelper, OrgHelper, User, UserClass, OrgMemberInfoClass } from "@propelauth/javascript"
 import hoistNonReactStatics from "hoist-non-react-statics"
 import React, { useContext } from "react"
 import { Subtract } from "utility-types"
@@ -17,6 +17,9 @@ export type WithLoggedInAuthInfoProps = {
     refreshAuthInfo: () => Promise<void>
     tokens: Tokens
     accessTokenExpiresAtSeconds: number
+    activeOrg: OrgMemberInfoClass | undefined
+    setActiveOrg: (orgId: string) => Promise<boolean>
+    removeActiveOrg: () => void
 }
 
 export type WithNotLoggedInAuthInfoProps = {
@@ -32,6 +35,9 @@ export type WithNotLoggedInAuthInfoProps = {
     refreshAuthInfo: () => Promise<void>
     tokens: Tokens
     accessTokenExpiresAtSeconds: null
+    activeOrg: undefined
+    setActiveOrg: undefined
+    removeActiveOrg: () => void
 }
 
 export type WithAuthInfoProps = WithLoggedInAuthInfoProps | WithNotLoggedInAuthInfoProps
@@ -52,7 +58,7 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
             throw new Error("withAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
         }
 
-        const { loading, authInfo, defaultDisplayWhileLoading, refreshAuthInfo, tokens } = context
+        const { loading, authInfo, defaultDisplayWhileLoading, refreshAuthInfo, tokens, activeOrg, setActiveOrg, removeActiveOrg } = context
 
         function displayLoading() {
             if (args?.displayWhileLoading) {
@@ -80,6 +86,9 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 refreshAuthInfo,
                 tokens,
                 accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
+                activeOrg,
+                setActiveOrg,
+                removeActiveOrg
             }
             return <Component {...loggedInProps} />
         } else {
@@ -97,6 +106,9 @@ export function withAuthInfo<P extends WithAuthInfoProps>(
                 refreshAuthInfo,
                 tokens,
                 accessTokenExpiresAtSeconds: null,
+                activeOrg: undefined,
+                setActiveOrg: undefined,
+                removeActiveOrg
             }
             return <Component {...notLoggedInProps} />
         }

@@ -79,6 +79,9 @@ export const AuthProviderForTesting = ({
             getAccessTokenForOrg: getAccessTokenForOrg,
             getAccessToken: () => Promise.resolve(userInformation?.accessToken ?? "ACCESS_TOKEN"),
         },
+        activeOrg: undefined,
+        setActiveOrg: () => Promise.resolve(false),
+        removeActiveOrg: () => ""
     }
 
     return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>

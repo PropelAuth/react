@@ -1,4 +1,4 @@
-import { AccessHelper, OrgHelper, User, UserClass } from "@propelauth/javascript"
+import { AccessHelper, OrgHelper, OrgMemberInfoClass, User, UserClass } from "@propelauth/javascript"
 import { useContext } from "react"
 import { AuthContext, Tokens } from "../AuthContext"
 
@@ -15,6 +15,9 @@ export type UseAuthInfoLoading = {
     refreshAuthInfo: () => Promise<void>
     tokens: Tokens
     accessTokenExpiresAtSeconds: undefined
+    activeOrg: undefined
+    setActiveOrg: undefined
+    removeActiveOrg: undefined
 }
 
 export type UseAuthInfoLoggedInProps = {
@@ -30,6 +33,9 @@ export type UseAuthInfoLoggedInProps = {
     refreshAuthInfo: () => Promise<void>
     tokens: Tokens
     accessTokenExpiresAtSeconds: number
+    activeOrg: OrgMemberInfoClass | undefined
+    setActiveOrg: (orgId: string) => Promise<boolean>
+    removeActiveOrg: () => void
 }
 
 export type UseAuthInfoNotLoggedInProps = {
@@ -45,6 +51,9 @@ export type UseAuthInfoNotLoggedInProps = {
     refreshAuthInfo: () => Promise<void>
     tokens: Tokens
     accessTokenExpiresAtSeconds: undefined
+    activeOrg: undefined
+    setActiveOrg: undefined
+    removeActiveOrg: () => void
 }
 
 export type UseAuthInfoProps = UseAuthInfoLoading | UseAuthInfoLoggedInProps | UseAuthInfoNotLoggedInProps
@@ -55,7 +64,7 @@ export function useAuthInfo(): UseAuthInfoProps {
         throw new Error("useAuthInfo must be used within an AuthProvider or RequiredAuthProvider")
     }
 
-    const { loading, authInfo, refreshAuthInfo, tokens } = context
+    const { loading, authInfo, refreshAuthInfo, tokens, activeOrg, setActiveOrg, removeActiveOrg } = context
     if (loading) {
         return {
             loading: true,
@@ -70,6 +79,9 @@ export function useAuthInfo(): UseAuthInfoProps {
             refreshAuthInfo,
             tokens,
             accessTokenExpiresAtSeconds: undefined,
+            activeOrg: undefined,
+            setActiveOrg: undefined,
+            removeActiveOrg: undefined
         }
     } else if (authInfo && authInfo.accessToken) {
         return {
@@ -85,6 +97,9 @@ export function useAuthInfo(): UseAuthInfoProps {
             refreshAuthInfo,
             tokens,
             accessTokenExpiresAtSeconds: authInfo.expiresAtSeconds,
+            activeOrg,
+            setActiveOrg,
+            removeActiveOrg,
         }
     }
     return {
@@ -100,5 +115,8 @@ export function useAuthInfo(): UseAuthInfoProps {
         refreshAuthInfo,
         tokens,
         accessTokenExpiresAtSeconds: undefined,
+        activeOrg: undefined,
+        setActiveOrg: undefined,
+        removeActiveOrg
     }
 }
