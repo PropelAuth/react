@@ -1,5 +1,5 @@
 import { createClient, IAuthClient } from "@propelauth/javascript"
-import { MutableRefObject, useCallback, useEffect, useRef, useState } from "react"
+import { MutableRefObject, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react"
 
 type ClientRef = {
     authUrl: string
@@ -15,28 +15,37 @@ export const useClientRef = (props: UseClientRefProps) => {
     const [accessTokenChangeCounter, setAccessTokenChangeCounter] = useState(0)
     const { authUrl, minSecondsBeforeRefresh } = props
 
-    // Use a ref to store the client so that it doesn't get recreated on every render
-    const clientRef = useRef<ClientRef | null>(null)
-    if (clientRef.current === null) {
-        const client = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh, skipInitialFetch: true })
-        client.addAccessTokenChangeObserver(() => setAccessTokenChangeCounter((x) => x + 1))
-        clientRef.current = { authUrl, client }
-    }
+    const bumpTokenChangeCounter = useCallback(() => setAccessTokenChangeCounter((x) => x + 1), [])
 
-    // If the authUrl changes, destroy the old client and create a new one
+    const [client, setClient] = useState<ClientRef>({
+        authUrl,
+        client: createClient({
+            authUrl,
+            enableBackgroundTokenRefresh: true,
+            minSecondsBeforeRefresh,
+            skipInitialFetch: true,
+        }),
+    })
+    const clientRef = useRef<ClientRef | null>(client)
+
     useEffect(() => {
-        if (clientRef.current === null) {
-            return
-        } else if (clientRef.current.authUrl === authUrl) {
-            return
-        } else {
-            clientRef.current.client.destroy()
-
-            const newClient = createClient({ authUrl, enableBackgroundTokenRefresh: true, minSecondsBeforeRefresh, skipInitialFetch: true })
-            newClient.addAccessTokenChangeObserver(() => setAccessTokenChangeCounter((x) => x + 1))
-            clientRef.current = { authUrl, client: newClient }
+        setClient({
+            authUrl,
+            client: createClient({
+                authUrl,
+                enableBackgroundTokenRefresh: true,
+                minSecondsBeforeRefresh,
+                skipInitialFetch: true,
+            }),
+        })
+    }, [authUrl, minSecondsBeforeRefresh])
+    useLayoutEffect(() => {
+        client.client.addAccessTokenChangeObserver(bumpTokenChangeCounter)
+        clientRef.current = client
+        return () => {
+            client.client.removeAccessTokenChangeObserver(bumpTokenChangeCounter)
         }
-    }, [authUrl])
+    }, [client, bumpTokenChangeCounter])
 
     return { clientRef, accessTokenChangeCounter }
 }

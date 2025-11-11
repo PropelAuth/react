@@ -427,8 +427,8 @@ it("when client logs out, authInfo is refreshed", async () => {
 
     // Then simulate a logout event by calling the observer
     Component.mockReturnValue(<div>Finished 2</div>)
-    expect(mockClient.addAccessTokenChangeObserver.mock.calls.length).toBe(1)
-    const observer = mockClient.addAccessTokenChangeObserver.mock.calls[0][0]
+    expect(mockClient.addAccessTokenChangeObserver.mock.calls.length).toBe(2)
+    const observer = mockClient.addAccessTokenChangeObserver.mock.calls[1][0]
     observer(false)
 
     await waitFor(() => screen.getByText("Finished 2"))
@@ -603,7 +603,11 @@ function createMockClient() {
 const AUTH_URL = "authUrl"
 
 function expectCreateClientWasCalledCorrectly() {
-    expect(createClient).toHaveBeenCalledWith({ authUrl: AUTH_URL, enableBackgroundTokenRefresh: true, skipInitialFetch: true })
+    expect(createClient).toHaveBeenCalledWith({
+        authUrl: AUTH_URL,
+        enableBackgroundTokenRefresh: true,
+        skipInitialFetch: true,
+    })
 }
 
 function createOrg() {
