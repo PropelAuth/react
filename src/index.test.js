@@ -326,7 +326,7 @@ it("redirectToLoginPage calls into the client", async () => {
         return <div>Finished</div>
     }
     render(
-        <AuthProvider authUrl={AUTH_URL}>
+        <AuthProvider client={mockClient}>
             <Component />
         </AuthProvider>
     )
@@ -341,7 +341,7 @@ it("redirectToSignupPage calls into the client", async () => {
         return <div>Finished</div>
     }
     render(
-        <AuthProvider authUrl={AUTH_URL}>
+        <AuthProvider client={mockClient}>
             <Component />
         </AuthProvider>
     )
@@ -356,7 +356,7 @@ it("redirectToCreateOrgPage calls into the client", async () => {
         return <div>Finished</div>
     }
     render(
-        <AuthProvider authUrl={AUTH_URL}>
+        <AuthProvider client={mockClient}>
             <Component />
         </AuthProvider>
     )
@@ -371,7 +371,7 @@ it("redirectToAccountPage calls into the client", async () => {
         return <div>Finished</div>
     }
     render(
-        <AuthProvider authUrl={AUTH_URL}>
+        <AuthProvider client={mockClient}>
             <Component />
         </AuthProvider>
     )
@@ -386,7 +386,7 @@ it("redirectToOrgPage calls into the client", async () => {
         return <div>Finished</div>
     }
     render(
-        <AuthProvider authUrl={AUTH_URL}>
+        <AuthProvider client={mockClient}>
             <Component />
         </AuthProvider>
     )
@@ -401,12 +401,47 @@ it("logout calls into the client", async () => {
         return <div>Finished</div>
     }
     render(
-        <AuthProvider authUrl={AUTH_URL}>
+        <AuthProvider client={mockClient}>
             <Component />
         </AuthProvider>
     )
     await waitFor(() => screen.getByText("Finished"))
     expect(mockClient.logout).toBeCalled()
+})
+
+it("external client is not destroyed on unmount", async () => {
+    const { unmount } = render(
+        <AuthProvider client={mockClient}>
+            <div>Finished</div>
+        </AuthProvider>
+    )
+    await waitFor(() => screen.getByText("Finished"))
+    unmount()
+    expect(mockClient.destroy).not.toHaveBeenCalled()
+})
+
+it("useAuthInfo returns auth info from external client", async () => {
+    const authenticationInfo = createAuthenticationInfo()
+    mockClient.getAuthenticationInfoOrNull.mockReturnValue(authenticationInfo)
+
+    const Component = () => {
+        const authInfo = useAuthInfo()
+        if (authInfo.loading) {
+            return <div>Loading...</div>
+        }
+        expect(authInfo.accessToken).toBe(authenticationInfo.accessToken)
+        expect(authInfo.user).toStrictEqual(authenticationInfo.user)
+        expect(authInfo.isLoggedIn).toBe(true)
+        return <div>Finished</div>
+    }
+
+    render(
+        <AuthProvider client={mockClient}>
+            <Component />
+        </AuthProvider>
+    )
+
+    await waitFor(() => screen.getByText("Finished"))
 })
 
 it("when client logs out, authInfo is refreshed", async () => {
@@ -583,9 +618,18 @@ it("AuthProviderForTesting can be used with useAuthInfo", async () => {
     await waitFor(() => screen.getByText("Finished"))
 })
 
+const AUTH_URL = "authUrl"
+
 function createMockClient() {
     return {
         getAuthenticationInfoOrNull: jest.fn(),
+        getAuthOptions: jest.fn().mockReturnValue({
+            authUrl: AUTH_URL,
+            enableBackgroundTokenRefresh: true,
+            minSecondsBeforeRefresh: 120,
+            disableRefreshOnFocus: false,
+            skipInitialFetch: true,
+        }),
         logout: jest.fn(),
         redirectToSignupPage: jest.fn(),
         redirectToLoginPage: jest.fn(),
@@ -600,10 +644,12 @@ function createMockClient() {
     }
 }
 
-const AUTH_URL = "authUrl"
-
 function expectCreateClientWasCalledCorrectly() {
-    expect(createClient).toHaveBeenCalledWith({ authUrl: AUTH_URL, enableBackgroundTokenRefresh: true, skipInitialFetch: true })
+    expect(createClient).toHaveBeenCalledWith({
+        authUrl: AUTH_URL,
+        enableBackgroundTokenRefresh: true,
+        skipInitialFetch: true,
+    })
 }
 
 function createOrg() {

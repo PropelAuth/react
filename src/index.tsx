@@ -1,7 +1,9 @@
-export { OrgMemberInfoClass, UserClass } from "@propelauth/javascript"
+export { createClient, OrgMemberInfoClass, UserClass } from "@propelauth/javascript"
 export type {
     AccessHelper,
     AccessHelperWithOrg,
+    IAuthClient,
+    IAuthOptions,
     OrgHelper,
     OrgIdToOrgMemberInfo,
     OrgIdToOrgMemberInfoClass,
