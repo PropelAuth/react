@@ -1,6 +1,7 @@
 import {
     AccessTokenForActiveOrg,
     AuthenticationInfo,
+    IAuthClient,
     RedirectToAccountOptions,
     RedirectToCreateOrgOptions,
     RedirectToLoginOptions,
@@ -46,8 +47,7 @@ export interface InternalAuthState {
     defaultDisplayIfLoggedOut?: React.ReactElement
 }
 
-export type AuthProviderProps = {
-    authUrl: string
+type BaseAuthProviderProps = {
     defaultDisplayWhileLoading?: React.ReactElement
     defaultDisplayIfLoggedOut?: React.ReactElement
     /**
@@ -55,14 +55,43 @@ export type AuthProviderProps = {
      */
     getActiveOrgFn?: () => string | null
     children?: React.ReactNode
-    minSecondsBeforeRefresh?: number
 }
 
-export interface RequiredAuthProviderProps
-    extends Omit<AuthProviderProps, "defaultDisplayWhileLoading" | "defaultDisplayIfLoggedOut"> {
+type AuthProviderWithAuthUrl = BaseAuthProviderProps & {
+    authUrl: string
+    minSecondsBeforeRefresh?: number
+    client?: never
+}
+
+type AuthProviderWithClient = BaseAuthProviderProps & {
+    client: IAuthClient
+    authUrl?: never
+    minSecondsBeforeRefresh?: never
+}
+
+export type AuthProviderProps = AuthProviderWithAuthUrl | AuthProviderWithClient
+
+type BaseRequiredAuthProviderProps = Omit<
+    BaseAuthProviderProps,
+    "defaultDisplayWhileLoading" | "defaultDisplayIfLoggedOut"
+> & {
     displayWhileLoading?: React.ReactElement
     displayIfLoggedOut?: React.ReactElement
 }
+
+type RequiredAuthProviderWithAuthUrl = BaseRequiredAuthProviderProps & {
+    authUrl: string
+    minSecondsBeforeRefresh?: number
+    client?: never
+}
+
+type RequiredAuthProviderWithClient = BaseRequiredAuthProviderProps & {
+    client: IAuthClient
+    authUrl?: never
+    minSecondsBeforeRefresh?: never
+}
+
+export type RequiredAuthProviderProps = RequiredAuthProviderWithAuthUrl | RequiredAuthProviderWithClient
 
 export const AuthContext = React.createContext<InternalAuthState | undefined>(undefined)
 
@@ -103,18 +132,22 @@ function authInfoStateReducer(_state: AuthInfoState, action: AuthInfoStateAction
 
 export const AuthProvider = (props: AuthProviderProps) => {
     const {
-        authUrl,
-        minSecondsBeforeRefresh,
         getActiveOrgFn: deprecatedGetActiveOrgFn,
         children,
         defaultDisplayWhileLoading,
         defaultDisplayIfLoggedOut,
     } = props
+
+    const clientRefProps =
+        "client" in props && props.client
+            ? { client: props.client }
+            : { authUrl: props.authUrl!, minSecondsBeforeRefresh: props.minSecondsBeforeRefresh }
+
+    const authUrl =
+        "client" in clientRefProps ? clientRefProps.client!.getAuthOptions().authUrl : clientRefProps.authUrl
+
     const [authInfoState, dispatch] = useReducer(authInfoStateReducer, initialAuthInfoState)
-    const { clientRef, accessTokenChangeCounter } = useClientRef({
-        authUrl,
-        minSecondsBeforeRefresh,
-    })
+    const { clientRef, accessTokenChangeCounter } = useClientRef(clientRefProps)
 
     // Refresh the token when the user has logged in or out
     useEffect(() => {

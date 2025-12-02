@@ -5,7 +5,7 @@
         "type": "git",
         "url": "https://github.com/PropelAuth/react"
     },
-    "version": "2.0.32",
+    "version": "2.1.0",
     "license": "MIT",
     "keywords": [
         "auth",
@@ -13,7 +13,7 @@
         "user"
     ],
     "dependencies": {
-        "@propelauth/javascript": "^2.0.23",
+        "@propelauth/javascript": "^2.0.24",
         "hoist-non-react-statics": "^3.3.2",
         "utility-types": "^3.10.0"
     },
@@ -62,7 +62,7 @@
         "build:types": "tsc --emitDeclarationOnly",
         "build:js": "rollup -c",
         "lint": "eslint --ext .ts,.tsx .",
-        "build": "npm run test && npm run lint && npm run build:types && npm run build:js",
+        "build": "npm run test && npm run build:types && npm run build:js",
         "test": "npm run lint && jest --silent",
         "prepublishOnly": "npm run build"
     },
