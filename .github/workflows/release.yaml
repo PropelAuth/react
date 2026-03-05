@@ -16,6 +16,8 @@ jobs:
               with:
                   node-version: "20"
                   registry-url: "https://registry.npmjs.org"
+            # Ensure npm is up to date for trusted publishing
+            - run: npm install -g npm@latest
             - run: npm ci
             - run: npm test
             - run: npm publish
